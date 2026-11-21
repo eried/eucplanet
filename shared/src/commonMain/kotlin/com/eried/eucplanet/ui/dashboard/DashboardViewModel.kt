@@ -1006,6 +1006,17 @@ class DashboardViewModel(
     suspend fun resetMetrics(): MetricsResetResult =
         metricsReset.resetAll()
 
+    /** Reset metrics tile greys out when there is nothing for it to clear. */
+    val metricsResetAvailable: StateFlow<Boolean> = combine(
+        tripMeterRepository.state,
+        wheelRepository.fullHistory,
+        wheelRepository.wheelData.map { it.whConsumed }.distinctUntilChanged(),
+        wheelRepository.connectionState.map { it == ConnectionState.CONNECTED }.distinctUntilChanged(),
+    ) { trip, history, wh, connected ->
+        com.eried.eucplanet.data.repository.metricsResetAvailable(trip, history, wh, connected)
+    }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 
     // Sparklines: last SPARKLINE_SIZE samples from full history

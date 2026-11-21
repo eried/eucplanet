@@ -162,6 +162,9 @@ private class AndroidSettingsHost(
     @Composable
     override fun alarmViewModel(): AlarmViewModel = koinViewModel()
 
+    override fun engoGlasses(): com.eried.eucplanet.service.hud.engo.EngoGlasses =
+        org.koin.core.context.GlobalContext.get().get()
+
     @Composable
     override fun flicViewModel(): FlicViewModel = koinViewModel()
 

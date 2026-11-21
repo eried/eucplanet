@@ -608,6 +608,10 @@ data class AppSettings(
      * a debug APK does not start the radio by itself.
      */
     val hudServerEnabled: Boolean = false,
+    // ENGO 2 / 3 ActiveLook glasses HUD (BLE). Opt-in, independent of the MotoEye
+    // network HUD above. Nested (rule 8: keep AppSettings under the 255-arg dex
+    // limit) so future Engo options don't each spend a top-level slot.
+    val engoHud: EngoHudSettings = EngoHudSettings(),
     /**
      * Allow crews pairing with a server other than the one this build talks to.
      *
@@ -742,29 +746,9 @@ data class AppSettings(
      * carousel order matches the order the rider sees in Settings.
      */
     val hudScreensOrder: String = "",
-    /**
-     * Which raster map style the HUD should use for its Map screen
-     * and the MAP element inside a Custom overlay. Empty = the HUD picks
-     * its compiled-in default (a light basemap). Supported codes: "osm",
-     * "cyclosm", "topo", "hot", "satellite", "light", "dark"; legacy Carto
-     * slugs riders have saved ("voyager", "dark_all", ...) still resolve
-     * to the matching Esri style, and anything else falls back to light so
-     * the rider never gets a blank map.
-     */
-    val hudMapStyle: String = "",
-    /**
-     * Per-axis tile post-processing. Both run as a single ColorMatrix on
-     * the HUD; at the neutral values (contrast=100, brightness=0) the
-     * matrix is identity and we skip the ColorFilter entirely so there's
-     * no GPU cost for the common case.
-     *
-     * Contrast: 50..200 percent, 100 = neutral (no gain).
-     * Brightness: -100..100, 0 = neutral. Negative darkens, positive
-     * lightens. Applied on a 0..255 channel scale -- -100 means subtract
-     * 100 from each channel before clamping.
-     */
-    val hudMapContrastPct: Int = 100,
-    val hudMapBrightnessPct: Int = 0,
+    /** The HUD map look and start-up choice, nested to keep AppSettings
+     *  under the JVM argument limit. See [HudDisplaySettings]. */
+    val hudDisplay: HudDisplaySettings = HudDisplaySettings(),
 
     // --- Motor Sound generator --- (nested; see EngineSoundSettings)
     val engineSound: EngineSoundSettings = EngineSoundSettings(),
@@ -1280,6 +1264,92 @@ data class ProximityLockSettings(
             setOf(UNLOCK_WHEN_NEVER, UNLOCK_WHEN_RETURN, UNLOCK_WHEN_NEAR)
     }
 }
+
+/**
+ * The HUD map look (tile style, contrast, brightness) and whether the HUD
+ * app opens when the HUD starts. Backups keep the old flat keys.
+ */
+data class HudDisplaySettings(
+    /**
+     * Which raster map style the HUD should use for its Map screen
+     * and the MAP element inside a Custom overlay. Empty = the HUD picks
+     * its compiled-in default (a light basemap). Supported codes: "osm",
+     * "cyclosm", "topo", "hot", "satellite", "light", "dark"; legacy Carto
+     * slugs riders have saved ("voyager", "dark_all", ...) still resolve
+     * to the matching Esri style, and anything else falls back to light so
+     * the rider never gets a blank map.
+     */
+    val mapStyle: String = "",
+    /**
+     * Per-axis tile post-processing. Both run as a single ColorMatrix on
+     * the HUD; at the neutral values (contrast=100, brightness=0) the
+     * matrix is identity and we skip the ColorFilter entirely so there's
+     * no GPU cost for the common case.
+     *
+     * Contrast: 50..200 percent, 100 = neutral (no gain).
+     * Brightness: -100..100, 0 = neutral. Negative darkens, positive
+     * lightens. Applied on a 0..255 channel scale -- -100 means subtract
+     * 100 from each channel before clamping.
+     */
+    val mapContrastPct: Int = 100,
+    val mapBrightnessPct: Int = 0,
+    /** Open the HUD app when the HUD starts. Sent with every frame; the HUD
+     *  keeps the last value, since no phone is linked when it starts. */
+    val autoStart: Boolean = true
+)
+
+/**
+ * ENGO 2 / 3 ActiveLook glasses HUD settings. Nested so the flags (and future
+ * ones like metric picks) cost one top-level [AppSettings] slot, not N - see the
+ * 255-arg dex limit guard in AppSettingsArgLimitTest.
+ */
+data class EngoHudSettings(
+    /** Whether the link to the paired glasses is kept up. Pairing turns it
+     *  on, Disconnect off, Forget device off. */
+    val enabled: Boolean = false,
+    /** The glasses the rider paired by scanning, the only pair linked to.
+     *  Null until then. */
+    val pairedAddress: String? = null,
+    val pairedName: String? = null,
+    val autoConnect: Boolean = true,
+    /** The ride page's layout, an EngoLayoutKind name (COCKPIT, BIG, QUAD, TURN, MINIMAL). */
+    val layout: String = "COCKPIT",
+    /** What each numbered element shows, element 1 first; kept by number across layouts. */
+    val elements: List<EngoElement> = DEFAULT_ENGO_ELEMENTS,
+    /** The numbers' font, an EngoFontStyle name (PIXEL, DIGITAL, BOLD). */
+    val font: String = "PIXEL",
+    /** With the Digital font, each digit's dark segments drawn faintly, like a wheel's display. */
+    val digitalGhost: Boolean = true,
+    /** Whether the next turn shows while a route is guided: Cockpit's corner,
+     *  or the Turn layout taking over the others. The Turn layout always shows it. */
+    val navTakeover: Boolean = true,
+)
+
+/**
+ * One element of the glasses page: a metric catalog key, the statistic of it
+ * to show (a DashboardStat name: CURRENT, MAX, MIN, AVG, SUSTAINED_PEAK), how
+ * it is drawn (an EngoStyle name: NUMBER, BLOCKS, SMOOTH, GRAPH) and, for a
+ * graph, how much of the dashboard's stats length it looks back: the whole
+ * ([windowDiv] 1), half (2), a quarter (4), an eighth (8), a sixteenth (16) or 1/32,
+ * never under 5 s (EngoPageBuilder.offeredDivs). The graph reads
+ * the dashboard's own history, so it never asks for more than the dashboard
+ * keeps. An empty [key] leaves the place empty.
+ */
+data class EngoElement(
+    val key: String,
+    val stat: String = "CURRENT",
+    val style: String = "BLOCKS",
+    val windowDiv: Int = 1,
+)
+
+/** The shares of the dashboard's stats length a graph can look back: 1 is all of it. */
+val ENGO_WINDOW_DIVS: List<Int> = listOf(1, 2, 4, 8, 16, 32)
+
+val DEFAULT_ENGO_ELEMENTS: List<EngoElement> = listOf(
+    EngoElement("SPEED", style = "NUMBER"),
+    EngoElement("SPEED", "MAX", style = "NUMBER"),
+    EngoElement("BATTERY"), EngoElement("LOAD"), EngoElement("TEMPERATURE"),
+)
 
 /**
  * The rider's tire-pressure sensors and how pressure is shown.

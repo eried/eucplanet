@@ -84,7 +84,7 @@ class SettingsSearchIndexTest {
         // anyone listing it. This fails if that stops being true.
         val titles = settingsSources()
             .flatMap {
-                Regex("""\b(\w*Collaps\w*)\(\s*(?:title\s*=\s*)?stringResource\(\s*(?:Res|R)\.string\.(\w+)""")
+                Regex("""\b(\w*Collaps\w*)\(\s*(?:(?:title\s*=\s*)?stringResource\(\s*|titleRes\s*=\s*)(?:Res|R)\.string\.(\w+)""")
                     .findAll(it.readText())
             }
             // The top-level sections count their own matches; this is about

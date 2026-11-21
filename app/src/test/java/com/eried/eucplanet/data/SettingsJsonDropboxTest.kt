@@ -139,6 +139,11 @@ class SettingsJsonDropboxTest {
             d.copy(
                 share = d.share.copy(deviceSecret = "secret"),
                 tpms = d.tpms.copy(pairedAddress = "T1", pairedAddresses = listOf("T1", "T2")),
+                engoHud = d.engoHud.copy(enabled = true, pairedAddress = "E", pairedName = "EN",
+                    layout = "QUAD", font = "BOLD",
+                    elements = com.eried.eucplanet.data.model.DEFAULT_ENGO_ELEMENTS.mapIndexed { i, e ->
+                        if (i == 1) e.copy(key = "TRIP", style = "GRAPH", windowDiv = 4) else e
+                    }),
                 lastDeviceAddress = "A", lastDeviceName = "B",
                 flic1Address = "F1", flic2Address = "F2", flic3Address = "F3", flic4Address = "F4",
                 externalGpsAddress = "G", externalGpsName = "GN", externalGpsSource = "GS",
@@ -171,6 +176,11 @@ class SettingsJsonDropboxTest {
             }
         }
         assertEquals("the fixture must set every field the strip blanks",
-            27, blanked.size)
+            30, blanked.size)
+        // The glasses' options are not this phone's own: they travel.
+        assertEquals("QUAD", stripped.engoHud.layout)
+        assertEquals("BOLD", stripped.engoHud.font)
+        assertEquals(stripped.engoHud.elements, merged.engoHud.elements)
+        assertEquals(com.eried.eucplanet.data.model.EngoElement("TRIP", "MAX", "GRAPH", windowDiv = 4), merged.engoHud.elements[1])
     }
 }

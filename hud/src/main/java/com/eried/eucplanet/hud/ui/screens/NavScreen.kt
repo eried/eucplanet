@@ -18,8 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -121,32 +119,26 @@ fun NavScreen(hud: HudState) {
  */
 @Composable
 internal fun TurnArrow(angleDeg: Float, color: Color) {
+    // The same chevron as the phone's navigation popup: Material's
+    // "navigation" icon (M12 2 L4.5 20.29 l.71 .71 L12 18 l6.79 3 .71-.71 z
+    // on a 24 grid), filled in the cue colour and turned to the next move.
     Canvas(modifier = Modifier.fillMaxSize()) {
         rotate(degrees = angleDeg) {
-            val cx = size.width / 2f
-            val cy = size.height / 2f
-            val h = (size.height * 0.7f) / 2f
-            val w = (size.width * 0.55f) / 2f
-            val shaftW = w * 0.45f
-
+            val u = minOf(size.width, size.height) / 24f
+            val ox = size.width / 2f - 12f * u
+            val oy = size.height / 2f - 12f * u
+            fun x(v: Float) = ox + v * u
+            fun y(v: Float) = oy + v * u
             val path = Path().apply {
-                // Tip at top, then the two flares of the chevron, then down
-                // the shaft. All coordinates relative to (cx, cy).
-                moveTo(cx, cy - h)
-                lineTo(cx + w, cy - h * 0.05f)
-                lineTo(cx + shaftW, cy - h * 0.05f)
-                lineTo(cx + shaftW, cy + h)
-                lineTo(cx - shaftW, cy + h)
-                lineTo(cx - shaftW, cy - h * 0.05f)
-                lineTo(cx - w, cy - h * 0.05f)
+                moveTo(x(12f), y(2f))
+                lineTo(x(4.5f), y(20.29f))
+                lineTo(x(5.21f), y(21f))
+                lineTo(x(12f), y(18f))
+                lineTo(x(18.79f), y(21f))
+                lineTo(x(19.5f), y(20.29f))
                 close()
             }
             drawPath(path = path, color = color)
-            drawPath(
-                path = path,
-                color = Color.White,
-                style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
-            )
         }
     }
 }

@@ -24,7 +24,7 @@
   var STORAGE_KEY = "eucplanet-lang";
   var COOKIE = "euc_lang";
   // Bump when any dictionary changes, so nobody keeps a stale one.
-  var DICT_VERSION = "3";
+  var DICT_VERSION = "8";
 
   // Native names, never translated.
   var LANGS = {
@@ -167,20 +167,20 @@
     writeCookie(next);
   }
 
-  // The cogwheel: a square button in the top left corner, as in the trip viewer, that opens the language list.
+  // The cogwheel: a rounded square in the bottom left corner, as on eucstats, that opens the language list.
   // Picking one saves it and reloads, the way the trip viewer does.
   function cogwheel() {
     var style = document.createElement("style");
     style.textContent =
-      ".site-cog{position:fixed;top:12px;left:12px;z-index:60;font:14px/1.3 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
-      ".site-cog button{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;cursor:pointer;" +
-      "color:#e6edf3;background:rgba(22,27,34,.78);border:1px solid rgba(255,255,255,.16);" +
-      "-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:border-color .2s ease}" +
-      ".site-cog button:hover,.site-cog.open button{border-color:rgba(88,166,255,.7)}" +
-      ".site-cog button svg{transition:transform .25s ease}" +
-      ".site-cog.open button svg{transform:rotate(60deg)}" +
-      ".site-cog button:focus-visible{outline:2px solid #58a6ff;outline-offset:2px}" +
-      ".site-cog .panel{display:none;position:absolute;top:44px;left:0;min-width:200px;padding:12px;border-radius:12px;" +
+      ".site-cog{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom, 0px));left:calc(14px + env(safe-area-inset-left, 0px));z-index:60;font:14px/1.3 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}" +
+      ".site-cog button{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;cursor:pointer;" +
+      "color:#e6edf3;background:rgba(22,27,34,.45);border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:.8;" +
+      "-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);" +
+      "transition:border-color .2s ease,opacity .4s ease,background .4s ease}" +
+      ".site-cog.far button{opacity:.35;background:rgba(22,27,34,.3);box-shadow:none}" +
+      ".site-cog button:hover,.site-cog.open button,.site-cog button:focus-visible{opacity:1;background:rgba(22,27,34,.65);border-color:rgba(255,255,255,.28);box-shadow:0 10px 30px rgba(88,166,255,.25)}" +
+      ".site-cog button:focus{outline:none}" +
+      ".site-cog .panel{display:none;position:absolute;bottom:46px;left:0;min-width:200px;padding:12px;border-radius:12px;" +
       "color:#e6edf3;background:rgba(13,17,23,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 12px 32px rgba(0,0,0,.5)}" +
       ".site-cog.open .panel{display:block}" +
       ".site-cog label{display:block;font-size:12px;color:#9aa4b2;margin-bottom:6px}" +
@@ -243,6 +243,11 @@
     document.addEventListener("keydown", function (ev) {
       if (ev.key === "Escape") open(false);
     });
+    // Like the toolbar while the page is at the top; once it scrolls, it
+    // fades back so it sits over the content without getting in the way.
+    function far() { box.classList.toggle("far", (window.scrollY || 0) > 120); }
+    window.addEventListener("scroll", far, { passive: true });
+    far();
     document.body.appendChild(box);
   }
 

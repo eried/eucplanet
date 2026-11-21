@@ -23,6 +23,8 @@
          watchdog keep running if the device tries to suspend. A tester saw
          the link freeze after ~2 min and need a HUD reboot to recover. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Opens the HUD app when the HUD starts (see HudBootReceiver). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- ACCESS_WIFI_STATE auto-implies <uses-feature android.hardware.wifi
          required=true>, which blocks install on aftermarket HUDs whose
@@ -78,6 +80,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Opens the HUD app when the HUD starts, unless the rider turned
+             it off on the phone. QUICKBOOT_POWERON is what some Chinese
+             ROMs send instead of BOOT_COMPLETED after a fast power-on. -->
+        <receiver
+            android:name=".update.HudBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- The planned opens of the app after boot. -->
+        <receiver
+            android:name=".update.HudRetryReceiver"
+            android:exported="false" />
 
         <!-- Starts the HUD again after it updated itself. -->
         <receiver

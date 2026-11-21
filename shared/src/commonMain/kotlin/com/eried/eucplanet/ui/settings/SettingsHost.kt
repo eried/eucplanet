@@ -82,6 +82,9 @@ interface SettingsHost {
     @Composable
     fun alarmViewModel(): AlarmViewModel
 
+    /** The ENGO glasses' Bluetooth link, paired under Integration. */
+    fun engoGlasses(): com.eried.eucplanet.service.hud.engo.EngoGlasses
+
     @Composable
     fun flicViewModel(): FlicViewModel
 

@@ -18,6 +18,7 @@ import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.data.repository.PredictionSample
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.repository.hasSessionData
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -90,6 +91,8 @@ data class ChargingUiState(
     val cellLowWarnMv: Int = 30,
     val cellLowDangerMv: Int = 80,
     val cellHighMv: Int = 40,
+    /** A recorded session that Reset data would clear; the item greys out without one. */
+    val hasSessionData: Boolean = false,
 )
 
 /**
@@ -285,6 +288,7 @@ class ChargingMonitorViewModel(
             notifyCustom = notifyCustom,
             notifyCustomPct = notifyCustomPct,
             targetPercent = targetPercent,
+            hasSessionData = snap.hasSessionData(),
             chargeHistory = snap.chargeHistory,
             voltageHistory = snap.voltageHistory,
             tempHistory = snap.tempHistory,

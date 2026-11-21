@@ -22,6 +22,7 @@ object BluetoothRestore {
     const val WHEEL = "com.eried.eucplanet.central.wheel"
     const val RADAR = "com.eried.eucplanet.central.radar"
     const val EXTERNAL_GPS = "com.eried.eucplanet.central.externalgps"
+    const val ENGO = "com.eried.eucplanet.central.engo"
 
     /** The options for a central restored under [id]. */
     fun options(id: String): Map<Any?, Any?> = mapOf(CBCentralManagerOptionRestoreIdentifierKey to id)

@@ -209,7 +209,9 @@ data class HudState(
     val hudMapBrightnessPct: Int = 0,
 
     // --- Navigation popup mirror ---
-    /** Whether to render the turn-by-turn overlay/screen. */
+    /** Whether a route runs, so the turn badge and the Nav screen show the
+     *  next turn. True for the whole route, not only while the phone's own
+     *  turn popup is on screen. */
     val navActive: Boolean = false,
     /** Arrow angle in degrees, 0=straight up, +clockwise. */
     val navArrowAngleDeg: Float = 0f,
@@ -273,7 +275,13 @@ data class HudState(
      * The HUD shows a rider-facing advisory ("turn phone Wi-Fi off for a stable
      * link") when set. Added at PROTOCOL_MINOR 10; older HUDs ignore it.
      */
-    val phoneWifiInterfering: Boolean = false
+    val phoneWifiInterfering: Boolean = false,
+    /**
+     * Whether the HUD app opens by itself when the HUD starts. The HUD keeps
+     * the last value it got, because at start-up no phone is linked yet.
+     * Added at PROTOCOL_MINOR 26; older HUDs ignore it and never start alone.
+     */
+    val autoStart: Boolean = true
 ) {
     companion object {
         /**
@@ -366,8 +374,11 @@ data class HudState(
          *    fetches online tiles itself.
          * 25: [HudState.unitAltitude], the rider's own unit for heights.
          *    An older HUD ignores it and goes by the distance unit.
+         * 26: [HudState.autoStart]. The HUD app opens when the HUD starts,
+         *    unless the rider turned it off. An older HUD never does.
+         * 27: [HudCommand.Note], the HUD's auto-open steps in the phone's log.
          */
-        const val PROTOCOL_MINOR: Int = 25
+        const val PROTOCOL_MINOR: Int = 27
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -510,6 +521,12 @@ sealed class HudCommand {
      *  protocol-version mismatch surfaces as the usual "update phone" hint. */
     @Serializable
     data class Action(val slot: String) : HudCommand()
+
+    /** One line for the rider's Service Mode log, for now the steps of the
+     *  HUD opening its app at start-up. Sent only to a phone at
+     *  PROTOCOL_MINOR 27 or later. */
+    @Serializable
+    data class Note(val text: String) : HudCommand()
 }
 
 /**

@@ -1114,7 +1114,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     append(':').append(s?.hudServerPort ?: 28080).append('\n')
                     append("screens:  ").append(s?.hudScreensEnabled?.ifBlank { "(default)" } ?: "(default)").append('\n')
-                    append("map:      ").append(s?.hudMapStyle?.ifBlank { "(default)" } ?: "(default)")
+                    append("map:      ").append(s?.hudDisplay?.mapStyle?.ifBlank { "(default)" } ?: "(default)")
                 }
             )
         )

@@ -257,6 +257,7 @@ fun DashboardScreen(
     val pressureUnit by viewModel.pressureUnit.collectAsState()
     val altitudeUnit by viewModel.altitudeUnit.collectAsState()
     val splitMode by viewModel.accelSplitMode.collectAsState()
+    val metricsResetAvailable by viewModel.metricsResetAvailable.collectAsState()
     val accentKey by viewModel.accentKey.collectAsState()
     val showGaugeColorBand by viewModel.showGaugeColorBand.collectAsState()
     val gaugeOrangePct by viewModel.gaugeOrangePct.collectAsState()
@@ -2686,7 +2687,9 @@ fun DashboardScreen(
                                         ActionButton(
                                             icon = actionSpec?.icon ?: Icons.Default.Campaign,
                                             label = labelText,
-                                            enabled = connectionState == ConnectionState.CONNECTED || offlineSafe,
+                                            // Reset metrics also greys out with nothing to clear.
+                                            enabled = (connectionState == ConnectionState.CONNECTED || offlineSafe) &&
+                                                (key != "RESET_TRIP" || metricsResetAvailable),
                                             muted = notHere,
                                             onClick = if (notHere) notYet else tap,
                                             modifier = Modifier.weight(1f),

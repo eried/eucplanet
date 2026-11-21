@@ -176,6 +176,8 @@ object IosAppStart {
         // The link to a HUD on the same Wi-Fi, as WheelService starts it on
         // Android: on while its setting is, in the background too.
         IosHudLink.start()
+        // The ENGO glasses, linked while their switch is on.
+        IosEngoLink.start()
         // Dropbox trips at launch, on every return to the front and while open.
         IosDropboxSync.start()
         // The backup folder's upload pass, the same times (TripUploadWorker on Android).

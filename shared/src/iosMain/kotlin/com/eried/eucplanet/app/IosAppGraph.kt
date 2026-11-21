@@ -405,6 +405,14 @@ object IosAppGraph {
      * Android runs, on the iPhone's ports (IosHudLink.kt). IosHudLink starts
      * and stops it with its setting.
      */
+    /** The ENGO glasses: their own Bluetooth link, and the pages drawn on them (IosEngoLink starts it). */
+    val engoGlasses: com.eried.eucplanet.service.hud.engo.IosEngoGlasses by lazy {
+        com.eried.eucplanet.service.hud.engo.IosEngoGlasses()
+    }
+    val engoRenderer: com.eried.eucplanet.service.hud.engo.EngoHudRenderer by lazy {
+        com.eried.eucplanet.service.hud.engo.EngoHudRenderer(wheel, navigation, settings, engoGlasses)
+    }
+
     val hud: com.eried.eucplanet.service.hud.HudServer by lazy {
         com.eried.eucplanet.service.hud.HudServer(
             wheelRepository = wheel,

@@ -281,6 +281,7 @@ import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
 import sh.calvin.reorderable.ReorderableColumn
 import com.eried.eucplanet.resources.*
+import org.jetbrains.compose.resources.StringResource
 
 
 /**
@@ -625,12 +626,12 @@ private fun SettingsScreenContent(
         fun landing(query: String): List<String> =
             hits(query).sortedByDescending { it.kind.weight }.mapNotNull { it.under }.distinct() + title
 
-        /** How many hits each card inside this section folds away, by card title. */
-        fun foldCounts(query: String): Map<String, Int> =
+        /** How many hits each card inside this section folds away, by card title id. */
+        fun foldCounts(query: String): Map<StringResource, Int> =
             hits(query).flatMap { it.folds }.groupingBy { it }.eachCount()
 
         /** The cards holding the best hit, outermost first: what the search opens. */
-        fun bestFolds(query: String): List<String> =
+        fun bestFolds(query: String): List<StringResource> =
             hits(query).maxByOrNull { it.kind.weight }?.folds.orEmpty()
     }
 
@@ -874,7 +875,7 @@ private fun SettingsScreenContent(
             // best hit of the section that opened opens too.
             val searchFolds = if (searching) SearchFolds(
                 counts = sections.map { it.foldCounts(query) }
-                    .fold(emptyMap()) { acc, m -> acc + m.mapValues { (k, v) -> v + (acc[k] ?: 0) } },
+                    .fold(emptyMap<StringResource, Int>()) { acc, m -> acc + m.mapValues { (k, v) -> v + (acc[k] ?: 0) } },
                 open = sections.firstOrNull { it.key == searchScrollKey }?.bestFolds(query).orEmpty().toSet(),
             ) else SearchFolds.None
 
@@ -926,9 +927,9 @@ private fun SettingsScreenContent(
                             else expandedSections.add(sec.key)
                         }
                     ) {
-                        // The cards read their counts by title, and titles repeat
-                        // across sections (Voice and Watch both have an
-                        // Advanced card), so each section sees only its own hits.
+                        // The cards read their counts by title id, and a card
+                        // drawn by a composable two sections share would repeat
+                        // its id, so each section sees only its own hits.
                         val ownFolds = if (searching) SearchFolds(
                             counts = sec.foldCounts(query),
                             open = if (sec.key == searchScrollKey) searchFolds.open else emptySet(),
@@ -1026,13 +1027,13 @@ private fun SearchCountPill(count: Int) {
 /**
  * A card's share of the search: whether the query opens it, and how many hits
  * it hides while it stays shut. Read from [LocalSearchFolds] by the card's own
- * title, so a card needs nothing passed in to take part.
+ * title id, so a card needs nothing more passed in to take part.
  */
 @Composable
-private fun cardSearch(title: String, expanded: Boolean): Pair<Boolean, Int> {
+private fun cardSearch(titleRes: StringResource, expanded: Boolean): Pair<Boolean, Int> {
     val folds = LocalSearchFolds.current
-    val open = expanded || title in folds.open
-    return open to if (open) 0 else folds.counts[title] ?: 0
+    val open = expanded || titleRes in folds.open
+    return open to if (open) 0 else folds.counts[titleRes] ?: 0
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -1214,7 +1215,7 @@ private fun GeneralTab(
         // Both are set-once-and-forget, so they were costing height on every
         // visit for something a rider touches roughly never.
         AdvancedCollapsable(
-            title = stringResource(Res.string.wheel_name_display),
+            titleRes = Res.string.wheel_name_display,
             stateKey = "connection-wheel-name",
         ) {
             SegmentedChoice(
@@ -1284,7 +1285,7 @@ private fun GeneralTab(
         // action.
         if (SettingsRow.NOTIFICATION_ACTIONS !in hiddenRows) {
             AdvancedCollapsable(
-                title = stringResource(Res.string.surface_notification),
+                titleRes = Res.string.surface_notification,
                 stateKey = "surface-notification",
             ) {
                 SwitchSetting(
@@ -1341,7 +1342,7 @@ private fun GeneralTab(
         // picker: "off" is simply the third choice.
         if (SettingsRow.PICTURE_IN_PICTURE !in hiddenRows) {
             AdvancedCollapsable(
-                title = stringResource(Res.string.pip_section),
+                titleRes = Res.string.pip_section,
                 stateKey = "surface-pip",
             ) {
                 HintText(stringResource(Res.string.pip_desc))
@@ -1392,7 +1393,7 @@ private fun GeneralTab(
         // pickers are folded under an inner "Customize".
         if (SettingsRow.HOME_WIDGET !in hiddenRows) {
             AdvancedCollapsable(
-                title = stringResource(Res.string.widget_section),
+                titleRes = Res.string.widget_section,
                 stateKey = "surface-widget",
             ) {
                 val metricSlots = remember(settings.widget.metrics) {
@@ -1409,7 +1410,7 @@ private fun GeneralTab(
                 // header with nothing under it.
                 HintText(stringResource(LocalSettingsHost.current.widgetHowToAdd))
                 AdvancedCollapsable(
-                    title = stringResource(Res.string.widget_customize),
+                    titleRes = Res.string.widget_customize,
                     stateKey = "widget-customize",
                 ) {
                 HintText(
@@ -1850,7 +1851,7 @@ private fun AdvancedTab(
             }
 
         AdvancedCollapsable(
-            title = stringResource(Res.string.geo_section_dashboard),
+            titleRes = Res.string.geo_section_dashboard,
             stateKey = "geo-dashboard"
         ) {
             SwitchSetting(
@@ -1901,7 +1902,7 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(Res.string.geo_section_navigator),
+            titleRes = Res.string.geo_section_navigator,
             stateKey = "geo-navigator"
         ) {
             SwitchSetting(
@@ -1920,7 +1921,7 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(Res.string.geo_section_settings),
+            titleRes = Res.string.geo_section_settings,
             stateKey = "geo-settings"
         ) {
             SwitchSetting(
@@ -1931,7 +1932,7 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(Res.string.geo_section_trip),
+            titleRes = Res.string.geo_section_trip,
             stateKey = "geo-trip"
         ) {
             SwitchSetting(
@@ -1954,7 +1955,7 @@ private fun AdvancedTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(Res.string.geo_section_other),
+            titleRes = Res.string.geo_section_other,
             stateKey = "geo-other"
         ) {
             SwitchSetting(
@@ -1971,7 +1972,7 @@ private fun AdvancedTab(
         AdvGroup.values().forEach { group ->
             val specs = ADVANCED_SPECS.filter { it.group == group }
             if (specs.isEmpty()) return@forEach
-            AdvancedCollapsable(title = stringResource(group.titleRes), stateKey = "adv-${group.name}") {
+            AdvancedCollapsable(titleRes = group.titleRes, stateKey = "adv-${group.name}") {
                 group.warningRes?.let { MetricInfoBox(stringResource(it)) }
                 specs.forEach { spec ->
                     AdvRow(spec, settings.advanced) { viewModel.updateAdvanced(spec, it) }
@@ -2278,41 +2279,56 @@ private fun DashboardLayoutTab(
             }
             editing = null
         }
+        // Restore is live only when it would change something: the same
+        // default the reset path writes, so a slot already at its shipped
+        // occupant (and stats) greys the button out. A custom BLE command is
+        // never a shipped occupant, so its Restore (delete) stays live.
+        val canReset = when (target) {
+            is DashboardEditTarget.CustomBle -> true
+            is DashboardEditTarget.Action, is DashboardEditTarget.Group ->
+                !viewModel.isDashboardActionSlotDefault(settings, target.slotIndex)
+            else -> !viewModel.isDashboardMetricSlotDefault(settings, target.slotIndex)
+        }
         when (target) {
             is DashboardEditTarget.Composite -> CompositeMetricSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
             is DashboardEditTarget.Group -> ActionGroupSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
             is DashboardEditTarget.CustomBle -> CustomBleSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
             is DashboardEditTarget.CustomTile -> CustomTileSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
             else -> DashboardSlotSheet(
                 target = target,
                 settings = settings,
                 viewModel = viewModel,
                 onDismiss = { editing = null },
-                onReset = onResetSlot
+                onReset = onResetSlot,
+                canReset = canReset
             )
         }
     }
@@ -3789,7 +3805,8 @@ private fun DashboardSlotSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val sheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
@@ -3846,7 +3863,7 @@ private fun DashboardSlotSheet(
                 is DashboardEditTarget.CustomTile,
                 is DashboardEditTarget.CustomBle -> Unit
             }
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -3865,7 +3882,8 @@ private fun CompositeMetricSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val composite = viewModel.getCompositeMetric(settings, id) ?: MetricComposite()
     // Composite sheets now carry two dropdown rows per cell (metric +
@@ -4003,7 +4021,7 @@ private fun CompositeMetricSheet(
                 }
             }
 
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -4011,19 +4029,26 @@ private fun CompositeMetricSheet(
 
 /**
  * Shared footer for every per-slot bottom sheet: Restore on the left,
- * Close on the right. The "Restore slot" label is uniform across metric
+ * Close on the right. Restore greys out when [canReset] is false, the
+ * slot already holds what it ships with. The "Restore slot" label is uniform across metric
  * and action sheets so it translates as a single string.
  */
 @Composable
 private fun SlotSheetFooter(
     onReset: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    canReset: Boolean
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = onReset, colors = themedTextButtonColors(), shape = RoundedCornerShape(12.dp)) {
+        TextButton(
+            onClick = onReset,
+            enabled = canReset,
+            colors = themedTextButtonColors(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
             Icon(
                 Icons.Filled.Restore,
                 contentDescription = null,
@@ -4128,6 +4153,9 @@ fun WidgetSlotDropdown(
     options: List<Pair<String, String>>,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
+    /** Offer "None" first; off where every choice is a real value. */
+    includeNone: Boolean = true,
+    enabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val noneLabel = stringResource(Res.string.flic_action_none)
@@ -4143,18 +4171,19 @@ fun WidgetSlotDropdown(
             singleLine = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            enabled = enabled,
             modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled)
                 .fillMaxWidth(),
             colors = themedFieldColors(),
             shape = RoundedCornerShape(12.dp),
         )
         ExposedDropdownMenu(
-            expanded = expanded,
+            expanded = expanded && enabled,
             onDismissRequest = { expanded = false },
             containerColor = MaterialTheme.appColors.menuBackground,
         ) {
-            DropdownMenuItem(
+            if (includeNone) DropdownMenuItem(
                 text = { Text(noneLabel) },
                 onClick = { onSelect("NONE"); expanded = false },
             )
@@ -4327,7 +4356,8 @@ private fun ActionGroupSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val group = viewModel.getActionGroup(settings, id) ?: ActionGroup()
     val sheetState = rememberModalBottomSheetState()
@@ -4444,7 +4474,7 @@ private fun ActionGroupSheet(
                 }
             }
 
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -4463,7 +4493,8 @@ private fun CustomBleSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val cmd = viewModel.getCustomBle(settings, id)
         ?: com.eried.eucplanet.data.model.CustomBleCommand(
@@ -4571,7 +4602,7 @@ private fun CustomBleSheet(
                 shape = RoundedCornerShape(12.dp),
             )
 
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -4629,10 +4660,13 @@ private fun GroupIconButton(
             ) {
                 GROUP_ICON_CHOICES.forEach { key ->
                     val selected = key == currentKey
-                    val tint = if (selected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant
-                    val bg = if (selected) MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.surfaceVariant
+                    // Selected is a filled accent cell with the on-accent
+                    // ink: primaryContainer is the same color as primary, so
+                    // a primary icon on it disappeared.
+                    val tint = if (selected) MaterialTheme.appColors.onPrimary
+                        else MaterialTheme.appColors.textSecondary
+                    val bg = if (selected) MaterialTheme.appColors.primary
+                        else MaterialTheme.appColors.surfaceVariant
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -4722,7 +4756,8 @@ private fun CustomTileSheet(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel,
     onDismiss: () -> Unit,
-    onReset: () -> Unit
+    onReset: () -> Unit,
+    canReset: Boolean
 ) {
     val tile = viewModel.getCustomTile(settings, id) ?: CustomTile()
     val sheetState = rememberModalBottomSheetState()
@@ -4855,7 +4890,7 @@ private fun CustomTileSheet(
                 )
             }
 
-            SlotSheetFooter(onReset, onDismiss)
+            SlotSheetFooter(onReset, onDismiss, canReset)
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -6381,7 +6416,7 @@ private fun VoiceTab(
         // behind an Advanced collapsable so the Speech section stays
         // focused on the rider's most-common task: picking the voice.
         AdvancedCollapsable(
-            title = stringResource(Res.string.section_voice_advanced),
+            titleRes = Res.string.section_voice_advanced,
             stateKey = "voice-advanced"
         ) {
             // The specific voice within the chosen language (many languages
@@ -6698,7 +6733,7 @@ private fun VoiceTab(
         }
 
         AdvancedCollapsable(
-            title = stringResource(Res.string.report_contents),
+            titleRes = Res.string.report_contents,
             stateKey = "voice-report-contents"
         ) {
         // Two lists, one per announcement, each its own order: what is worth
@@ -7246,7 +7281,7 @@ private fun WatchTab(
         // battery-vs-smoothness tradeoff, not a "does my watch work?"
         // gate.
         AdvancedCollapsable(
-            title = stringResource(Res.string.section_watch_advanced),
+            titleRes = Res.string.section_watch_advanced,
             stateKey = "watch-advanced"
         ) {
             // Update rate does not apply to Garmin: the Connect IQ Mobile SDK
@@ -7382,7 +7417,7 @@ private fun WatchTab(
         SectionHeader(stringResource(Res.string.section_watch_buttons))
 
         WatchButtonsCollapsable(
-            title = stringResource(Res.string.watch_buttons_touch_label),
+            titleRes = Res.string.watch_buttons_touch_label,
             info = stringResource(Res.string.watch_buttons_touch_info)
         ) {
             // Button 1 click | hold on one row; Button 2 click | hold on the next.
@@ -7418,7 +7453,7 @@ private fun WatchTab(
 
         if (hasHardwareButtons) {
             WatchButtonsCollapsable(
-                title = stringResource(Res.string.watch_buttons_hardware_label),
+                titleRes = Res.string.watch_buttons_hardware_label,
                 info = stringResource(Res.string.watch_buttons_hardware_info)
             ) {
                 HardwareButtonGroup(
@@ -8700,6 +8735,7 @@ fun SwitchSetting(
     label: String,
     checked: Boolean,
     badge: (@Composable () -> Unit)? = null,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
@@ -8717,7 +8753,7 @@ fun SwitchSetting(
             }
         }
         Spacer(Modifier.width(8.dp))
-        Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
+        Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled, colors = themedSwitchColors())
     }
 }
 
@@ -10145,12 +10181,14 @@ private fun DeviceRegion(
  */
 @Composable
 fun AdvancedCollapsable(
-    title: String,
-    stateKey: String = title,
+    /** The title's string id: search finds the card by it, so two cards may read alike. */
+    titleRes: StringResource,
+    stateKey: String = "card-${titleRes.key}",
     content: @Composable () -> Unit
 ) {
+    val title = stringResource(titleRes)
     var expanded by rememberSaveable(stateKey) { mutableStateOf(false) }
-    val (shown, hidden) = cardSearch(title, expanded)
+    val (shown, hidden) = cardSearch(titleRes, expanded)
     val requester = remember { BringIntoViewRequester() }
     LaunchedEffect(expanded) {
         if (expanded) {
@@ -10220,12 +10258,13 @@ fun AdvancedCollapsable(
  */
 @Composable
 private fun WatchButtonsCollapsable(
-    title: String,
+    titleRes: StringResource,
     info: String,
     content: @Composable () -> Unit
 ) {
-    var expanded by rememberSaveable(title) { mutableStateOf(false) }
-    val (shown, hidden) = cardSearch(title, expanded)
+    val title = stringResource(titleRes)
+    var expanded by rememberSaveable(titleRes) { mutableStateOf(false) }
+    val (shown, hidden) = cardSearch(titleRes, expanded)
     // Same smart-scroll behaviour as BringIntoViewSection / the top-level
     // CollapsibleSection: when the rider opens the card, after a short
     // settle delay scroll the card into view so the freshly-revealed

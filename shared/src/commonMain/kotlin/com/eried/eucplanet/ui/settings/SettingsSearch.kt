@@ -17,16 +17,17 @@ class SearchEntry(
     val kind: SettingsSearchIndex.Kind,
     /** The sub-heading it sits under, where the search lands when it is not on screen. */
     val under: String?,
-    /** Titles of the cards it is folded into, outermost first. */
-    val folds: List<String> = emptyList(),
+    /** Title ids of the cards it is folded into, outermost first. */
+    val folds: List<StringResource> = emptyList(),
 )
 
 /**
- * What the query found inside the collapsible cards, keyed by card title:
- * how many hits each one hides, and which ones the search opens. The cards
+ * What the query found inside the collapsible cards, keyed by the card's
+ * title id: how many hits each one hides, and which ones the search opens.
+ * By id, not by the words, so two cards may both read "Customize". The cards
  * read this themselves, so no call site passes anything.
  */
-class SearchFolds(val counts: Map<String, Int>, val open: Set<String>) {
+class SearchFolds(val counts: Map<StringResource, Int>, val open: Set<StringResource>) {
     companion object {
         val None = SearchFolds(emptyMap(), emptySet())
     }
@@ -106,7 +107,7 @@ fun rememberSearchCorpora(absent: Set<SettingsRow>): Map<String, List<SearchEntr
                     text(e.res),
                     e.kind,
                     e.under?.let { text(it) },
-                    e.folds.map { text(it) },
+                    e.folds,
                 )
             }
             found + extras[key].orEmpty().map { (res, fold) ->
@@ -114,7 +115,7 @@ fun rememberSearchCorpora(absent: Set<SettingsRow>): Map<String, List<SearchEntr
                     text(res),
                     SettingsSearchIndex.Kind.LABEL,
                     null,
-                    if (fold == null) emptyList() else listOf(text(fold)),
+                    listOfNotNull(fold),
                 )
             }
         }

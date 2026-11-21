@@ -6,6 +6,8 @@ only when you can cut the ride short.
 
 ## Worked on
 
+- iPhone: ENGO 2 and ENGO 3 glasses, the same as Android (Settings, Integration): pair them, set the pages up under Customize with the preview, and ride with them. Not tried with real glasses on an iPhone yet.
+- Merged the latest next-experimental into the iPhone branch: the ENGO glasses, Reset buttons that grey out with nothing to reset, the picked icon in the icon picker, the radar's Customize card and "Open HUD app automatically".
 - iPhone: a backup folder, as on Android (Settings, Backups, Choose folder, any folder in the Files app). Trips, settings backups with named copies, the leaderboard rider id, themes and overlays go there, with the same names Android uses, so one folder can serve both phones. Dropbox still works with or without it.
 - iPhone: the iPhone's own texts (warnings, the widget and HUD hints, the welcome line, the permission prompts) now use the same words as the reread Android texts, in every language. 185 texts aligned.
 - iPhone: voice commands recognise on the phone when the language allows it, as Settings says, and the Voice settings name only what an iPhone can bind (Flic and the HUD).
@@ -53,8 +55,18 @@ only when you can cut the ride short.
 - iPhone app: Volume up, Volume down and Mute are no longer offered (iOS cannot set the volume), and the tour's last page names only Flic buttons.
 - Settings, Dashboard layout no longer closes the app.
 - Settings search no longer finds rows a phone does not show.
+- HUD: the HUD app opens by itself 5 s after the Motoeye powers on, once its start screen is past, so it no longer shows, goes away and comes back. Checks again at 15 and 30 s. Open it by hand once after installing. Turn it off in Settings, Integration, "Open HUD app automatically".
+- HUD: every auto-open step lands in the Service Mode log as "HUD auto-open", with the seconds, including when the Motoeye screen took over. Needs this phone APK and this HUD APK together.
+- HUD: Map + Nav and Nav show the next turn for the whole route. Before, the turn only came while the phone showed its own turn popup, so with the phone in a pocket Map + Nav looked like Map.
+- HUD: the turn arrow is the same chevron as the phone's navigation popup.
+- HUD: a Map element in your Custom overlay preset shows the route line too, so a preset with its own map no longer hides the route.
+- HUD: Custom overlay + map with no preset picked says where to pick one, readable over the map.
+- ENGO 2 and ENGO 3 glasses as a HUD (Settings, Integration): pair like the radar. Under Customize, there before pairing too, pick Pixel, Digital or Bold digits and a layout (Cockpit, Big, Quad, Turn, Minimal), then tap a number on the preview to set what that element shows, as a number, blocks, a bar or a graph. A graph looks back the dashboard's stats length, or half, a quarter, down to 1/32 of it. The next turn shows while navigating. Off by default.
+- Radar: the overlay switch and its edge are under Customize below the pairing card, so they can be set before a radar is paired.
+- Reset and Restore buttons grey out when there is nothing to reset: a dashboard tile's Restore slot, the trip trim and exact times, the beep studio, an overlay element's Reset position, a metric's Reset, the trip meter, Data sources Reset average, the Battery screen's Reset data and the Reset metrics tile.
+- Dashboard action groups: the icon you picked shows clearly in the icon picker (it was cyan on cyan).
 - Voice commands: "speed" answers with your speed. It asked "Did you mean Speed or Speed?" when speed was not one of your tiles.
-- Leaderboards: the section inside Backups & leaderboards is called Leaderboards in every language too, like the tab. Scanning a crew pass from the Share screen now points to that tab by its own name.
+- Leaderboards: the section inside Backups & Leaderboards is called Leaderboards in every language too, like the tab. Scanning a crew pass from the Share screen now points to that tab by its own name.
 - Languages: every language of the app was reread so it sounds like a rider wrote it, about 6,200 texts. Settings now says Leaderboards, Music control and Offline maps in every language, and long switch labels wrap instead of pushing the switch off the row.
 - Languages: a phone set to Traditional Chinese without a Taiwan, Hong Kong or Macau region now starts the app in 中文 (繁體) instead of Simplified, as the web sites do.
 - Headroom tile removed: it was offered as a dashboard tile but never showed a value. A dashboard that had it loses that tile, also inside a stacked tile; nothing else moves.
@@ -138,6 +150,20 @@ only when you can cut the ride short.
 - Back up settings, hold Backup for a named copy, then Restore from it: do your settings come back?
 - Point the Android app at the same folder (a synced cloud folder): do its trips, themes and overlays show on the iPhone after Sync all, and the iPhone's on Android?
 - Android riders: folder backups, Sync all, restore and archiving a trip work as before?
+
+**HUD app opening at power-on** (the Motoeye tester)
+- Install this phone APK and this HUD APK. Open the HUD app by hand once.
+- Power the Motoeye off and on. Does the HUD app show once, about 5 s in, and stay, without the flash and the trip to the home screen?
+- Start Service Mode before the power cycle and send the log; the "HUD auto-open" lines show what the HUD did and when.
+
+**ENGO 2 or ENGO 3 glasses** (anyone who has them)
+- Do they pair, stay connected all ride, and come back by themselves after you switch them off and on?
+- iPhone riders: the same from the iPhone (TestFlight). Pair them once on each phone.
+- Is the page upright and readable, with nothing cut off or touching, and all four corner marks visible? A photo helps.
+- Try each layout and the three fonts (Customize): does the glasses page match the preview on the phone?
+- Customize: tap a number on the preview, then switch layout or Riding/Navigating. Does the box below show the element you tapped, or the hint once that element is gone from the preview?
+- ENGO 3: is the PWM bar green, then orange from your gauge orange (65% unless you changed it), then red (85%)?
+- A graph element: try the Window lengths, then change the dashboard's stats length. Does the glasses graph follow, and is the shortest one still a readable line?
 
 **Voice commands** (anyone who uses them)
 - Ask "speed" with no Speed tile on the dashboard: does it say your speed?
@@ -245,6 +271,7 @@ only when you can cut the ride short.
 - Load a GPX track on the phone, then Places, Planned route in the car: does it follow the track?
 
 **HUD (MotoEye)**
+- Ride a route with the phone locked in your pocket: does Map + Nav show the next turn the whole way, with the same arrow as the phone?
 - Motoeye with two phones that both have the HUD link on: is the flicker gone, and does the second phone take over a few seconds after the first one's link is switched off?
 - With this HUD app on the HUD and a later build on the phone: Settings, HUD shows a HUD app card with Send to HUD. Tap it and confirm Android's prompt on the HUD. Does it install, and can you work the prompt with the remote? The first time Android asks you to allow installs from the HUD app: can you get through that, and does the install go on afterwards or do you have to send again?
 - Same card, Uninstall: does the HUD show Android's uninstall prompt?
@@ -253,6 +280,7 @@ only when you can cut the ride short.
 - Install the phone and the HUD APK from this build. Open the HUD Map screen, leave the phone app, no wheel connected: does the map stay? And with the wheel connected, on any map style and zoom?
 - Camera screen: turn the front camera, switch to the rear one and back. Does each keep its own turn, also after restarting the HUD?
 - MotoEye, without pressing UP or DOWN: 1) Camera screen, hold to start recording, then hold again to stop. Does the picture come back about 5 s after the stop? 2) Short press for the rear view and close it, does it come back? 3) Dashboard, start recording, go to the Camera screen (it should say "in use"), back, stop: does that file play to the end? If the picture stays off, send a photo of the small grey line.
+- Custom overlay + map with a preset that has its own map: is the route line on it?
 - Custom overlay + map: is your preset readable over the map? Start a route: do the turn cue and the arrival line at the top sit clear of your preset?
 - Map + Nav with a route: does the arrival time match the phone's navigator, and does it stay between turns?
 - HUD map, any style: does it fill in as fast as before? Then with mobile data off inside a downloaded square, and with "Prefer offline map and routing" on: does the HUD show the offline map?
@@ -283,6 +311,7 @@ only when you can cut the ride short.
 - Make a settings backup, uninstall, install again, link the same folder: does "Last backup" show the time you just made it?
 - Had a Backup conflicts warning that would not go away? Tap Fix, then Sync all, pick a side: is it gone at once?
 - Ride with voice alarms on, open the main screens, sync, widgets and the watch: anything that acts differently from the last build is a bug.
+- Reset buttons: is any of them greyed out while there is something to reset, or live with nothing to reset?
 
 ## Reporting back
 

@@ -27,6 +27,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.resources.*
 import com.eried.eucplanet.ui.studio.formatReplayClock
 import com.eried.eucplanet.ui.studio.parseReplayClock
+import com.eried.eucplanet.ui.theme.themedTextButtonColors
 
 /** Digits-only -> MM:SS, timer style (the last two digits are the seconds, the
  *  rest the minutes). Lets the fields use a pure number keyboard. */
@@ -134,7 +135,16 @@ fun TrimTimeDialog(
                 Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = { onConfirm(0L, durationMs) }, shape = RoundedCornerShape(12.dp)) {
+                // Live only while a trim is applied or typed; on the full trip
+                // it would just be a second Cancel.
+                val fullSpan = (startMs <= 0L && endMs >= durationMs) &&
+                    start.value.text == fmt(0L) && end.value.text == fmt(durationMs)
+                TextButton(
+                    onClick = { onConfirm(0L, durationMs) },
+                    enabled = !fullSpan,
+                    colors = themedTextButtonColors(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Text(stringResource(Res.string.studio_replay_trim_reset))
                 }
                 Spacer(Modifier.weight(1f))

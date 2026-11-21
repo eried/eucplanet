@@ -181,6 +181,10 @@ internal fun HudIntegrationSection(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // The glasses first: one switch and their own pages. Everything
+        // under the Motoeye heading after it belongs to the Motoeye only.
+        EngoGlassesBlock(settings = settings, viewModel = viewModel)
+
         SectionHeader(stringResource(Res.string.section_hud_companion))
 
         // Phone surface is intentionally limited to the install hint:
@@ -344,6 +348,13 @@ internal fun HudIntegrationSection(
             checked = settings.hudServerEnabled,
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
+        // Kept on the HUD once sent, so it holds at the next start-up.
+        SwitchSetting(
+            label = stringResource(Res.string.hud_auto_start),
+            checked = settings.hudDisplay.autoStart,
+            onCheckedChange = { viewModel.updateHudAutoStart(it) }
+        )
+        HintText(stringResource(Res.string.hud_auto_start_desc))
 
         // Discovery activity (which channel found the HUD, probes, dial
         // attempts, transient reconnects after a WiFi switch, etc.) is
@@ -370,7 +381,7 @@ private fun HudJoystickCard(
     viewModel: SettingsViewModel
 ) {
     AdvancedCollapsable(
-        title = stringResource(Res.string.hud_joystick_title),
+        titleRes = Res.string.hud_joystick_title,
         stateKey = "hud_joystick"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -396,7 +407,7 @@ private fun HudMapOptionsCard(
     viewModel: SettingsViewModel
 ) {
     AdvancedCollapsable(
-        title = stringResource(Res.string.hud_map_options_title),
+        titleRes = Res.string.hud_map_options_title,
         stateKey = "hud_map_options"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -415,7 +426,7 @@ private fun HudScreensCard(
     viewModel: SettingsViewModel
 ) {
     AdvancedCollapsable(
-        title = stringResource(Res.string.hud_screens_title),
+        titleRes = Res.string.hud_screens_title,
         stateKey = "hud_screens"
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -438,13 +449,13 @@ private fun HudMapContrastSlider(
                 modifier = Modifier.weight(1f)
             )
             Text(
-                "${settings.hudMapContrastPct}%",
+                "${settings.hudDisplay.mapContrastPct}%",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         androidx.compose.material3.Slider(
-            value = settings.hudMapContrastPct.toFloat(),
+            value = settings.hudDisplay.mapContrastPct.toFloat(),
             onValueChange = { viewModel.updateHudMapContrast(it.toInt()) },
             valueRange = 50f..200f,
             steps = 29, // 5% increments across the 150-wide range
@@ -467,7 +478,7 @@ private fun HudMapBrightnessSlider(
             )
             // Signed display so the rider sees +20 / -20 rather than just
             // "20" -- it's a +/- offset, not a magnitude.
-            val v = settings.hudMapBrightnessPct
+            val v = settings.hudDisplay.mapBrightnessPct
             Text(
                 if (v > 0) "+$v" else v.toString(),
                 style = MaterialTheme.typography.bodySmall,
@@ -475,7 +486,7 @@ private fun HudMapBrightnessSlider(
             )
         }
         androidx.compose.material3.Slider(
-            value = settings.hudMapBrightnessPct.toFloat(),
+            value = settings.hudDisplay.mapBrightnessPct.toFloat(),
             onValueChange = { viewModel.updateHudMapBrightness(it.toInt()) },
             valueRange = -100f..100f,
             steps = 39, // 5-unit increments across the 200-wide range
@@ -598,7 +609,7 @@ private fun hudScreenDisplayName(id: String): String = when (id) {
 }
 
 /**
- * Map-tile style picker. The chosen code goes into AppSettings.hudMapStyle,
+ * Map-tile style picker. The chosen code goes into HudDisplaySettings.mapStyle,
  * ships over the wire on the next 5 Hz frame, and the HUD's HudTileCache
  * swaps URL templates + clears its bitmap LRU so the change is visible
  * within a few seconds.
@@ -630,7 +641,7 @@ private fun HudMapStylePicker(
         "light",
         "dark",
     )
-    val currentCode = settings.hudMapStyle.ifBlank { "light" }
+    val currentCode = settings.hudDisplay.mapStyle.ifBlank { "light" }
     val currentLabel = currentCode
     var expanded by remember { mutableStateOf(false) }
 

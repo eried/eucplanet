@@ -267,6 +267,8 @@ fun ChargingMonitorScreen(
                                 menuOpen = false
                                 viewModel.resetData()
                             },
+                            // Greyed out when no session has been recorded yet.
+                            enabled = state.hasSessionData,
                         )
                     }
                 },

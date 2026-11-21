@@ -30,7 +30,10 @@ import org.koin.core.component.get
  *   - SURVEY_SOUND: play one beep (kind=beep) or speak one line (kind=voice),
  *     so the warm-route timing can be checked on a machine with no alarm firing.
  *   - SURVEY_SET: notif_actions (CSV) and warm_route_ms, the two settings the
- *     battery checks need to change without walking the settings screens.
+ *     battery checks need to change without walking the settings screens;
+ *     engo_fake_pair=true remembers made-up ENGO glasses (switched off, so
+ *     nothing dials them) and false forgets them, so the glasses' page
+ *     settings can be seen and screenshotted with no glasses.
  *   - SURVEY_IMPORT_SQUARE: copy /data/local/tmp/<file> (a .rd5 or .pmtiles
  *     square, made readable with chmod 644) into the offline folder, which
  *     adb cannot write as the app.
@@ -60,7 +63,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
             ACTION_SURVEY_START_NAV -> startNav(intent.getStringExtra(EXTRA_GEOMETRY))
             ACTION_SURVEY_CAR_ALARM -> carAlarm(context)
             ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
-            ACTION_SURVEY_SET -> set(intent)
+            ACTION_SURVEY_SET -> set(context, intent)
             ACTION_SURVEY_IMPORT_SQUARE -> importSquare(intent.getStringExtra(EXTRA_FILE).orEmpty())
         }
     }
@@ -74,15 +77,38 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         }
     }
 
-    private fun set(intent: Intent) {
+    private fun set(context: Context, intent: Intent) {
+        // A built-in overlay preset by name ("Default", "Race"...) for the HUD
+        // Custom overlay screens, read from the app's own assets.
+        val overlayName = intent.getStringExtra(EXTRA_HUD_OVERLAY)
+        val overlayJson = overlayName?.let { name ->
+            runCatching {
+                context.assets.open("overlay_presets/$name.json").bufferedReader().use { it.readText() }
+            }.getOrNull()
+        }
         val actions = intent.getStringExtra(EXTRA_NOTIF_ACTIONS)
         val warm = intent.getIntExtra(EXTRA_WARM_ROUTE_MS, -1)
-        Log.i(TAG, "SURVEY_SET notifActions=$actions warmRouteMs=$warm")
+        val engo = if (intent.hasExtra(EXTRA_ENGO_FAKE_PAIR)) intent.getBooleanExtra(EXTRA_ENGO_FAKE_PAIR, false) else null
+        Log.i(TAG, "SURVEY_SET notifActions=$actions warmRouteMs=$warm engoFakePair=$engo")
         scope.launch {
             settingsRepository.update { s ->
                 var n = s
                 if (actions != null) n = n.copy(notificationActions = actions)
                 if (warm > 0) n = n.copy(advanced = n.advanced.copy(alarmWarmRouteMs = warm))
+                // HUD on one device: link the phone app to a HUD app on the
+                // same emulator, "127.0.0.1" with discovery FIXED.
+                if (intent.hasExtra(EXTRA_HUD_IP)) n = n.copy(
+                    hudServerEnabled = true,
+                    hudIp = intent.getStringExtra(EXTRA_HUD_IP).orEmpty(),
+                    hudDiscoveryMode = com.eried.eucplanet.data.model.HudDiscoveryMode.FIXED
+                )
+                intent.getStringExtra(EXTRA_HUD_SCREENS)?.let { n = n.copy(hudScreensEnabled = it) }
+                if (overlayJson != null) n = n.copy(hudCustomOverlayName = overlayName, hudCustomOverlayJson = overlayJson)
+                if (engo != null) n = n.copy(engoHud = n.engoHud.copy(
+                    enabled = false,
+                    pairedAddress = if (engo) "00:00:00:00:E3:60" else null,
+                    pairedName = if (engo) "ENGO 3 (survey)" else null,
+                ))
                 n
             }
         }
@@ -149,7 +175,18 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
             ),
             travelMode = TravelMode.entries.first(),
             geometry = line ?: listOf(a, b),
-            maneuvers = emptyList(),
+            // A turn at each inner point of a given line, so the HUD and the
+            // navigator show a turn badge, not only the arrival line.
+            maneuvers = (line ?: emptyList()).drop(1).dropLast(1).mapIndexed { i, p ->
+                com.eried.eucplanet.data.model.Maneuver(
+                    point = p,
+                    type = if (i % 2 == 0) com.eried.eucplanet.data.model.TurnType.RIGHT
+                        else com.eried.eucplanet.data.model.TurnType.LEFT,
+                    instruction = if (i % 2 == 0) "Turn right" else "Turn left",
+                    streetName = "Karl Johans gate",
+                    distanceFromStartM = 250.0 * (i + 1),
+                )
+            },
             totalDistanceM = 1400.0,
         )
         Log.i(TAG, "SURVEY_START_NAV")
@@ -194,6 +231,10 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val EXTRA_GEOMETRY = "geometry"
         const val EXTRA_NOTIF_ACTIONS = "notif_actions"
         const val EXTRA_WARM_ROUTE_MS = "warm_route_ms"
+        const val EXTRA_HUD_IP = "hud_ip"
+        const val EXTRA_HUD_SCREENS = "hud_screens"
+        const val EXTRA_HUD_OVERLAY = "hud_overlay"
+        const val EXTRA_ENGO_FAKE_PAIR = "engo_fake_pair"
 
         const val EXTRA_METRIC_ORDER = "metric_order"
         const val EXTRA_METRIC_STATS = "metric_stats"

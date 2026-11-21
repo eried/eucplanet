@@ -880,6 +880,24 @@ class SettingsViewModel(
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
+    fun updateHudAutoStart(v: Boolean) = update { copy(hudDisplay = hudDisplay.copy(autoStart = v)) }
+    fun updateEngoHudEnabled(v: Boolean) = update { copy(engoHud = engoHud.copy(enabled = v)) }
+    /** The rider picked these glasses in a scan: remembered, and linked to. */
+    fun updateEngoPaired(address: String, name: String) = update {
+        copy(engoHud = engoHud.copy(enabled = true, pairedAddress = address, pairedName = name))
+    }
+    fun updateEngoForget() = update {
+        copy(engoHud = engoHud.copy(enabled = false, pairedAddress = null, pairedName = null))
+    }
+    fun updateEngoLayout(name: String) = update { copy(engoHud = engoHud.copy(layout = name)) }
+    fun updateEngoFont(name: String) = update { copy(engoHud = engoHud.copy(font = name)) }
+    fun updateEngoDigitalGhost(v: Boolean) = update { copy(engoHud = engoHud.copy(digitalGhost = v)) }
+    fun updateEngoElement(i: Int, el: com.eried.eucplanet.data.model.EngoElement) = update {
+        val defaults = com.eried.eucplanet.data.model.DEFAULT_ENGO_ELEMENTS
+        val all = defaults.indices.map { k -> engoHud.elements.getOrNull(k) ?: defaults[k] }
+        copy(engoHud = engoHud.copy(elements = all.mapIndexed { k, e -> if (k == i) el else e }))
+    }
+    fun updateEngoNavTakeover(v: Boolean) = update { copy(engoHud = engoHud.copy(navTakeover = v)) }
 
     fun updateNotificationActionsEnabled(v: Boolean) =
         update { copy(notificationActionsEnabled = v) }
@@ -986,18 +1004,18 @@ class SettingsViewModel(
         copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
     }
 
-    /** Update the HUD's map tile style. See AppSettings.hudMapStyle for
+    /** Update the HUD's map tile style. See HudDisplaySettings.mapStyle for
      *  the recognised codes; empty = "use HUD's compiled default." */
-    fun updateHudMapStyle(code: String) = update { copy(hudMapStyle = code) }
+    fun updateHudMapStyle(code: String) = update { copy(hudDisplay = hudDisplay.copy(mapStyle = code)) }
 
     /** Map tile contrast, 50..200 percent (100 = neutral). */
     fun updateHudMapContrast(pct: Int) = update {
-        copy(hudMapContrastPct = pct.coerceIn(50, 200))
+        copy(hudDisplay = hudDisplay.copy(mapContrastPct = pct.coerceIn(50, 200)))
     }
 
     /** Map tile brightness offset, -100..100 (0 = neutral). */
     fun updateHudMapBrightness(pct: Int) = update {
-        copy(hudMapBrightnessPct = pct.coerceIn(-100, 100))
+        copy(hudDisplay = hudDisplay.copy(mapBrightnessPct = pct.coerceIn(-100, 100)))
     }
 
     /** Screens that are ON by default on a fresh install. Order is the
@@ -1526,27 +1544,13 @@ class SettingsViewModel(
      * wrong action in slots 2/4/5. Restore uses this so slot N gets the action
      * that actually ships there.
      */
-    val defaultDashboardActions: List<String> =
-        (AppSettings().dashboardActionOrder.split(",").map { it.trim() }.filter { it.isNotEmpty() } +
-            knownDashboardActions).distinct()
+    val defaultDashboardActions: List<String> = DEFAULT_DASHBOARD_ACTIONS
 
     private fun sanitize(
         saved: String,
         known: List<String>,
         dynamic: Set<String> = emptySet()
-    ): List<String> {
-        // EMPTY_SLOT_KEY entries are kept verbatim so "intentionally blank"
-        // grid slots from a move-and-empty drop survive a round-trip through
-        // settings persistence. Renderers map the sentinel to a blank Box.
-        val s = saved.split(",")
-            .map { it.trim() }
-            .filter { it.isNotEmpty() && (it == EMPTY_SLOT_KEY || it in known || it in dynamic) }
-        // Append known keys that aren't already in the saved order so the pool
-        // surfaces new defaults after an app upgrade. Dynamic IDs are NOT
-        // auto-added, they only exist while the rider has them on the grid
-        // or until they delete the underlying composite/group definition.
-        return s + known.filter { it !in s }
-    }
+    ): List<String> = sanitizeDashboardOrder(saved, known, dynamic)
 
     fun dashboardMetricOrder(s: AppSettings): List<String> =
         sanitize(
@@ -2052,103 +2056,20 @@ class SettingsViewModel(
     }
 
     /**
-     * Restore the metric slot at [slotIndex] to the metric the app ships
-     * there (`knownDashboardMetrics[slotIndex]`), regardless of what the
-     * rider currently has in that slot. If the natural occupant lives in
-     * a different position, swap so it returns home and the displaced
-     * tile takes its place. Any dynamic tile (composite / custom-tile)
-     * pushed past the active region by the swap is cleaned up the same
-     * way the swap-via-drag path handles it.
+     * Restore the metric slot at [slotIndex] to the metric the app ships there.
+     * The swap, dynamic-tile cleanup and stats wipe live in
+     * [restoreDashboardMetricSlot] so [isMetricSlotAtDefault] shares them.
      */
     fun resetDashboardMetricAtIndex(slotIndex: Int) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val items = sanitize(
-                current.dashboardMetricOrder,
-                knownDashboardMetrics,
-                listCompositeMetrics(current).keys + listCustomTiles(current).keys
-            ).toMutableList()
-            val naturalKey = knownDashboardMetrics.getOrNull(slotIndex) ?: return@launch
-            if (slotIndex !in items.indices) return@launch
-            val currentOccupant = items[slotIndex]
-
-            // Note: don't early-return when currentOccupant == naturalKey.
-            // The rider may have customized corner stats (AVG / MIN / etc.)
-            // on the natural occupant, and Reset still needs to wipe those
-            // so the slot looks like a fresh install.
-
-            val occupantIsDynamic = isCompositeMetricKey(currentOccupant) ||
-                isCustomTileKey(currentOccupant)
-            val needsReorder = currentOccupant != naturalKey
-
-            if (needsReorder && occupantIsDynamic) {
-                // Dynamic occupant (composite / custom tile) gets deleted, // the rider's "restore this slot" intent doesn't preserve
-                // dynamic instances. Remove it from the order, then move
-                // the natural metric into slotIndex (closing any gap).
-                items.removeAt(slotIndex)
-                val naturalIdx = items.indexOf(naturalKey)
-                if (naturalIdx >= 0) items.removeAt(naturalIdx)
-                items.add(slotIndex.coerceAtMost(items.size), naturalKey)
-            } else if (needsReorder) {
-                // Static occupant, swap with the natural metric's current
-                // position so neither static metric is lost.
-                val naturalIdx = items.indexOf(naturalKey)
-                if (naturalIdx >= 0) {
-                    items[naturalIdx] = currentOccupant
-                    items[slotIndex] = naturalKey
-                } else {
-                    items[slotIndex] = naturalKey
-                    items.add(currentOccupant)
-                }
-            }
-
-            // Clean up: any dynamic tile sitting in the pool (past
-            // activeCount) is implicitly orphaned, plus the one we just
-            // deleted at slotIndex (if any). Drop them from the order and
-            // their JSON definition map.
-            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
-            val orphanedComposites = items.withIndex()
-                .filter { (idx, k) -> idx >= activeCount && isCompositeMetricKey(k) }
-                .map { it.value }
-                .toMutableSet()
-            val orphanedCustomTiles = items.withIndex()
-                .filter { (idx, k) -> idx >= activeCount && isCustomTileKey(k) }
-                .map { it.value }
-                .toMutableSet()
-            if (occupantIsDynamic) {
-                if (isCompositeMetricKey(currentOccupant)) orphanedComposites.add(currentOccupant)
-                if (isCustomTileKey(currentOccupant)) orphanedCustomTiles.add(currentOccupant)
-            }
-            val toRemove = (orphanedComposites + orphanedCustomTiles)
-            val cleaned = if (toRemove.isEmpty()) items else items.filter { it !in toRemove }
-            val newComposites = if (orphanedComposites.isEmpty()) current.dashboardCompositeMetrics
-                else parseSlotStatsRoot(current.dashboardCompositeMetrics)
-                    .also { root -> orphanedComposites.forEach { root.remove(it) } }
-                    .toString()
-            val newCustomTiles = if (orphanedCustomTiles.isEmpty()) current.dashboardCustomTiles
-                else parseSlotStatsRoot(current.dashboardCustomTiles)
-                    .also { root -> orphanedCustomTiles.forEach { root.remove(it) } }
-                    .toString()
-
-            // Also wipe the natural key's per-slot stats so the restored
-            // metric shows up with its shipped appearance (current value
-            // in the center, no AVG / MIN / sparkline carry-over from the
-            // slot it used to live in). Without this, BATTERY brings its
-            // previously-configured corner stats along when it returns
-            // home, which makes the "Default" button feel half-applied.
-            val statsRoot = parseSlotStatsRoot(current.dashboardMetricStats)
-            statsRoot.remove(naturalKey)
-
-            settingsRepository.update(
-                current.copy(
-                    dashboardMetricOrder = cleaned.joinToString(","),
-                    dashboardCompositeMetrics = newComposites,
-                    dashboardCustomTiles = newCustomTiles,
-                    dashboardMetricStats = statsRoot.toString()
-                )
-            )
+            val restored = restoreDashboardMetricSlot(settingsRepository.get(), slotIndex) ?: return@launch
+            settingsRepository.update(restored)
         }
     }
+
+    /** False when Restore on metric slot [slotIndex] would change something. */
+    fun isDashboardMetricSlotDefault(s: AppSettings, slotIndex: Int): Boolean =
+        isMetricSlotAtDefault(s, slotIndex)
 
     /**
      * Restore the action slot at [slotIndex] to `defaultDashboardActions[slotIndex]`,
@@ -2157,56 +2078,14 @@ class SettingsViewModel(
      */
     fun resetDashboardActionAtIndex(slotIndex: Int) {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val items = sanitize(
-                current.dashboardActionOrder,
-                knownDashboardActions,
-                listActionGroups(current).keys + listCustomBle(current).keys
-            ).toMutableList()
-            val naturalKey = defaultDashboardActions.getOrNull(slotIndex) ?: return@launch
-            if (slotIndex !in items.indices) return@launch
-            val currentOccupant = items[slotIndex]
-
-            val occupantIsGroup = isActionGroupKey(currentOccupant)
-            val needsReorder = currentOccupant != naturalKey
-
-            if (needsReorder && occupantIsGroup) {
-                items.removeAt(slotIndex)
-                val naturalIdx = items.indexOf(naturalKey)
-                if (naturalIdx >= 0) items.removeAt(naturalIdx)
-                items.add(slotIndex.coerceAtMost(items.size), naturalKey)
-            } else if (needsReorder) {
-                val naturalIdx = items.indexOf(naturalKey)
-                if (naturalIdx >= 0) {
-                    items[naturalIdx] = currentOccupant
-                    items[slotIndex] = naturalKey
-                } else {
-                    items[slotIndex] = naturalKey
-                    items.add(currentOccupant)
-                }
-            }
-
-            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
-            val orphanedGroups = items.withIndex()
-                .filter { (idx, k) -> idx >= activeCount && isActionGroupKey(k) }
-                .map { it.value }
-                .toMutableSet()
-            if (occupantIsGroup) orphanedGroups.add(currentOccupant)
-
-            val cleaned = if (orphanedGroups.isEmpty()) items else items.filter { it !in orphanedGroups }
-            val newGroups = if (orphanedGroups.isEmpty()) current.dashboardActionGroups
-                else parseSlotStatsRoot(current.dashboardActionGroups)
-                    .also { root -> orphanedGroups.forEach { root.remove(it) } }
-                    .toString()
-
-            settingsRepository.update(
-                current.copy(
-                    dashboardActionOrder = cleaned.joinToString(","),
-                    dashboardActionGroups = newGroups
-                )
-            )
+            val restored = restoreDashboardActionSlot(settingsRepository.get(), slotIndex) ?: return@launch
+            settingsRepository.update(restored)
         }
     }
+
+    /** False when Restore on action slot [slotIndex] would change something. */
+    fun isDashboardActionSlotDefault(s: AppSettings, slotIndex: Int): Boolean =
+        isActionSlotAtDefault(s, slotIndex)
 
     // ---- Per-slot stat configuration ----
     //
@@ -2240,21 +2119,9 @@ class SettingsViewModel(
         }
     }
 
-    private fun parseSlotStatsRoot(s: String): com.eried.eucplanet.platform.JSONObject =
-        try { com.eried.eucplanet.platform.JSONObject(s.ifBlank { "{}" }) } catch (_: Exception) { com.eried.eucplanet.platform.JSONObject() }
+    private fun parseSlotStatsRoot(s: String): com.eried.eucplanet.platform.JSONObject = parseDashboardJsonRoot(s)
 
-    private fun parseSlotStats(s: String, key: String): MetricSlotStats {
-        val root = parseSlotStatsRoot(s)
-        val n = root.optJSONObject(key) ?: return MetricSlotStats()
-        fun stat(k: String, default: DashboardStat) =
-            runCatching { DashboardStat.valueOf(n.optString(k, default.name)) }.getOrDefault(default)
-        return MetricSlotStats(
-            left = stat("l", DashboardStat.NONE),
-            center = stat("c", DashboardStat.CURRENT),
-            right = stat("r", DashboardStat.NONE),
-            sparkline = n.optBoolean("spark", true)
-        )
-    }
+    private fun parseSlotStats(s: String, key: String): MetricSlotStats = parseDashboardSlotStats(s, key)
 
     fun updateDashboardMetricsColumns(n: Int) = update { copy(dashboardMetricsColumns = n.coerceIn(2, 4)) }
     fun updateDashboardRollingWindowSeconds(seconds: Int) = update {

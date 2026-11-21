@@ -129,6 +129,10 @@ class HudCommandSink(
                 Log.i(TAG, "HUD command: StopNavigation")
                 navigationEngine.stop()
             }
+            is HudCommand.Note -> {
+                Log.i(TAG, "HUD note: ${cmd.text}")
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("HUD auto-open: ${cmd.text}")
+            }
             is HudCommand.Action -> {
                 // The slot ("UP"/"DOWN"/"LEFT"/"RIGHT") maps to a rider-configured
                 // ActionCatalog key stored on the phone, just like Flic / Volume /

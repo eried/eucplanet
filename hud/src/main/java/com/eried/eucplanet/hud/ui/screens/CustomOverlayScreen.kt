@@ -1,6 +1,8 @@
 package com.eried.eucplanet.hud.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -103,10 +105,18 @@ fun CustomOverlayScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = androidx.compose.ui.BiasAlignment(0f, 0.5f)
                 ) {
+                    // On the dark pill the map screens use, so it reads over a
+                    // light map as well as on black.
                     Text(
-                        text = "Pick a preset in EUC Planet → Settings / Integration",
-                        color = Color.White.copy(alpha = 0.6f),
-                        fontSize = 14.sp
+                        text = androidx.compose.ui.res.stringResource(
+                            com.eried.eucplanet.hud.R.string.hud_custom_no_preset
+                        ),
+                        color = Color.White.copy(alpha = 0.85f),
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                            .background(Color(0xE6000000))
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
                 return@BoxWithConstraints

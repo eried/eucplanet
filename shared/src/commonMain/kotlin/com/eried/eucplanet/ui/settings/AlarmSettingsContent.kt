@@ -148,6 +148,7 @@ import com.eried.eucplanet.ui.theme.themedSliderColors
 import kotlin.math.roundToInt
 import sh.calvin.reorderable.ReorderableColumn
 import com.eried.eucplanet.platform.stringResource
+import com.eried.eucplanet.ui.theme.themedTextButtonColors
 
 // "Don't ask again" for the constant-tone prompt: process-scoped so it lasts the
 // rest of this app run but resets on next launch (per the rider's request, not
@@ -1530,7 +1531,15 @@ private fun BeepStudioDialog(
                 Row(modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically) {
                     // Reset commits no modulation (1x pitch and volume) and closes.
-                    TextButton(onClick = { onCommit(100, 100); onDismiss() }, shape = RoundedCornerShape(12.dp)) {
+                    // Greyed when both are already 1x, saved and on screen.
+                    val atDefault = pitchReachPct == 100 && volReachPct == 100 &&
+                        pitchFactor == 100 && volFactor == 100
+                    TextButton(
+                        onClick = { onCommit(100, 100); onDismiss() },
+                        enabled = !atDefault,
+                        colors = themedTextButtonColors(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
                         Text(stringResource(Res.string.alarm_studio_reset))
                     }
                     Spacer(Modifier.weight(1f))

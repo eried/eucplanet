@@ -468,7 +468,7 @@ internal fun PhoneHudSection(
     viewModel: SettingsViewModel,
 ) {
     AdvancedCollapsable(
-        title = stringResource(Res.string.phone_hud_section),
+        titleRes = Res.string.phone_hud_section,
         stateKey = "surface-phone-hud",
     ) {
         val ctx = androidx.compose.ui.platform.LocalContext.current

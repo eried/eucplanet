@@ -203,6 +203,7 @@ class WheelService : LifecycleService() {
         com.eried.eucplanet.data.repository.ExternalGpsRepository = get()
     val navigationEngine: com.eried.eucplanet.nav.NavigationEngine = get()
     val hudServer: com.eried.eucplanet.service.hud.HudServer = get()
+    val engoHudRenderer: com.eried.eucplanet.service.hud.engo.EngoHudRenderer = get()
     val radarRepository: com.eried.eucplanet.data.repository.RadarRepository = get()
     val phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow = get()
     val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController = get()
@@ -379,6 +380,7 @@ class WheelService : LifecycleService() {
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             var hudWasOn = false
+            var engoLinkedTo: String? = null
             var watchMapWasEnabled: Boolean? = null
             settingsRepository.settings.collect { s ->
                 // Notification builder reads the speed unit without suspending;
@@ -443,6 +445,15 @@ class WheelService : LifecycleService() {
                 if (effective != hudWasOn) {
                     if (effective) hudServer.start() else hudServer.stop()
                     hudWasOn = effective
+                }
+                // ENGO glasses HUD: independent BLE output, started on its own toggle.
+                // Linked to the paired glasses while the link is on; a new
+                // pair, Disconnect or Forget device ends the old link first.
+                val engoTarget = s.engoHud.pairedAddress?.takeIf { s.engoHud.enabled }
+                if (engoTarget != engoLinkedTo) {
+                    if (engoLinkedTo != null) engoHudRenderer.stop()
+                    if (engoTarget != null) engoHudRenderer.start(engoTarget)
+                    engoLinkedTo = engoTarget
                 }
                 val previousWatchMapEnabled = watchMapWasEnabled
                 if (s.watchMap.enabled != previousWatchMapEnabled) {
@@ -785,6 +796,7 @@ class WheelService : LifecycleService() {
         try { phoneHudWindow.hide() } catch (_: Exception) {}
         synchronized(phoneHudHistory) { phoneHudHistory.clear() }
         try { hudServer.stop() } catch (_: Exception) {}
+        try { engoHudRenderer.stop() } catch (_: Exception) {}
         rideSession.stopVoiceLoop()
         engineSoundEngine.stop()
         // Restore the rider's media volume if speed-based auto-volume scaled it

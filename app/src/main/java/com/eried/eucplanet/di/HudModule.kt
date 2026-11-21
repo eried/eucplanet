@@ -19,6 +19,9 @@ import com.eried.eucplanet.service.hud.HudSubnetProbe
 import com.eried.eucplanet.service.hud.HudTileServer
 import com.eried.eucplanet.service.hud.HudTiles
 import com.eried.eucplanet.service.hud.HudUdpListener
+import com.eried.eucplanet.service.hud.engo.EngoAdapter
+import com.eried.eucplanet.service.hud.engo.EngoGlasses
+import com.eried.eucplanet.service.hud.engo.EngoHudRenderer
 import com.eried.eucplanet.service.overlay.PhoneHudWindow
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -26,7 +29,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
- * The MotoEye HUD link and the on-phone HUD overlay. The link itself
+ * The MotoEye HUD link, the on-phone HUD overlay and the ENGO glasses. The link itself
  * ([HudServer], its sink and its subnet probe) is shared with the iPhone;
  * this module gives it the Android side of its ports.
  */
@@ -36,6 +39,8 @@ val hudModule = module {
     singleOf(::HudSubnetProbe)
     singleOf(::HudUdpListener) bind HudBeacons::class
     singleOf(::PhoneHudWindow)
+    singleOf(::EngoAdapter) bind EngoGlasses::class
+    singleOf(::EngoHudRenderer)
 
     singleOf(::AndroidHudSockets) bind HudSockets::class
     singleOf(::AndroidHudMdns) bind HudMdns::class

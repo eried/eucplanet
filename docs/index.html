@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EUC Planet</title>
-<meta name="description" content="No-nonsense, open-source EUC riding app for Android and iPhone: live telemetry, smart alarms, turn-by-turn navigation, video recorder with on-screen telemetry overlay, Wear OS dial, helmet HUD, Garmin Edge data field, Varia rear-view radar. Verified on InMotion V14 and P6, rider-tested on KingSong KS-16X and KS-18XL, Begode Mten3, EX30, E20 and Master, LeaperKim Lynx S and Oryx, NOSFET Aeon, InMotion V8S; preview support for Ninebot and more.">
+<meta name="description" content="No-nonsense, open-source EUC riding app for Android and iPhone: live telemetry, smart alarms, turn-by-turn navigation, video recorder with on-screen telemetry overlay, Wear OS dial, helmet HUD, Garmin watch app, Varia rear-view radar. Verified on InMotion V14 and P6, rider-tested on KingSong KS-16X and KS-18XL, Begode Mten3, EX30, E20 and Master, LeaperKim Lynx S and Oryx, NOSFET Aeon, InMotion V8S; preview support for Ninebot and more.">
 <meta name="theme-color" content="#0d1117">
 <meta property="og:title" content="EUC Planet">
 <meta property="og:description" content="A no-nonsense, open-source app for electric unicycles.">
@@ -15,6 +15,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 <style>
+  /* Site look rules, for every page here:
+     1. Borders are neutral: white at low alpha (--border, --border-strong).
+        Never a coloured border or outline line, it reads as a thin blue
+        edge. Hover, focus and "this one is open" show as a lift and a
+        glow (--glow), and a border may only get a little brighter white.
+     2. A mouse click leaves no focus ring; the keyboard gets the glow.
+     3. Floating controls (toolbar, chips, the language gear) are the same
+        glass: dark panel at low alpha, blur, a neutral border.
+     4. A feature only one phone has carries the .os mark, and its tooltip
+        says so in words. */
   :root {
     --bg: #07090d;
     --panel: rgba(22, 27, 34, 0.55);
@@ -30,6 +40,7 @@
     --green-hi: #2ea043;
     --blue: #1f6feb;
     --blue-hi: #388bfd;
+    --glow: 0 14px 36px rgba(88, 166, 255, 0.22);
   }
 
   * { box-sizing: border-box; }
@@ -537,7 +548,7 @@
     backdrop-filter: blur(14px) saturate(1.1);
     -webkit-backdrop-filter: blur(14px) saturate(1.1);
     overflow: hidden;
-    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
   }
   .card::before {
     content: "";
@@ -553,8 +564,9 @@
   }
   .card:hover {
     transform: translateY(-3px);
-    border-color: rgba(88, 166, 255, 0.35);
+    border-color: var(--border-strong);
     background: rgba(22, 27, 34, 0.7);
+    box-shadow: var(--glow);
   }
   .card h3 {
     font-size: 15px;
@@ -585,7 +597,95 @@
   }
   .os svg { width: 15px; height: 15px; display: block; }
   .os svg.off { color: var(--muted); opacity: 0.16; }
+  .os[data-tip] { position: relative; cursor: help; }
+  .os[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translate(4px, -50%);
+    white-space: nowrap;
+    padding: 5px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--text);
+    background: rgba(13, 17, 23, 0.92);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .section-head .os[data-tip]::after { right: auto; left: calc(100% + 8px); transform: translate(-4px, -50%); }
+  .os[data-tip]:hover::after, .os[data-tip].tip-on::after { opacity: 1; transform: translate(0, -50%); }
   .section-head .os { margin-left: 0; }
+  /* Feature preview: a small phone screen next to the hovered card, placed
+     by script where the window has room. It unfolds out of the point where
+     it touches its card; each card gets its own, so the last one folds away
+     where it was while the next opens. The screenshot shows its full width
+     and pans slowly up and down. Rounded corners come from clip-path, not
+     from overflow on a radius, so the moving picture leaves no thin halo. */
+  .card.has-shot { cursor: zoom-in; }
+  .card.has-shot:focus { outline: none; }
+  .card.has-shot:focus-visible, .card.has-shot.shown { box-shadow: var(--glow); }
+  .shot-pop {
+    position: fixed;
+    left: 0; top: 0;
+    z-index: 80;
+    width: var(--pw, 240px);
+    height: var(--ph, 330px);
+    pointer-events: none;
+    visibility: hidden;
+    transition: visibility 0s linear 800ms;
+  }
+  .shot-pop.on { visibility: visible; transition: none; }
+  .shot-pop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    transition: opacity 400ms ease;
+  }
+  .shot-pop.on::before { opacity: 1; transition: opacity 600ms ease 300ms; }
+  .shot-pop .unfold {
+    position: absolute;
+    inset: 0;
+    clip-path: circle(0% at var(--ox, 0%) var(--oy, 50%));
+    opacity: 0.95;
+    transition: clip-path 700ms cubic-bezier(0.65, 0, 0.25, 1);
+  }
+  .shot-pop.on .unfold { clip-path: circle(150% at var(--ox, 0%) var(--oy, 50%)); transition-duration: 800ms; }
+  .shot-pop .win {
+    position: absolute;
+    inset: 0;
+    background: #05070a;
+    clip-path: inset(0 round 22px);
+  }
+  .shot-pop img {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    top: 50%;
+    opacity: 0;
+    transition: opacity 600ms ease;
+    transform: translateY(calc(var(--f1) * -100%));
+    animation: pop-sweep 7s ease-in-out infinite alternate;
+  }
+  .shot-pop img.on { opacity: 1; }
+  @keyframes pop-sweep {
+    from { transform: translateY(calc(var(--f1) * -100%)); }
+    to   { transform: translateY(calc(var(--f2) * -100%)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shot-pop, .shot-pop::before, .shot-pop .unfold, .shot-pop img { transition: none; animation: none; }
+    .shot-pop .unfold { clip-path: none; }
+  }
   .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
   .card p a, .lead a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
   .card p a:hover, .lead a:hover { color: #79b8ff; text-decoration-color: currentColor; }
@@ -604,9 +704,9 @@
   }
   .gallery-wear {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 14px;
-    max-width: 560px;
+    max-width: 700px;
     margin: 0 auto;
   }
   .gallery-featured a, .gallery-thumbs a, .gallery-wear a {
@@ -618,29 +718,28 @@
     width: 100%;
     height: auto;
     border-radius: 12px;
-    border: 1px solid var(--border-strong);
     background: #161b22;
     transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
   }
   .gallery-thumbs img { border-radius: 10px; }
-  .gallery-featured a:hover img, .gallery-thumbs a:hover img {
+  .gallery-featured a:hover img, .gallery-thumbs a:hover img,
+  .gallery-featured a:focus-visible img, .gallery-thumbs a:focus-visible img {
     transform: translateY(-3px) scale(1.02);
-    border-color: var(--accent);
     box-shadow: 0 14px 36px rgba(88, 166, 255, 0.25);
   }
+  .gallery-featured a, .gallery-thumbs a, .gallery-wear a { outline: none; -webkit-tap-highlight-color: transparent; }
+  .gallery-wear a:focus-visible img { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(45, 212, 191, 0.3); }
   .gallery-wear img {
     width: 100%;
     height: auto;
     border-radius: 50%;
-    border: 1px solid var(--border-strong);
     background: #000;
     transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
     box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
   }
   .gallery-wear a:hover img {
     transform: translateY(-3px);
-    border-color: var(--accent-2);
     box-shadow: 0 10px 28px rgba(45, 212, 191, 0.3);
   }
 
@@ -727,7 +826,7 @@
   @media (max-width: 540px) {
     header { padding: 64px 16px 36px; }
     .gallery-featured, .gallery-thumbs { grid-template-columns: repeat(2, 1fr); }
-    .gallery-wear { grid-template-columns: repeat(4, 1fr); }
+    .gallery-wear { grid-template-columns: repeat(3, 1fr); justify-content: center; }
     .bg-stage video { filter: blur(13px) brightness(0.55) saturate(1.25); }
     a.btn { min-width: 0; padding: 0 16px; }
     .toolbar { border-radius: 12px; padding: 5px; }
@@ -831,11 +930,11 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 6.9-1.5 7.4c-.1.5-.4.6-.9.4l-2.5-1.9-1.2 1.2c-.1.1-.3.2-.5.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L8.4 12 6 11.2c-.5-.2-.5-.5.1-.7l9.7-3.7c.4-.2.8.1.7.6Z"/></svg>
         <span>Telegram</span>
       </a>
-      <a class="chip" href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71" aria-label="Garmin Connect IQ data field" data-i18n-attrs data-i18n-attr-aria-label="a.garmin-connect-iq-data-field">
+      <a class="chip" href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71" aria-label="Garmin Connect IQ app" data-i18n-attrs data-i18n-attr-aria-label="a.garmin-connect-iq-app">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 4.6 16 1H8l-.4 3.6A6.97 6.97 0 0 0 5 10v4c0 2.36 1.18 4.45 3 5.7V23h8v-3.3c1.82-1.25 3-3.34 3-5.7v-4c0-2.18-1-4.13-2.6-5.4zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
         <span>Garmin</span>
       </a>
-      <a class="chip" href="AMAZFIT_SETUP" aria-label="Amazfit Zepp OS watch dial" data-i18n-attrs data-i18n-attr-aria-label="a.amazfit-zepp-os-watch-dial">
+      <a class="chip" href="AMAZFIT_SETUP" aria-label="Amazfit Zepp OS watch app" data-i18n-attrs data-i18n-attr-aria-label="a.amazfit-zepp-os-watch-app">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 1h8l.6 3.4A7 7 0 0 1 19 10v4a7 7 0 0 1-2.4 5.6L16 23H8l-.6-3.4A7 7 0 0 1 5 14v-4a7 7 0 0 1 2.4-5.6L8 1Zm4 6a1 1 0 0 0-1 1v4c0 .27.11.52.29.71l2.5 2.5a1 1 0 0 0 1.42-1.42L13 11.59V8a1 1 0 0 0-1-1Z"/></svg>
         <span>Amazfit</span>
       </a>
@@ -880,115 +979,72 @@
     <div class="section-head">
       <span class="accent-dot"></span>
       <h2 data-i18n="h2.on-the-wrist">On the wrist</h2>
-      <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span>
+      <span class="os" role="img" tabindex="0" aria-label="Only on Android" data-tip="Only on Android" data-i18n-attrs data-i18n-attr-aria-label="a.android-only" data-i18n-attr-data-tip="a.android-only"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span>
       <span class="rule"></span>
     </div>
     <div class="gallery-wear">
-      <a href="screenshots/wear-dash.png"><img src="screenshots/wear-dash.png" alt="Wear OS speed dial" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-speed-dial"></a>
+      <a href="screenshots/wear-dash.png?v=2"><img src="screenshots/wear-dash.png?v=2" alt="Wear OS speed dial" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-speed-dial"></a>
       <a href="screenshots/wear-details.png"><img src="screenshots/wear-details.png" alt="Wear OS telemetry detail" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-telemetry-detail"></a>
       <a href="screenshots/wear-navigation.png"><img src="screenshots/wear-navigation.png" alt="Wear OS turn arrow" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-turn-arrow"></a>
       <a href="screenshots/wear-goal.png"><img src="screenshots/wear-goal.png" alt="Wear OS goal reached flag" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-goal-reached-flag"></a>
+      <a href="screenshots/wear-single.png"><img src="screenshots/wear-single.png" alt="Wear OS dial with one battery in an orange theme" loading="lazy" data-i18n-attrs data-i18n-attr-alt="a.wear-os-one-battery"></a>
     </div>
   </section>
 
   <section class="reveal">
     <div class="section-head">
       <span class="accent-dot"></span>
-      <h2 data-i18n="h2.built-different">Built different</h2>
+      <h2 data-i18n="h2.built-different">Features</h2>
       <span class="rule"></span>
     </div>
     <div class="features">
       <div class="card">
-        <h3><span data-i18n="card.turn-by-turn-navigator.title">Turn-by-turn navigator</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.turn-by-turn-navigator.body">Multi-stop route builder with live guidance, off-route reroute, and a treasure-hunt mode for unmarked spots. Walk, bike, car, or straight-line. Charging stations (connectors, power, cost, ratings, photos) and points of interest along the way (food, shops, rest stops) sit on the map and refresh as you pan. Full Path mode lets you tap any point along the route to add a detour (sand, gravel, the wrong side of a one-way). Bike routes prefer quiet streets, and a missed turn gets a new route in seconds.</p>
+        <h3><span data-i18n="fc.wheels.title">Works with your wheel</span></h3>
+        <p data-i18n-html="fc.wheels.body">InMotion V14 and P6 verified. KingSong, Begode, Veteran (LeaperKim), NOSFET and more InMotion models are rider-tested, the rest of those families and Ninebot in preview. <a href="https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md">Help us add yours</a>, or <a href="https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md">send a diagnostics recording</a> if it acts up.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-theme-dark.webp|f-theme-black.webp|f-theme-light.webp" data-f1="0.3" data-f2="0.62">
+        <h3><span data-i18n="fc.modern.title">Modern &amp; fast</span></h3>
+        <p data-i18n-html="fc.modern.body">A pure-black dashboard with almost no lag, built to be read in one glance at speed. Reorder the tiles, theme every color, and it adapts to portrait, bar-mount landscape, tablets and foldable cover screens.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-record.webp" data-f1="0.3" data-f2="0.8">
+        <h3><span data-i18n="fc.record.title">Record and compare</span></h3>
+        <p data-i18n-html="fc.record.body">Every ride is recorded with GPS and wheel telemetry, in a CSV format other EUC apps and tools can read. Open any trip for its graphs, or let Compare put two rides side by side.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-charging.webp|f-cells.webp" data-f1="0.4" data-f2="0.8">
+        <h3><span data-i18n="fc.charging.title">Charging, cell by cell</span></h3>
+        <p data-i18n-html="fc.charging.body">A live charge curve with a prediction line. On wheels with a smart BMS, a per-cell view shows cell voltages, pack imbalance and temperatures, so a weak cell shows up early.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-navigation.webp|f-offline.webp" data-f1="0.4" data-f2="0.66">
+        <h3><span data-i18n="fc.navigation.title">Navigation, offline too</span></h3>
+        <p data-i18n-html="fc.navigation.body">Multi-stop routes with turn-by-turn guidance. Bike routes prefer quiet streets, and a missed turn gets a new route in seconds. Download the areas you ride and the map, routes and turn cues keep working with no signal.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-watchset.webp|f-hudset.webp" data-f1="0.14" data-f2="0.4">
+        <h3><span data-i18n="fc.devices.title">Watch and helmet</span> <span class="os" role="img" tabindex="0" aria-label="Only on Android" data-tip="Only on Android" data-i18n-attrs data-i18n-attr-aria-label="a.android-only" data-i18n-attr-data-tip="a.android-only"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
+        <p data-i18n-html="fc.devices.body">Your wheel's numbers off the phone: watch apps for Wear OS, <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Garmin</a> (watches and Edge) and Amazfit, and a <a href="hud/">MotoEye or any Android helmet HUD</a>, also in Android Auto mode with the route.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-alarms-en.webp|f-alarms-es.webp|f-alarms-no.webp|f-alarms-zh.webp" data-f1="0.28" data-f2="0.66">
+        <h3><span data-i18n="fc.alarms.title">Alarms &amp; voice</span></h3>
+        <p data-i18n-html="fc.alarms.body">Alarms and spoken reports for speed, battery and PWM, the number that says how close the wheel is to its limit, in your language. Ask for battery or speed by voice, or say horn, lights, lock.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-phonehud.webp" data-f1="0.3" data-f2="0.7">
+        <h3><span data-i18n="fc.studio.title">Overlay Studio</span></h3>
+        <p data-i18n-html="fc.studio.body">Record video with your telemetry on screen, laid out your way. Export MP4 or a transparent overlay for another camera's footage. The same editor designs your <a href="hud/">MotoEye HUD</a> and the Phone HUD overlay on Android.</p>
       </div>
       <div class="card">
-        <h3><span data-i18n="card.offline-maps-routing.title">Offline maps &amp; routing</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.offline-maps-routing.body">Download the areas you ride and the map, routes and turn cues keep working with no signal.</p>
+        <h3><span data-i18n="fc.sensors.title">Buttons, radar, sensors</span></h3>
+        <p data-i18n-html="fc.sensors.body">Flic 2 buttons for horn, lights and lock. A Garmin Varia shows vehicles coming up behind you, with alarms on distance and closing speed. Bluetooth tire pressure caps and a RaceBox GPS feed the dashboard too.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-qr.webp" data-f1="0.35" data-f2="0.65">
+        <h3><span data-i18n="fc.group.title">Group rides</span></h3>
+        <p data-i18n-html="fc.group.body">Share a ride with a link or a QR code and see friends live on the map, with trails. End-to-end encrypted, with a web page for watching without the app. Opt in to the <a href="https://eucstats.ried.no/">EUC Stats leaderboard</a> to see how your distance ranks worldwide.</p>
+      </div>
+      <div class="card has-shot" tabindex="0" data-shots="f-weather.webp" data-f1="0.08" data-f2="0.4">
+        <h3><span data-i18n="fc.weather.title">Weather forecast</span></h3>
+        <p data-i18n-html="fc.weather.body">A score for how the next hours look for riding, from rain, wind and gusts, cold, heat and night, weighted by how much you mind each one.</p>
       </div>
       <div class="card">
-        <h3><span data-i18n="card.android-auto.title">Android Auto</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.android-auto.body">Turn-by-turn on the car screen, with your dashboard numbers beside the map.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.overlay-studio.title">Overlay Studio</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.overlay-studio.body">Record video from the phone camera with a tunable on-screen telemetry overlay: speed dial, battery, PWM, GPS map, custom layout. Export plain MP4 or transparent overlay for editing on top of footage from another camera. The same editor also designs your <a href="hud/">MotoEye HUD</a> layout and the Phone HUD overlay that floats over other apps on Android, not just recordings.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.modern-fast.title">Modern &amp; fast</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.modern-fast.body">A pure-black AMOLED theme that's gentle on the eyes and easy on battery, with telemetry that updates with almost no lag. The home screen is built to be read in a single glance at speed: big reorderable tiles, composite multi-metric stacks, a clean speed dial, and a fully themeable palette so it looks exactly how you want.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.fits-any-screen.title">Fits any screen</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.fits-any-screen.body">Adaptive layouts for every device: a portrait glance-view, a landscape three-column dashboard for bar mounts, roomier tablet spacing, and a tiny cover-screen mode for foldables (Galaxy Z Flip outer display and friends). Rotation is per-screen, so the dashboard can stay portrait while the map goes full landscape.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.tune-everything.title">Tune everything</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.tune-everything.body">An Advanced panel exposes the knobs behind every feature: poll and refresh rates, chart windows, HUD timings, screen geometry, alarm and charging tuning. Each has a sensible default, a safe range, and one-tap restore, so you can go deep without breaking anything.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.private-by-default.title">Private by default</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.private-by-default.body">No in-app call-home, no analytics, no beacons. Rides stay on your device as plain CSV files. Optional Dropbox backup that you control: mirror your own trips, settings, themes and overlays to your private folder, and share a single ride only when you choose to.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.flic-2-ready.title">Flic 2 ready</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.flic-2-ready.body">Physical buttons for horn, lights, lock, voice. Eyes on the road.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.voice-alarms.title">Voice &amp; alarms</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.voice-alarms.body">Spoken reports and thresholds for speed, battery, PWM. In your language.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.voice-commands.title">Voice commands</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.voice-commands.body">Ask for battery, speed or the weather, or say horn, lights, lock. From the Voice button, a Flic, your watch or a headset button, in your language.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.ride-together.title">Ride together</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.ride-together.body">Share a ride with a link or a QR code and see friends live on the map, with trails. End-to-end encrypted, and a web page for watching without the app.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.tire-pressure-sensors.title">Tire pressure sensors</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.tire-pressure-sensors.body">Bluetooth valve caps on the dashboard, in alarms, trip graphs and the HUD, in psi, bar or kPa.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.trip-recording-compare.title">Trip recording &amp; compare</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.trip-recording-compare.body">GPS + telemetry exported as DarknessBot-compatible CSV. Compare puts two rides side by side.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.weather.title">Weather</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.weather.body">A score for how the next hours look for riding, from rain, wind and gusts, cold, heat, night and golden hour, weighted by how much you mind each one. Drag the curve to read any hour, with temperature, wind and humidity underneath.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.charging-monitor.title">Charging monitor</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.charging-monitor.body">Live charge curve with a scrubbable prediction line, energy split into used and charged, plus a per-cell BMS view for smart-BMS wheels (Veteran, KingSong&hellip;) showing cell voltages, pack imbalance and temperatures, so a weak cell shows up early.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.online-leaderboard.title">Online leaderboard</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.online-leaderboard.body">Opt in to share your rides on the <a href="https://eucstats.ried.no/">EUC Stats leaderboard</a> and see how your distance ranks against riders worldwide and by country. Off by default; you choose the display name and flag, and control what's shared.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.external-gps-support.title">External GPS support</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.external-gps-support.body">Pair a RaceBox or similar BLE GPS for centimetre-class speed and altitude without draining the phone radio.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.multi-wheel.title">Multi-wheel</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.multi-wheel.body">V14 + P6 verified. Rider-tested on <strong>KingSong</strong> KS-16X and KS-18XL, <strong>Begode</strong> Mten3, EX30, E20 and Master, <strong>LeaperKim</strong> Lynx S and Oryx, <strong>NOSFET</strong> Aeon and the <strong>InMotion V8S</strong>; the new <strong>InMotion V6</strong> and <strong>X1</strong> in test, V12 preliminary, with preview adapters for the rest of those families and <strong>Ninebot</strong>. <a href="https://github.com/eried/eucplanet/blob/main/docs/BLE_CAPTURE_GUIDE.md">Help us add yours</a>. Already on the list but acting up? <a href="https://github.com/eried/eucplanet/blob/main/docs/DIAGNOSTICS_GUIDE.md">send a diagnostics recording</a>.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.wear-os-companion.title">Wear OS companion</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.wear-os-companion.body">Watch app for Galaxy Watch Ultra and other Wear OS 5+ watches. Phone holds the link, watch shows live speed, batteries, navigation cues, and quick controls (horn / light / voice).</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.helmet-hud.title">Helmet HUD</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.helmet-hud.body">Mirror the dashboard onto a <a href="hud/">MotoEye E6 or any Android-based HUD</a>. Streams live telemetry from the phone over local WiFi. Sideload the small HUD APK on the visor display, point it at your phone, done.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.garmin-watch-edge.title">Garmin watch &amp; Edge</span> <span class="os" role="img" aria-label="Android" title="Android" data-i18n-attrs data-i18n-attr-aria-label="a.android" data-i18n-attr-title="a.android"><svg class="off"><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.garmin-watch-edge.body">Connect IQ data field showing EUC speed, battery, PWM, current and motor temperature on your Garmin watch or bar-mounted Edge. 135+ devices supported. <a href="https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71">Get it on the Connect IQ Store</a>.</p>
-      </div>
-      <div class="card">
-        <h3><span data-i18n="card.varia-rear-view-radar.title">Varia rear-view radar</span> <span class="os" role="img" aria-label="iPhone and Android" title="iPhone and Android" data-i18n-attrs data-i18n-attr-aria-label="a.iphone-and-android" data-i18n-attr-title="a.iphone-and-android"><svg><use href="#os-apple"/></svg><svg><use href="#os-android"/></svg></span></h3>
-        <p data-i18n-html="card.varia-rear-view-radar.body">Pair a Garmin Varia RTL515 / RCT715 and see approaching vehicles on the dashboard. Wire custom alarms (beep, voice, or vibrate) to rear-vehicle distance and closing speed. Same sensor cyclists use, now on your EUC.</p>
+        <h3><span data-i18n="fc.private.title">Private, and yours to tune</span></h3>
+        <p data-i18n-html="fc.private.body">No analytics, no beacons, no in-app call-home. Rides stay on your device, with optional Dropbox backup to your own folder.</p>
       </div>
     </div>
   </section>
@@ -1006,7 +1062,7 @@
   <img alt="" src="">
 </div>
 
-<script src="js/i18n.js?v=3"></script>
+<script src="js/i18n.js?v=8"></script>
 <script>
   // Eyebrow Echo-trail cycle - RGB ghosting + smooth pill resize
   (function () {
@@ -1169,7 +1225,8 @@
     document.querySelectorAll('.gallery-featured a, .gallery-thumbs a, .gallery-wear a').forEach(function (a) {
       a.addEventListener('click', function (ev) {
         var href = a.getAttribute('href') || '';
-        if (!/\.(png|jpe?g|webp|gif)$/i.test(href)) return;
+        // A ?v= after the name (to skip an old cache) still counts as a picture.
+        if (!/\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(href)) return;
         ev.preventDefault();
         var img = a.querySelector('img');
         var alt = img ? img.getAttribute('alt') : '';
@@ -1185,6 +1242,153 @@
       if (ev.key === 'Escape' && lb.classList.contains('open')) close();
     });
   })();
+
+
+
+
+
+
+
+
+// Feature preview: the hovered (or tapped) card's screen in a small phone.
+// It sits beside the card if there is room, else below or above, always in
+// the window, and follows the card while the page scrolls. Each card gets a
+// preview of its own, so leaving a card folds its own away in place.
+(function () {
+  var cards = document.querySelectorAll('.features .card.has-shot');
+  if (!cards.length) return;
+  function make() {
+    var p = document.createElement('div');
+    p.className = 'shot-pop';
+    p.setAttribute('aria-hidden', 'true');
+    p.innerHTML = '<div class="unfold"><div class="win"></div></div>';
+    document.body.appendChild(p);
+    return { el: p, win: p.querySelector('.win'), timer: null, wait: null, card: null, freeAt: 0 };
+  }
+  // A preview that was open keeps folding away where it was for a moment;
+  // only one that is done (or never opened) is used for the next card, and
+  // a new one is made when they are all still busy.
+  var pops = [make(), make()], cur = null;
+  function free() {
+    var now = Date.now();
+    for (var i = 0; i < pops.length; i++) {
+      if (pops[i] !== cur && !pops[i].card && pops[i].freeAt <= now) return pops[i];
+    }
+    var p = make();
+    pops.push(p);
+    return p;
+  }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(v, hi)); }
+
+  function place(pop, card) {
+    var el = pop.el, r = card.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    var w = el.offsetWidth, h = el.offsetHeight, g = -22, m = 8;
+    var midY = clamp(r.top + r.height / 2 - h / 2, m, vh - h - m);
+    var midX = clamp(r.left + r.width / 2 - w / 2, m, vw - w - m);
+    var spots = [
+      { x: r.right + g, y: midY, room: vw - r.right - g - m - w, ox: '0%', oy: '50%' },
+      { x: r.left - g - w, y: midY, room: r.left - g - m - w, ox: '100%', oy: '50%' },
+      { x: midX, y: r.bottom + g, room: vh - r.bottom - g - m - h, ox: '50%', oy: '0%' },
+      { x: midX, y: r.top - g - h, room: r.top - g - m - h, ox: '50%', oy: '100%' }
+    ];
+    var best = spots[0];
+    for (var i = 0; i < spots.length; i++) {
+      if (spots[i].room >= 0) { best = spots[i]; break; }
+      if (spots[i].room > best.room) best = spots[i];
+    }
+    el.style.setProperty('--ox', best.ox);
+    el.style.setProperty('--oy', best.oy);
+    el.style.left = clamp(best.x, m, vw - w - m) + 'px';
+    el.style.top = clamp(best.y, m, vh - h - m) + 'px';
+  }
+
+  function close(pop) {
+    clearTimeout(pop.wait);
+    clearInterval(pop.timer);
+    pop.freeAt = pop.el.classList.contains('on') ? Date.now() + 900 : 0;
+    pop.el.classList.remove('on');
+    if (pop.card) pop.card.classList.remove('shown');
+    pop.card = null;
+  }
+
+  function show(card) {
+    if (cur && cur.card === card) return;
+    if (cur) close(cur);
+    var pop = free();
+    cur = pop;
+    pop.card = card;
+    card.classList.add('shown');
+    var scale = Math.max(0.75, Math.min(1, window.innerWidth / 640));
+    var w = Math.round(240 * scale), h = Math.round(330 * scale);
+    pop.el.style.setProperty('--pw', w + 'px');
+    pop.el.style.setProperty('--ph', h + 'px');
+    // The whole width is shown, so keep the pan inside the picture.
+    var half = (h / (w * 20 / 9)) / 2;
+    var f1 = clamp(+card.getAttribute('data-f1'), half, 1 - half);
+    var f2 = clamp(+card.getAttribute('data-f2'), half, 1 - half);
+    var list = card.getAttribute('data-shots').split('|');
+    pop.win.innerHTML = '';
+    list.forEach(function (src, i) {
+      var im = new Image();
+      im.alt = '';
+      im.src = 'screenshots/' + src;
+      im.style.setProperty('--f1', f1);
+      im.style.setProperty('--f2', f2);
+      if (i === 0) im.className = 'on';
+      pop.win.appendChild(im);
+    });
+    if (list.length > 1) {
+      var k = 0;
+      pop.timer = setInterval(function () {
+        var ims = pop.win.children;
+        ims[k].className = '';
+        k = (k + 1) % ims.length;
+        ims[k].className = 'on';
+      }, 2200);
+    }
+    place(pop, card);
+    // Wait about a second, so a pass over the cards shows nothing, and
+    // until the first picture is ready, so it never opens on a black box.
+    var first = pop.win.firstChild;
+    var ready = first.decode ? first.decode().catch(function () {}) : Promise.resolve();
+    pop.wait = setTimeout(function () {
+      ready.then(function () { if (pop.card === card) { place(pop, card); pop.el.classList.add('on'); } });
+    }, 1000);
+  }
+
+  function hide() { if (cur) close(cur); cur = null; }
+
+  var touch = window.matchMedia && window.matchMedia('(hover: none)').matches;
+  cards.forEach(function (c) {
+    // On a touch screen a tap also focuses the card; only the tap counts
+    // there, or the focus would open the preview and the tap close it.
+    if (touch) return;
+    c.addEventListener('mouseenter', function () { show(c); });
+    c.addEventListener('mouseleave', hide);
+    c.addEventListener('focus', function () { show(c); });
+    c.addEventListener('blur', hide);
+  });
+  // Where there is no hover, a tap shows it and a tap anywhere else hides it.
+  document.addEventListener('click', function (ev) {
+    if (!touch) return;
+    var card = ev.target.closest ? ev.target.closest('.features .card.has-shot') : null;
+    if (!card || (ev.target.closest && ev.target.closest('a'))) { hide(); return; }
+    if (cur && cur.card === card) hide(); else show(card);
+  });
+  window.addEventListener('scroll', function () { if (cur && cur.card) place(cur, cur.card); }, { passive: true });
+  window.addEventListener('resize', function () { if (cur && cur.card) place(cur, cur.card); });
+})();
+
+// The Only-on-Android mark: hover shows its words; a tap does too, without
+// opening the card's preview.
+document.querySelectorAll('.os[data-tip]').forEach(function (m) {
+  m.addEventListener('click', function (ev) {
+    ev.stopPropagation();
+    m.classList.toggle('tip-on');
+    clearTimeout(m._t);
+    m._t = setTimeout(function () { m.classList.remove('tip-on'); }, 2200);
+  });
+});
 </script>
 
 </body>

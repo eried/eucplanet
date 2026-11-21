@@ -783,6 +783,9 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
     val tilePx = 256f * (1 shl (zWanted - z))
     val hasFix = data.latitude != 0.0 || data.longitude != 0.0
     val accent = Color(element.foreground)
+    val route = remember(data.navRoute) {
+        com.eried.eucplanet.hud.protocol.RouteWindow.decode(data.navRoute)
+    }
 
     Box(
         Modifier
@@ -834,6 +837,32 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                     drawRect(color = Color(0xFF1A1A1A), topLeft = topLeft,
                         size = Size(tilePx, tilePx))
                 }
+            }
+            // The route, as on the map screens: a dark edge under the accent
+            // line, so a preset's own map shows where to ride too.
+            if (route.size >= 4) {
+                val path = androidx.compose.ui.graphics.Path()
+                for (i in 0 until route.size / 2) {
+                    val x = centerPx.x + ((WebMercator.tileX(route[2 * i + 1], z) - cx) * tilePx).toFloat()
+                    val y = centerPx.y + ((WebMercator.tileY(route[2 * i], z) - cy) * tilePx).toFloat()
+                    if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                }
+                drawPath(
+                    path, Color(0xCC000000),
+                    style = Stroke(
+                        6.dp.toPx(),
+                        cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                        join = androidx.compose.ui.graphics.StrokeJoin.Round
+                    )
+                )
+                drawPath(
+                    path, accent,
+                    style = Stroke(
+                        3.5f.dp.toPx(),
+                        cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                        join = androidx.compose.ui.graphics.StrokeJoin.Round
+                    )
+                )
             }
             drawCircle(color = Color.White, radius = 9.dp.toPx(), center = centerPx)
             drawCircle(color = accent, radius = 7.dp.toPx(), center = centerPx)

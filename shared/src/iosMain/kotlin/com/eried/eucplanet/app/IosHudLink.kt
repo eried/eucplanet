@@ -158,6 +158,32 @@ internal object IosHudLink {
     }
 }
 
+/**
+ * Links the paired ENGO glasses while their switch is on, as WheelService
+ * does on Android: a new pair, Disconnect or Forget device ends the old link
+ * first. The renderer keeps looking for the glasses while the link is down.
+ */
+internal object IosEngoLink {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var started = false
+
+    fun start() {
+        if (started) return
+        started = true
+        scope.launch {
+            var linkedTo: String? = null
+            IosAppGraph.settings.settings
+                .map { s -> s.engoHud.pairedAddress?.takeIf { s.engoHud.enabled } }
+                .distinctUntilChanged()
+                .collect { target ->
+                    if (linkedTo != null) IosAppGraph.engoRenderer.stop()
+                    if (target != null) IosAppGraph.engoRenderer.start(target)
+                    linkedTo = target
+                }
+        }
+    }
+}
+
 /** The phone around the link: the screen, the GPS fix, its texts, the launch hooks. */
 internal object IosHudPhone : HudPhone {
     override val foreground: StateFlow<Boolean> get() = IosForeground.visible

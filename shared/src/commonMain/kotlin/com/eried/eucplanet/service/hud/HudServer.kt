@@ -1028,7 +1028,10 @@ class HudServer(
             else -> null
         }
 
-        val navShow = nav.active && !nav.minimized && nav.cueVisible
+        // The HUD shows the next turn for the whole route. The phone's popup
+        // hides after a few seconds and is gone with the phone in a pocket,
+        // so tying the HUD to it left Map + Nav and Nav without turns.
+        val navShow = nav.active
 
         val d = if (demo.active) demo.frame else null
 
@@ -1113,9 +1116,10 @@ class HudServer(
             // empty list as "no wire frame received yet" and shows a
             // waiting splash.
             enabledHudScreens = HudScreens.carousel(s.hudScreensOrder, s.hudScreensEnabled),
-            hudMapStyle = s.hudMapStyle,
-            hudMapContrastPct = s.hudMapContrastPct,
-            hudMapBrightnessPct = s.hudMapBrightnessPct,
+            hudMapStyle = s.hudDisplay.mapStyle,
+            hudMapContrastPct = s.hudDisplay.mapContrastPct,
+            hudMapBrightnessPct = s.hudDisplay.mapBrightnessPct,
+            autoStart = s.hudDisplay.autoStart,
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

@@ -153,6 +153,8 @@ internal object IosSettingsHost : SettingsHost {
     @Composable
     override fun alarmViewModel(): AlarmViewModel = rememberViewModel { IosAppGraph.alarmViewModel() }
 
+    override fun engoGlasses(): com.eried.eucplanet.service.hud.engo.EngoGlasses = IosAppGraph.engoGlasses
+
     @Composable
     override fun flicViewModel(): FlicViewModel = rememberViewModel { FlicViewModel(IosAppGraph.settings, IosFlic) }
 
