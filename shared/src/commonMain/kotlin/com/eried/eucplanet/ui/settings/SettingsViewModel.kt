@@ -935,29 +935,10 @@ class SettingsViewModel(
         copy(widget = widget.copy(standaloneActions = slots.joinToString(",")))
     }
 
-    /** Android Auto slots, the same registries as the widget, saved apart. */
-    fun updateAndroidAutoMetricSlot(index: Int, key: String) = update {
-        val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
-            .metricSlots(androidAuto.metrics).toMutableList()
-        if (index in slots.indices) slots[index] = key
-        copy(androidAuto = androidAuto.copy(metrics = slots.joinToString(",")))
-    }
-
     fun updateNavigatorTile(index: Int, key: String) = update {
         copy(navigatorView = navigatorView.copy(
             metrics = com.eried.eucplanet.data.model.NavigatorViewSettings.withSlot(
                 navigatorView.metrics, index, key, KNOWN_DASHBOARD_METRICS.toSet())))
-    }
-
-    fun updateAndroidAutoActionSlot(index: Int, key: String) = update {
-        val slots = com.eried.eucplanet.data.model.AndroidAutoSettings
-            .actionSlots(androidAuto.actions).toMutableList()
-        if (index in slots.indices) slots[index] = key
-        copy(androidAuto = androidAuto.copy(actions = slots.joinToString(",")))
-    }
-
-    fun updateAndroidAutoAlarmNotifications(v: Boolean) = update {
-        copy(androidAuto = androidAuto.copy(alarmNotifications = v))
     }
 
     fun updateHudServerPort(v: Int) = update {

@@ -1776,7 +1776,7 @@
     <string name="nav_view_straight_line">hemelsbreed</string>
     <string name="nav_view_heading_up">Rijrichting boven, tik voor noord boven</string>
     <string name="nav_view_north_up">Noord boven, tik voor rijrichting boven</string>
-    <string name="nav_view_tiles">Tegels onderweg</string>
+    <string name="nav_view_tiles">Tegels tijdens navigatie</string>
     <string name="nav_view_tiles_desc">De 4 getallen naast de snelheid tijdens het navigeren.</string>
     <string name="nav_view_speed">Snelheid</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2832,7 +2832,6 @@
     <string name="engo_layout_quad">Viervak</string>
     <string name="engo_layout_turn">Afslag</string>
     <string name="engo_layout_minimal">Minimaal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Meetwaarde</string>
     <string name="engo_slot_stat">Tonen</string>
     <string name="engo_element_style">Stijl</string>
@@ -2876,23 +2875,6 @@
         <item quantity="one">%d stop</item>
         <item quantity="other">%d stops</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Je statistieken en de knoppen van je wiel op een Android Auto-scherm.</string>
-    <string name="car_waiting">Wachten op het wiel</string>
-    <string name="car_last_battery">Laatste accustand %1$d%%</string>
-    <string name="car_navigate">Navigeren</string>
-    <string name="car_places_title">Navigeren naar</string>
-    <string name="car_place_home">Thuis</string>
-    <string name="car_place_work">Werk</string>
-    <string name="car_planned_route">Geplande route (%1$d)</string>
-    <string name="car_no_places">Sla eerst Thuis of Werk op, of plan een route op de telefoon.</string>
-    <string name="car_waiting_wheel">Wachten op het wiel</string>
-    <string name="car_weather">Weer</string>
-    <string name="car_alarm_channel_name">Android Auto-alarmen</string>
-    <string name="car_alarm_channel_description">Toont een afgaand alarm op het Android Auto-scherm, over de kaart heen.</string>
-    <string name="car_alarm_notifications">Alarmen op het Android Auto-scherm</string>
-    <string name="car_alarm_notifications_hint">Een afgaand alarm verschijnt over de kaart, zodat je het ook tijdens het navigeren ziet. Piep en trilling veranderen niet.</string>
-    <string name="car_no_metrics">Geen meetwaarden geselecteerd</string>
     <string name="nav_solve_menu">Volgorde van stops optimaliseren</string>
     <string name="nav_solve_effort">Methode</string>
     <string name="nav_solve_quick">Snel</string>
@@ -2944,6 +2926,12 @@
     <string name="offline_data_update_all">Alles bijwerken (%1$d)</string>
     <string name="offline_data_update">Bijwerken</string>
     <string name="offline_data_wifi_updates">Wekelijks bijwerken via wifi</string>
+    <string name="offline_data_check_now">Controleren op updates</string>
+    <string name="offline_data_all_current">Al je gebieden zijn bijgewerkt.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d gebied kan worden bijgewerkt.</item>
+        <item quantity="other">%1$d gebieden kunnen worden bijgewerkt.</item>
+    </plurals>
     <string name="offline_data_credit">Kaart- en routeringsgegevens © OpenStreetMap-bijdragers (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Dit gebied downloaden (%1$s)?</string>
     <string name="offline_data_download">Downloaden</string>

@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigasjon, også uten nett",
 "fc.navigation.body": "Ruter med flere stopp og sving-for-sving-veiledning. Sykkelruter velger helst rolige gater, og bommer du på en sving, får du ny rute på sekunder. Last ned områdene du kjører i, så virker kartet, rutene og svinganvisningene uten dekning.",
 "fc.devices.title": "Klokke og hjelm",
-"fc.devices.body": "Hjulets tall, også utenfor mobilen: klokkeapper for Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (klokker og Edge) og Amazfit, og en <a href=\"hud/\">MotoEye eller en annen Android-HUD på hjelmen</a>, også i Android Auto-modus med ruten.",
+"fc.devices.body": "Hjulets tall, også utenfor mobilen: klokkeapper for Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (klokker og Edge) og Amazfit, og en <a href=\"hud/\">MotoEye eller en annen Android-HUD på hjelmen</a>.",
 "fc.alarms.title": "Alarmer og stemme",
 "fc.alarms.body": "Alarmer og opplest status for fart, batteri og PWM, tallet som viser hvor nær grensen hjulet er, på ditt språk. Spør om batteri eller fart med stemmen, eller si horn, lys, lås.",
 "fc.studio.title": "Overlay Studio",

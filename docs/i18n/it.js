@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigazione, anche offline",
 "fc.navigation.body": "Percorsi a più tappe con guida passo passo. I percorsi in bici preferiscono le strade tranquille, e se salti una svolta hai un nuovo percorso in pochi secondi. Scarica le zone dove giri: mappa, percorsi e indicazioni di svolta funzionano anche senza segnale.",
 "fc.devices.title": "Orologio e casco",
-"fc.devices.body": "I numeri della ruota anche fuori dal telefono: app per orologi Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (orologi ed Edge) e Amazfit, e un <a href=\"hud/\">HUD da casco MotoEye o basato su Android</a>, anche in modalità Android Auto con il percorso.",
+"fc.devices.body": "I numeri della ruota anche fuori dal telefono: app per orologi Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (orologi ed Edge) e Amazfit, e un <a href=\"hud/\">HUD da casco MotoEye o basato su Android</a>.",
 "fc.alarms.title": "Allarmi e voce",
 "fc.alarms.body": "Allarmi e annunci vocali nella tua lingua per velocità, batteria e PWM, il numero che dice quanto la ruota è vicina al limite. Chiedi a voce batteria o velocità, oppure di' clacson, luci, blocco.",
 "fc.studio.title": "Overlay Studio",

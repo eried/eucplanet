@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navegación, también sin conexión",
 "fc.navigation.body": "Rutas con varias paradas y guiado giro a giro. Las rutas en bici prefieren calles tranquilas, y si te pasas un giro tienes ruta nueva en segundos. Descarga las zonas por las que ruedas y el mapa, las rutas y las indicaciones siguen funcionando sin cobertura.",
 "fc.devices.title": "Reloj y casco",
-"fc.devices.body": "Los datos de tu rueda fuera del móvil: apps para reloj Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (relojes y Edge) y Amazfit, y un <a href=\"hud/\">HUD MotoEye o cualquier HUD de casco con Android</a>, también en modo Android Auto con la ruta.",
+"fc.devices.body": "Los datos de tu rueda fuera del móvil: apps para reloj Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (relojes y Edge) y Amazfit, y un <a href=\"hud/\">HUD MotoEye o cualquier HUD de casco con Android</a>.",
 "fc.alarms.title": "Alarmas y voz",
 "fc.alarms.body": "Alarmas y avisos hablados de velocidad, batería y PWM, la cifra que dice lo cerca que va la rueda de su límite, en tu idioma. Pide la batería o la velocidad con la voz, o di bocina, luces, bloquear.",
 "fc.studio.title": "Overlay Studio",

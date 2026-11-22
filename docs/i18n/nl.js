@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigatie, ook offline",
 "fc.navigation.body": "Routes met meerdere stops en stap-voor-stap-aanwijzingen. Fietsroutes kiezen liever rustige straten, en mis je een afslag, dan heb je binnen seconden een nieuwe route. Download de gebieden waar je rijdt en kaart, routes en aanwijzingen werken ook zonder bereik.",
 "fc.devices.title": "Horloge en helm",
-"fc.devices.body": "De cijfers van je wiel, ook buiten je telefoon: horloge-apps voor Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (horloges en Edge) en Amazfit, en een <a href=\"hud/\">MotoEye of andere helm-HUD op Android</a>, ook in Android Auto-modus met de route.",
+"fc.devices.body": "De cijfers van je wiel, ook buiten je telefoon: horloge-apps voor Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (horloges en Edge) en Amazfit, en een <a href=\"hud/\">MotoEye of andere helm-HUD op Android</a>.",
 "fc.alarms.title": "Alarmen & spraak",
 "fc.alarms.body": "Alarmen en gesproken meldingen voor snelheid, accu en PWM, het getal dat zegt hoe dicht het wiel bij zijn limiet zit, in jouw taal. Vraag met je stem naar de accu of je snelheid, of zeg claxon, licht, slot.",
 "fc.studio.title": "Overlay Studio",

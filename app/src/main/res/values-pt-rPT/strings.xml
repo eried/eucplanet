@@ -477,7 +477,6 @@
     <string name="engo_layout_quad">Quádrupla</string>
     <string name="engo_layout_turn">Viragem</string>
     <string name="engo_layout_minimal">Mínima</string>
-    <string name="engo_element">Elemento</string>
     <string name="engo_element_metric">Métrica</string>
     <string name="engo_slot_stat">Mostrar</string>
     <string name="engo_element_style">Estilo</string>
@@ -2758,23 +2757,6 @@
         <item quantity="many">%d paragens</item>
         <item quantity="other">%d paragens</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">As suas estatísticas e os botões da roda num ecrã Android Auto.</string>
-    <string name="car_waiting">A aguardar a roda</string>
-    <string name="car_last_battery">Última bateria %1$d%%</string>
-    <string name="car_waiting_wheel">A aguardar a roda</string>
-    <string name="car_weather">Meteorologia</string>
-    <string name="car_no_metrics">Nenhuma métrica selecionada</string>
-    <string name="car_alarm_channel_name">Alarmes do Android Auto</string>
-    <string name="car_alarm_channel_description">Mostra um alarme ativo no ecrã Android Auto, por cima do mapa.</string>
-    <string name="car_alarm_notifications">Alarmes no ecrã Android Auto</string>
-    <string name="car_alarm_notifications_hint">Um alarme ativo aparece por cima do mapa, para chegar até si durante a navegação. O bipe e a vibração não mudam.</string>
-    <string name="car_navigate">Navegar</string>
-    <string name="car_places_title">Navegar para</string>
-    <string name="car_place_home">Casa</string>
-    <string name="car_place_work">Trabalho</string>
-    <string name="car_planned_route">Rota planeada (%1$d)</string>
-    <string name="car_no_places">Guarde Casa ou Trabalho, ou planeie primeiro uma rota no telemóvel.</string>
     <string name="nav_solve_menu">Otimizar ordem das paragens</string>
     <string name="nav_solve_effort">Esforço</string>
     <string name="nav_solve_quick">Rápido</string>
@@ -2826,6 +2808,13 @@
     <string name="offline_data_update_all">Atualizar tudo (%1$d)</string>
     <string name="offline_data_update">Atualizar</string>
     <string name="offline_data_wifi_updates">Atualizar semanalmente por Wi-Fi</string>
+    <string name="offline_data_check_now">Procurar atualizações</string>
+    <string name="offline_data_all_current">Todas as suas áreas estão atualizadas.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d área pode ser atualizada.</item>
+        <item quantity="many">%1$d áreas podem ser atualizadas.</item>
+        <item quantity="other">%1$d áreas podem ser atualizadas.</item>
+    </plurals>
     <string name="offline_data_credit">Dados de mapa e rotas © contribuidores do OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Transferir esta área (%1$s)?</string>
     <string name="offline_data_download">Transferir</string>

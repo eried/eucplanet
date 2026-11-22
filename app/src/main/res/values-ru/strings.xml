@@ -2833,7 +2833,6 @@
     <string name="engo_layout_quad">Четверной</string>
     <string name="engo_layout_turn">Поворот</string>
     <string name="engo_layout_minimal">Минимальный</string>
-    <string name="engo_element">Элемент</string>
     <string name="engo_element_metric">Показатель</string>
     <string name="engo_slot_stat">Показывать</string>
     <string name="engo_element_style">Стиль</string>
@@ -2880,23 +2879,6 @@
         <item quantity="many">%d точек</item>
         <item quantity="other">%d точки</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Показатели и кнопки моноколеса на экране Android Auto.</string>
-    <string name="car_waiting">Ожидание моноколеса</string>
-    <string name="car_last_battery">Последний заряд %1$d%%</string>
-    <string name="car_navigate">Навигация</string>
-    <string name="car_places_title">Маршрут до</string>
-    <string name="car_place_home">Дом</string>
-    <string name="car_place_work">Работа</string>
-    <string name="car_planned_route">Маршрут (%1$d)</string>
-    <string name="car_no_places">Сначала сохраните «Дом» или «Работу» либо постройте маршрут на телефоне.</string>
-    <string name="car_waiting_wheel">Ожидание моноколеса</string>
-    <string name="car_weather">Погода</string>
-    <string name="car_alarm_channel_name">Сигналы Android Auto</string>
-    <string name="car_alarm_channel_description">Показывает сработавший сигнал на экране Android Auto, поверх карты.</string>
-    <string name="car_alarm_notifications">Сигналы на экране Android Auto</string>
-    <string name="car_alarm_notifications_hint">Сработавший сигнал появляется поверх карты, поэтому вы заметите его во время навигации. Звук и вибрация не меняются.</string>
-    <string name="car_no_metrics">Показатели не выбраны</string>
     <string name="nav_solve_menu">Оптимизировать порядок точек</string>
     <string name="nav_solve_effort">Точность</string>
     <string name="nav_solve_quick">Быстро</string>
@@ -2948,6 +2930,14 @@
     <string name="offline_data_update_all">Обновить все (%1$d)</string>
     <string name="offline_data_update">Обновить</string>
     <string name="offline_data_wifi_updates">Обновлять раз в неделю по Wi-Fi</string>
+    <string name="offline_data_check_now">Проверить обновления</string>
+    <string name="offline_data_all_current">Все ваши области актуальны.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d область можно обновить.</item>
+        <item quantity="few">%1$d области можно обновить.</item>
+        <item quantity="many">%1$d областей можно обновить.</item>
+        <item quantity="other">%1$d области можно обновить.</item>
+    </plurals>
     <string name="offline_data_credit">Данные карт и маршрутов © участники OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Скачать эту область (%1$s)?</string>
     <string name="offline_data_download">Скачать</string>

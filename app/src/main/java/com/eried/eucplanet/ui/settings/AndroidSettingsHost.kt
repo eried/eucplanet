@@ -224,11 +224,6 @@ private class AndroidSettingsHost(
     )
 
     @Composable
-    override fun CarSettings(settings: AppSettings, viewModel: SettingsViewModel) {
-        AndroidAutoSection(settings = settings, viewModel = viewModel)
-    }
-
-    @Composable
     override fun PhoneHudSection(settings: AppSettings, viewModel: SettingsViewModel) {
         com.eried.eucplanet.ui.settings.PhoneHudSection(settings, viewModel)
     }

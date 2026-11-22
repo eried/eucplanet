@@ -2651,7 +2651,7 @@
     <string name="crews_scan_hint">在浏览器中打开 eucstats，点 Crews，然后把手机对准页面上显示的码。</string>
     <string name="crews_scan_invalid">这不是战队通行码。</string>
     <string name="crews_scan_is_share">那是实时位置的码。去地图上的“分享”里扫。</string>
-    <string name="share_scan_is_crewpass">那是战队通行码。去设置里的“%1$s”扫。</string>
+    <string name="share_scan_is_crewpass">这是战队通行码，请在设置的“%1$s”中扫描。</string>
     <string name="crews_type_instead">手动输入</string>
     <string name="crews_code_label">通行码</string>
     <string name="crews_foreign_title">这个码不是 eucstats 的</string>
@@ -2693,7 +2693,6 @@
     <string name="engo_layout_quad">四宫格</string>
     <string name="engo_layout_turn">转弯</string>
     <string name="engo_layout_minimal">极简</string>
-    <string name="engo_element">元素</string>
     <string name="engo_element_metric">指标</string>
     <string name="engo_slot_stat">显示</string>
     <string name="engo_element_style">样式</string>
@@ -2737,23 +2736,6 @@
     <plurals name="route_stop_count">
         <item quantity="other">%d 个途经点</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">在 Android Auto 屏幕上显示数据和独轮车按钮。</string>
-    <string name="car_waiting">正在等待独轮车</string>
-    <string name="car_last_battery">上次电量 %1$d%%</string>
-    <string name="car_navigate">导航</string>
-    <string name="car_places_title">导航至</string>
-    <string name="car_place_home">家</string>
-    <string name="car_place_work">公司</string>
-    <string name="car_planned_route">计划路线 (%1$d)</string>
-    <string name="car_no_places">请先保存家或公司，或在手机上规划路线。</string>
-    <string name="car_waiting_wheel">正在等待独轮车</string>
-    <string name="car_weather">天气</string>
-    <string name="car_alarm_channel_name">车机屏幕报警</string>
-    <string name="car_alarm_channel_description">在 Android Auto 屏幕的地图上方显示正在触发的报警。</string>
-    <string name="car_alarm_notifications">Android Auto 屏幕报警</string>
-    <string name="car_alarm_notifications_hint">触发的报警会显示在地图上方，导航时也能看到。蜂鸣和振动保持不变。</string>
-    <string name="car_no_metrics">未选择任何指标</string>
     <string name="nav_solve_menu">优化途经点顺序</string>
     <string name="nav_solve_effort">精确度</string>
     <string name="nav_solve_quick">快速</string>
@@ -2805,6 +2787,11 @@
     <string name="offline_data_update_all">全部更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">每周通过 Wi-Fi 更新</string>
+    <string name="offline_data_check_now">检查更新</string>
+    <string name="offline_data_all_current">你的所有区域都是最新的。</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">有 %1$d 个区域可以更新。</item>
+    </plurals>
     <string name="offline_data_credit">地图和路线数据 © OpenStreetMap 贡献者 (ODbL)。Protomaps、BRouter (MIT)。</string>
     <string name="offline_data_download_q">下载此区域（%1$s）？</string>
     <string name="offline_data_download">下载</string>

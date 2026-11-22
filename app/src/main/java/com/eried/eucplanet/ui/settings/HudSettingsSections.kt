@@ -13,7 +13,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -50,8 +49,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.eried.eucplanet.data.model.WidgetActionType
-import com.eried.eucplanet.data.model.WidgetMetricType
 import com.eried.eucplanet.data.model.pickerLabel
 import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.resources.*
@@ -398,65 +395,6 @@ private fun detectHotspotEnabled(ctx: android.content.Context): Boolean? {
     }.getOrDefault(false)
     return if (sawSoftAp) true else null
 }
-
-/**
- * Android Auto's stat boxes and buttons, picked like the home screen widget's
- * slots but saved apart: the car and the home screen are different jobs.
- * Three buttons, and all three are the rider's.
- */
-@Composable
-internal fun AndroidAutoSection(
-    settings: com.eried.eucplanet.data.model.AppSettings,
-    viewModel: SettingsViewModel,
-) {
-    val aa = com.eried.eucplanet.data.model.AndroidAutoSettings
-    val metricSlots = aa.metricSlots(settings.androidAuto.metrics)
-    val actionSlots = aa.actionSlots(settings.androidAuto.actions)
-    val metricOptions = WidgetMetricType.entries.map { it.key to stringResource(it.pickerLabel) }
-    val actionOptions = WidgetActionType.entries.map { it.key to stringResource(it.pickerLabel) }
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        SectionHeader(stringResource(Res.string.section_android_auto))
-        HintText(stringResource(Res.string.android_auto_hint))
-        metricSlots.indices.chunked(2).forEach { pair ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                pair.forEach { i ->
-                    WidgetSlotDropdown(
-                        label = stringResource(Res.string.widget_metric_slot, i + 1),
-                        currentLabel = WidgetMetricType.byKey(metricSlots[i])
-                            ?.let { stringResource(it.pickerLabel) } ?: "",
-                        options = metricOptions,
-                        onSelect = { viewModel.updateAndroidAutoMetricSlot(i, it) },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-            }
-        }
-        actionSlots.indices.chunked(2).forEach { pair ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                pair.forEach { i ->
-                    WidgetSlotDropdown(
-                        label = stringResource(Res.string.widget_action_slot, i + 1),
-                        currentLabel = WidgetActionType.byKey(actionSlots[i])
-                            ?.let { stringResource(it.pickerLabel) } ?: "",
-                        options = actionOptions,
-                        onSelect = { viewModel.updateAndroidAutoActionSlot(i, it) },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-                if (pair.size == 1) Spacer(Modifier.weight(1f))
-            }
-        }
-        SwitchSetting(
-            stringResource(Res.string.car_alarm_notifications),
-            settings.androidAuto.alarmNotifications,
-        ) { viewModel.updateAndroidAutoAlarmNotifications(it) }
-        HintText(stringResource(Res.string.car_alarm_notifications_hint))
-    }
-}
-
 
 /**
  * Phone HUD: the same Overlay Studio presets the companion HUD shows,

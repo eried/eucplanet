@@ -33,7 +33,7 @@
  "fc.navigation.title": "Navigation, offline too",
  "fc.navigation.body": "Multi-stop routes with turn-by-turn guidance. Bike routes prefer quiet streets, and a missed turn gets a new route in seconds. Download the areas you ride and the map, routes and turn cues keep working with no signal.",
  "fc.devices.title": "Watch and helmet",
- "fc.devices.body": "Your wheel's numbers off the phone: watch apps for Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (watches and Edge) and Amazfit, and a <a href=\"hud/\">MotoEye or any Android helmet HUD</a>, also in Android Auto mode with the route.",
+ "fc.devices.body": "Your wheel's numbers off the phone: watch apps for Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (watches and Edge) and Amazfit, and a <a href=\"hud/\">MotoEye or any Android helmet HUD</a>.",
  "fc.alarms.title": "Alarms & voice",
  "fc.alarms.body": "Alarms and spoken reports for speed, battery and PWM, the number that says how close the wheel is to its limit, in your language. Ask for battery or speed by voice, or say horn, lights, lock.",
  "fc.studio.title": "Overlay Studio",

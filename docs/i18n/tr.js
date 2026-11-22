@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigasyon, çevrimdışı da",
 "fc.navigation.body": "Çok duraklı rotalar, adım adım yönlendirme. Bisiklet rotaları sakin sokakları tercih eder, kaçırdığın dönüşte saniyeler içinde yeni rota gelir. Sürdüğün bölgeleri indir, harita, rotalar ve dönüş uyarıları telefon çekmese de çalışır.",
 "fc.devices.title": "Saat ve kask",
-"fc.devices.body": "Tekerinin değerleri telefonun dışında da: Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (saatler ve Edge) ve Amazfit için saat uygulamaları ve <a href=\"hud/\">MotoEye ya da Android tabanlı herhangi bir kask HUD'ı</a>, rotayla birlikte Android Auto modunda da.",
+"fc.devices.body": "Tekerinin değerleri telefonun dışında da: Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (saatler ve Edge) ve Amazfit için saat uygulamaları ve <a href=\"hud/\">MotoEye ya da Android tabanlı herhangi bir kask HUD'ı</a>.",
 "fc.alarms.title": "Alarmlar ve ses",
 "fc.alarms.body": "Hız, batarya ve PWM (tekerin sınırına ne kadar yaklaştığını söyleyen değer) için alarmlar ve sesli bildirimler, kendi dilinde. Bataryayı ya da hızı sesle sor, ya da korna, ışıklar, kilit demen yeter.",
 "fc.studio.title": "Overlay Studio",

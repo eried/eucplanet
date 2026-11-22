@@ -133,10 +133,6 @@ interface SettingsHost {
     /** This phone's keyboard flags for typing an address, null for its defaults. */
     val addressImeOptions: androidx.compose.ui.text.input.PlatformImeOptions? get() = null
 
-    /** The car screen ([SettingsRow.CAR_SCREEN]). */
-    @Composable
-    fun CarSettings(settings: AppSettings, viewModel: SettingsViewModel)
-
     /** A window over other apps that draws an overlay preset. */
     @Composable
     fun PhoneHudSection(settings: AppSettings, viewModel: SettingsViewModel)
@@ -211,9 +207,6 @@ enum class SettingsRow {
 
     /** Sending the HUD its own app, and the card that shows its version. */
     HUD_APP_SEND,
-
-    /** The car screen: its alarm notifications. */
-    CAR_SCREEN,
 
     /** The phone HUD: a window over other apps that draws an overlay preset. */
     PHONE_HUD_WINDOW,

@@ -48,8 +48,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 36
-        versionCode = 284
-        versionName = "0.24.0"
+        versionCode = 285
+        versionName = "0.25.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -128,16 +128,6 @@ android {
             }
         }
         release {
-            // -PaaosTest builds a release APK the AAOS emulator can host, so the
-            // car screen can be checked with R8 on. This matters: R8 is the only
-            // difference between the build that works in the emulator and the one
-            // testers install, and it has already shipped one unopenable car
-            // screen (see the Car App Library keep rule in proguard-rules.pro).
-            // Adds the x86_64 ffmpeg libs, the automotive host and its
-            // CarAppActivity. See docs/android-auto-testing.md.
-            if (project.hasProperty("aaosTest")) {
-                ndk { abiFilters += "x86_64" }
-            }
             // A release build is NEVER a dev build, whatever branch it was cut
             // from. The defaultConfig heuristic (branch != main) is only meant
             // for debug/branch tester APKs; a release AAB submitted to Play from
@@ -263,14 +253,6 @@ android {
         getByName("androidTest") {
             assets.srcDir("$projectDir/schemas")
         }
-        // -PaaosTest only: hands the release variant the CarAppActivity the AAOS
-        // emulator launches, plus the survey receiver so a virtual wheel can be
-        // connected and the car screen checked with real numbers rather than an
-        // empty "waiting for the wheel". Never merged into a build that ships.
-        if (project.hasProperty("aaosTest")) {
-            getByName("release").manifest.srcFile("src/aaosTest/AndroidManifest.xml")
-            getByName("release").kotlin.srcDir("src/debug/java")
-        }
     }
 }
 
@@ -367,16 +349,6 @@ dependencies {
     // MapLibre - TODO: re-enable when map preview is implemented
     // Disabled for now to avoid 16KB page size compatibility warning on Android 15+
     // implementation(libs.maplibre)
-    // Android Auto: the car screen draws our map and stats (feature/android-auto).
-    implementation(libs.androidx.car.app)
-    // Debug only: lets the x86 Android Automotive emulator host the car
-    // screens, since Android Auto itself does not install on x86 emulators.
-    debugImplementation(libs.androidx.car.app.automotive)
-    // -PaaosTest: the same host in a release build, so the car screen can be
-    // checked with R8 on before it reaches testers.
-    if (project.hasProperty("aaosTest")) {
-        "releaseImplementation"(libs.androidx.car.app.automotive)
-    }
 
     // Flic 2 button SDK
     implementation(libs.flic2)

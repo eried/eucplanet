@@ -98,7 +98,6 @@ internal object IosSettingsHost : SettingsHost {
         SettingsRow.PHONE_VOLUME,
         SettingsRow.VOICE_OUTPUT_CHANNEL,
         SettingsRow.HUD_APP_SEND,
-        SettingsRow.CAR_SCREEN,
         SettingsRow.PHONE_HUD_WINDOW,
     )
 
@@ -232,9 +231,6 @@ internal object IosSettingsHost : SettingsHost {
 
     // What Personal Hotspot hands its first device (172.20.10.0/28).
     override val hudAddressExample: String = "172.20.10.2"
-
-    @Composable
-    override fun CarSettings(settings: AppSettings, viewModel: SettingsViewModel) = Unit
 
     @Composable
     override fun PhoneHudSection(settings: AppSettings, viewModel: SettingsViewModel) = Unit

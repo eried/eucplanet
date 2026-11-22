@@ -35,5 +35,4 @@ internal object IosAlarmOutputs : AlarmOutputs {
 
     override fun vibrate(durationMs: Long) = AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
     override fun vibrateWatch(durationMs: Int) = Unit
-    override fun notifyCar(title: String, text: String) = Unit
 }

@@ -2844,7 +2844,6 @@
     <string name="engo_layout_quad">Firdelt</string>
     <string name="engo_layout_turn">Sving</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Måling</string>
     <string name="engo_slot_stat">Vis</string>
     <string name="engo_element_style">Stil</string>
@@ -2889,23 +2888,6 @@
         <item quantity="one">%d stop</item>
         <item quantity="other">%d stop</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Din statistik og hjulets knapper på en Android Auto-skærm.</string>
-    <string name="car_waiting">Venter på hjulet</string>
-    <string name="car_last_battery">Batteri sidst: %1$d %%</string>
-    <string name="car_navigate">Navigér</string>
-    <string name="car_places_title">Navigér til</string>
-    <string name="car_place_home">Hjem</string>
-    <string name="car_place_work">Arbejde</string>
-    <string name="car_planned_route">Planlagt rute (%1$d)</string>
-    <string name="car_no_places">Gem Hjem eller Arbejde, eller planlæg en rute på telefonen først.</string>
-    <string name="car_waiting_wheel">Venter på hjulet</string>
-    <string name="car_weather">Vejr</string>
-    <string name="car_alarm_channel_name">Android Auto-alarmer</string>
-    <string name="car_alarm_channel_description">Viser en udløst alarm på Android Auto-skærmen, oven på kortet.</string>
-    <string name="car_alarm_notifications">Alarmer på Android Auto-skærmen</string>
-    <string name="car_alarm_notifications_hint">En udløst alarm vises oven på kortet, så den når dig under navigation. Bip og vibration er uændret.</string>
-    <string name="car_no_metrics">Ingen målinger valgt</string>
     <string name="nav_solve_menu">Optimér rækkefølgen af stop</string>
     <string name="nav_solve_effort">Grundighed</string>
     <string name="nav_solve_quick">Hurtig</string>
@@ -2957,6 +2939,12 @@
     <string name="offline_data_update_all">Opdatér alle (%1$d)</string>
     <string name="offline_data_update">Opdatér</string>
     <string name="offline_data_wifi_updates">Opdatér hver uge på Wi-Fi</string>
+    <string name="offline_data_check_now">Søg efter opdateringer</string>
+    <string name="offline_data_all_current">Alle dine områder er opdaterede.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d område kan opdateres.</item>
+        <item quantity="other">%1$d områder kan opdateres.</item>
+    </plurals>
     <string name="offline_data_credit">Kort- og rutedata © OpenStreetMap-bidragydere (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Hent dette område (%1$s)?</string>
     <string name="offline_data_download">Hent</string>

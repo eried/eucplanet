@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "導航，離線也行",
 "fc.navigation.body": "可以排多個停靠點的路線，有逐向引導。自行車路線會優先走安靜的街道，錯過轉彎，幾秒內就有新路線。把你常騎的區域下載下來，沒訊號時地圖、路線和轉彎提示照樣能用。",
 "fc.devices.title": "手錶與安全帽",
-"fc.devices.body": "獨輪車的數據不只在手機上看：有 Wear OS、<a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a>（手錶和 Edge）、Amazfit 的手錶 App，還有 <a href=\"hud/\">MotoEye 或任何 Android 安全帽 HUD</a>，也支援 Android Auto 模式顯示路線。",
+"fc.devices.body": "獨輪車的數據不只在手機上看：有 Wear OS、<a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a>（手錶和 Edge）、Amazfit 的手錶 App，還有 <a href=\"hud/\">MotoEye 或任何 Android 安全帽 HUD</a>。",
 "fc.alarms.title": "警報與語音",
 "fc.alarms.body": "速度、電量和 PWM 的警報與語音播報，用你的語言。PWM 就是看獨輪車離極限還有多近的那個數字。想知道電量或速度，開口問就好，或直接說「喇叭」「車燈」「鎖定」。",
 "fc.studio.title": "Overlay Studio",

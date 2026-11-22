@@ -551,7 +551,7 @@
     <string name="recording_summary_max_current">Corrente massima</string>
     <string name="recording_summary_max_power">Potenza massima</string>
     <string name="recording_summary_max_torque">Coppia max</string>
-    <string name="recording_summary_max_phase_current">A fase max</string>
+    <string name="recording_summary_max_phase_current">Corrente fase max</string>
     <string name="recording_summary_max_temp">Temp. massima</string>
     <string name="recording_summary_energy">Energia</string>
     <string name="recording_summary_consumption">Consumo</string>
@@ -2723,7 +2723,7 @@
     <string name="engo_scan_hint">Accendi gli occhiali. Si collegano a un solo dispositivo alla volta, quindi scollegali prima dall’orologio o dall’app ActiveLook.</string>
     <string name="engo_pages_title">Personalizza</string>
     <string name="engo_nav_takeover">Mostra le svolte in navigazione</string>
-    <string name="engo_element_none">Tocca un numero nell\'anteprima in alto per configurarlo qui.</string>
+    <string name="engo_element_none">Tocca un valore nell\'anteprima in alto per configurarlo qui.</string>
     <string name="engo_preview_label">Anteprima della pagina degli occhiali</string>
     <string name="engo_preview_mode">Anteprima</string>
     <string name="engo_preview_zeros">Zeri</string>
@@ -2735,7 +2735,6 @@
     <string name="engo_layout_quad">Quadruplo</string>
     <string name="engo_layout_turn">Svolta</string>
     <string name="engo_layout_minimal">Minimale</string>
-    <string name="engo_element">Elemento</string>
     <string name="engo_element_metric">Metrica</string>
     <string name="engo_slot_stat">Mostra</string>
     <string name="engo_element_style">Stile</string>
@@ -2781,23 +2780,6 @@
         <item quantity="many">%d tappe</item>
         <item quantity="other">%d tappe</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistiche e pulsanti della ruota su uno schermo Android Auto.</string>
-    <string name="car_waiting">In attesa della ruota</string>
-    <string name="car_last_battery">Ultima batteria %1$d%%</string>
-    <string name="car_navigate">Naviga</string>
-    <string name="car_places_title">Naviga verso</string>
-    <string name="car_place_home">Casa</string>
-    <string name="car_place_work">Lavoro</string>
-    <string name="car_planned_route">Percorso pianificato (%1$d)</string>
-    <string name="car_no_places">Salva prima Casa o Lavoro, o pianifica un percorso sul telefono.</string>
-    <string name="car_waiting_wheel">In attesa della ruota</string>
-    <string name="car_weather">Meteo</string>
-    <string name="car_alarm_channel_name">Allarmi Android Auto</string>
-    <string name="car_alarm_channel_description">Mostra un allarme attivo sullo schermo Android Auto, sopra la mappa.</string>
-    <string name="car_alarm_notifications">Allarmi sullo schermo Android Auto</string>
-    <string name="car_alarm_notifications_hint">Un allarme attivo compare sopra la mappa, così lo vedi anche mentre navighi. Bip e vibrazione non cambiano.</string>
-    <string name="car_no_metrics">Nessuna metrica selezionata</string>
     <string name="nav_solve_menu">Ottimizza ordine delle tappe</string>
     <string name="nav_solve_effort">Calcolo</string>
     <string name="nav_solve_quick">Veloce</string>
@@ -2849,6 +2831,13 @@
     <string name="offline_data_update_all">Aggiorna tutto (%1$d)</string>
     <string name="offline_data_update">Aggiorna</string>
     <string name="offline_data_wifi_updates">Aggiorna ogni settimana in Wi-Fi</string>
+    <string name="offline_data_check_now">Cerca aggiornamenti</string>
+    <string name="offline_data_all_current">Tutte le tue aree sono aggiornate.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d area può essere aggiornata.</item>
+        <item quantity="many">%1$d aree possono essere aggiornate.</item>
+        <item quantity="other">%1$d aree possono essere aggiornate.</item>
+    </plurals>
     <string name="offline_data_credit">Dati di mappe e percorsi © collaboratori di OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Scaricare quest\'area (%1$s)?</string>
     <string name="offline_data_download">Scarica</string>

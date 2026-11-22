@@ -505,7 +505,6 @@
     <string name="engo_layout_quad">Quad</string>
     <string name="engo_layout_turn">Turn</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Element</string>
     <string name="engo_element_metric">Metric</string>
     <string name="engo_slot_stat">Show</string>
     <string name="engo_element_style">Style</string>
@@ -2902,23 +2901,6 @@
         <item quantity="one">%d stop</item>
         <item quantity="other">%d stops</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Your stats and wheel buttons on an Android Auto screen.</string>
-    <string name="car_waiting">Waiting for the wheel</string>
-    <string name="car_last_battery">Last battery %1$d%%</string>
-    <string name="car_waiting_wheel">Waiting for the wheel</string>
-    <string name="car_weather">Weather</string>
-    <string name="car_no_metrics">No metrics selected</string>
-    <string name="car_alarm_channel_name">Android Auto alarms</string>
-    <string name="car_alarm_channel_description">Shows a firing alarm on the Android Auto screen, over the map.</string>
-    <string name="car_alarm_notifications">Alarms on the Android Auto screen</string>
-    <string name="car_alarm_notifications_hint">A firing alarm shows over the map, so it reaches you while navigating. Beep and vibration are unchanged.</string>
-    <string name="car_navigate">Navigate</string>
-    <string name="car_places_title">Navigate to</string>
-    <string name="car_place_home">Home</string>
-    <string name="car_place_work">Work</string>
-    <string name="car_planned_route">Planned route (%1$d)</string>
-    <string name="car_no_places">Save Home or Work, or plan a route on the phone first.</string>
     <string name="nav_solve_menu">Optimize stop order</string>
     <string name="nav_solve_effort">Effort</string>
     <string name="nav_solve_quick">Quick</string>
@@ -2970,6 +2952,12 @@
     <string name="offline_data_update_all">Update all (%1$d)</string>
     <string name="offline_data_update">Update</string>
     <string name="offline_data_wifi_updates">Update weekly on Wi-Fi</string>
+    <string name="offline_data_check_now">Check for updates</string>
+    <string name="offline_data_all_current">All your areas are up to date.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d area can be updated.</item>
+        <item quantity="other">%1$d areas can be updated.</item>
+    </plurals>
     <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Download this area (%1$s)?</string>
     <string name="offline_data_download">Download</string>

@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigointi, myös offline",
 "fc.navigation.body": "Monen pysähdyksen reitit ja käännösohjeet. Pyöräreitit suosivat rauhallisia katuja, ja jos käännös menee ohi, saat uuden reitin sekunneissa. Lataa alueet, joilla ajat, niin kartta, reitit ja käännösohjeet toimivat ilman kenttää.",
 "fc.devices.title": "Kello ja kypärä",
-"fc.devices.body": "Lukemat muuallekin kuin puhelimeen: kellosovellukset Wear OS:lle, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garminille</a> (kellot ja Edge) ja Amazfitille sekä <a href=\"hud/\">MotoEye tai mikä tahansa Android-kypärä-HUD</a>, myös Android Auto -tilassa reitin kanssa.",
+"fc.devices.body": "Lukemat muuallekin kuin puhelimeen: kellosovellukset Wear OS:lle, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garminille</a> (kellot ja Edge) ja Amazfitille sekä <a href=\"hud/\">MotoEye tai mikä tahansa Android-kypärä-HUD</a>.",
 "fc.alarms.title": "Hälytykset ja puhe",
 "fc.alarms.body": "Hälytykset ja puheilmoitukset nopeudelle, akulle ja PWM:lle, eli luvulle, joka kertoo, kuinka lähellä rajojaan yksipyöräinen on, omalla kielelläsi. Kysy akkua tai nopeutta äänellä, tai sano äänimerkki, valot, lukitse.",
 "fc.studio.title": "Overlay Studio",

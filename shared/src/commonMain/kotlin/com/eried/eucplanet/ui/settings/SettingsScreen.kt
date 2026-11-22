@@ -7139,7 +7139,6 @@ private fun FlicTab(settingsViewModel: SettingsViewModel) {
 
         settingsViewModel.settings.collectAsState().value?.let { s ->
             HudIntegrationSection(settings = s, viewModel = settingsViewModel)
-            if (SettingsRow.CAR_SCREEN !in host.hiddenRows) host.CarSettings(settings = s, viewModel = settingsViewModel)
         }
 
         host.TpmsSettings()

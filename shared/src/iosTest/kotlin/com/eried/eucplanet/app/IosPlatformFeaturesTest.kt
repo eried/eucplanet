@@ -77,9 +77,8 @@ class IosPlatformFeaturesTest {
         assertFalse(IosSettingsHost.drivesMusicPlayer)
         // So the tour's last page names the HUDs, Flic and the radar, not the watches.
         assertFalse(IosDashboardHost().supportsWatches)
-        // Android Auto, a window over other apps, and sending the HUD its app.
+        // A window over other apps, and sending the HUD its app.
         val rows = IosSettingsHost.hiddenRows
-        assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.CAR_SCREEN in rows)
         assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.PHONE_HUD_WINDOW in rows)
         assertTrue(com.eried.eucplanet.ui.settings.SettingsRow.HUD_APP_SEND in rows)
     }

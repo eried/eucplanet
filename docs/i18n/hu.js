@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigáció, offline is",
 "fc.navigation.body": "Többmegállós útvonalak, kanyarról kanyarra. A kerékpáros útvonalak csendes utcákat választanak, elvétett kanyar után másodpercek alatt új útvonalat kapsz. Töltsd le, ahol gurulsz, és a térkép, az útvonalak és a jelzések térerő nélkül is mennek.",
 "fc.devices.title": "Óra és sisak",
-"fc.devices.body": "Az egykerekűd adatai a telefonon túl: óraappok Wear OS-re, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garminra</a> (órák és Edge) és Amazfitre, valamint <a href=\"hud/\">MotoEye vagy bármilyen androidos sisak HUD</a>, Android Auto módban az útvonallal is.",
+"fc.devices.body": "Az egykerekűd adatai a telefonon túl: óraappok Wear OS-re, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garminra</a> (órák és Edge) és Amazfitre, valamint <a href=\"hud/\">MotoEye vagy bármilyen androidos sisak HUD</a>.",
 "fc.alarms.title": "Riasztások és hang",
 "fc.alarms.body": "Riasztások és bemondások a saját nyelveden sebességre, akkura és PWM-re, ami azt mutatja, mennyire van közel az egykerekű a határához. Kérdezz rá hangon az akkura vagy a sebességre, vagy mondd: duda, lámpa, zár.",
 "fc.studio.title": "Overlay Studio",

@@ -462,7 +462,6 @@
     <string name="engo_layout_quad">สี่ช่อง</string>
     <string name="engo_layout_turn">เลี้ยว</string>
     <string name="engo_layout_minimal">เรียบง่าย</string>
-    <string name="engo_element">องค์ประกอบ</string>
     <string name="engo_element_metric">ค่า</string>
     <string name="engo_slot_stat">แสดง</string>
     <string name="engo_element_style">สไตล์</string>
@@ -2669,23 +2668,6 @@
     <plurals name="route_stop_count">
         <item quantity="other">%d จุดแวะ</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">สถิติและปุ่มควบคุมล้อของคุณบนหน้าจอ Android Auto</string>
-    <string name="car_waiting">กำลังรอล้อ</string>
-    <string name="car_last_battery">แบตล่าสุด %1$d%%</string>
-    <string name="car_waiting_wheel">กำลังรอล้อ</string>
-    <string name="car_weather">สภาพอากาศ</string>
-    <string name="car_no_metrics">ไม่ได้เลือกค่า</string>
-    <string name="car_alarm_channel_name">สัญญาณเตือน Android Auto</string>
-    <string name="car_alarm_channel_description">แสดงสัญญาณเตือนที่กำลังดังบนหน้าจอ Android Auto ทับแผนที่</string>
-    <string name="car_alarm_notifications">สัญญาณเตือนบนหน้าจอ Android Auto</string>
-    <string name="car_alarm_notifications_hint">สัญญาณเตือนที่กำลังดังจะแสดงทับแผนที่ เพื่อให้คุณเห็นขณะนำทาง เสียงบี๊บและการสั่นไม่เปลี่ยนแปลง</string>
-    <string name="car_navigate">นำทาง</string>
-    <string name="car_places_title">นำทางไปยัง</string>
-    <string name="car_place_home">บ้าน</string>
-    <string name="car_place_work">ที่ทำงาน</string>
-    <string name="car_planned_route">เส้นทางที่วางแผนไว้ (%1$d)</string>
-    <string name="car_no_places">บันทึกบ้านหรือที่ทำงาน หรือวางแผนเส้นทางบนโทรศัพท์ก่อน</string>
     <string name="nav_solve_menu">จัดลำดับจุดแวะให้ดีที่สุด</string>
     <string name="nav_solve_effort">ความละเอียด</string>
     <string name="nav_solve_quick">เร็ว</string>
@@ -2737,6 +2719,11 @@
     <string name="offline_data_update_all">อัปเดตทั้งหมด (%1$d)</string>
     <string name="offline_data_update">อัปเดต</string>
     <string name="offline_data_wifi_updates">อัปเดตทุกสัปดาห์ผ่าน Wi-Fi</string>
+    <string name="offline_data_check_now">ตรวจหาอัปเดต</string>
+    <string name="offline_data_all_current">พื้นที่ทั้งหมดของคุณเป็นเวอร์ชันล่าสุดแล้ว</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">อัปเดตได้ %1$d พื้นที่</item>
+    </plurals>
     <string name="offline_data_credit">ข้อมูลแผนที่และเส้นทาง © ผู้ร่วมพัฒนา OpenStreetMap (ODbL), Protomaps, BRouter (MIT)</string>
     <string name="offline_data_download_q">ดาวน์โหลดพื้นที่นี้ (%1$s) ไหม?</string>
     <string name="offline_data_download">ดาวน์โหลด</string>

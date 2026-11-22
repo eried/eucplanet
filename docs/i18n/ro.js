@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigație, și offline",
 "fc.navigation.body": "Trasee cu mai multe opriri și ghidare pas cu pas. Traseele de bicicletă preferă străzile liniștite, iar dacă ratezi un viraj, ai un traseu nou în câteva secunde. Descarcă zonele în care te plimbi, iar harta, traseele și indicațiile de viraj merg și fără semnal.",
 "fc.devices.title": "Ceas și cască",
-"fc.devices.body": "Cifrele monociclului, nu doar pe telefon: aplicații de ceas pentru Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (ceasuri și Edge) și Amazfit, plus un <a href=\"hud/\">MotoEye sau orice HUD Android de cască</a>, inclusiv în modul Android Auto, cu traseul.",
+"fc.devices.body": "Cifrele monociclului, nu doar pe telefon: aplicații de ceas pentru Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (ceasuri și Edge) și Amazfit, plus un <a href=\"hud/\">MotoEye sau orice HUD Android de cască</a>.",
 "fc.alarms.title": "Alarme și voce",
 "fc.alarms.body": "Alarme și anunțuri vocale pentru viteză, baterie și PWM, valoarea care arată cât de aproape e monociclul de limită, în limba ta. Întreabă cu vocea de baterie sau viteză, ori spune claxon, lumini, blocare.",
 "fc.studio.title": "Overlay Studio",

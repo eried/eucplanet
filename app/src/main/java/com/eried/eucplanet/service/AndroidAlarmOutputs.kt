@@ -1,7 +1,6 @@
 package com.eried.eucplanet.service
 
 import android.content.Context
-import com.eried.eucplanet.car.CarAlarmNotification
 import com.eried.eucplanet.util.VibratorHelper
 import com.eried.eucplanet.wear.WatchVibrator
 
@@ -34,6 +33,4 @@ class AndroidAlarmOutputs(
     override fun vibrate(durationMs: Long) = vibratorHelper.oneShot(durationMs)
 
     override fun vibrateWatch(durationMs: Int) = watchVibrator.vibrate(durationMs)
-
-    override fun notifyCar(title: String, text: String) = CarAlarmNotification.post(context, title, text)
 }

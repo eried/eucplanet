@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigation, auch offline",
 "fc.navigation.body": "Routen mit mehreren Stopps und Abbiegenavigation. Fahrradrouten bevorzugen ruhige Straßen, und nach einer verpassten Abzweigung steht in Sekunden eine neue Route. Lade deine Gebiete herunter, dann laufen Karte, Routen und Abbiegehinweise auch ohne Empfang.",
 "fc.devices.title": "Uhr und Helm",
-"fc.devices.body": "Die Werte deines Wheels abseits vom Handy: Uhren-Apps für Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (Uhren und Edge) und Amazfit sowie ein <a href=\"hud/\">MotoEye oder beliebiges Android-HUD am Helm</a>, auch im Android-Auto-Modus mit der Route.",
+"fc.devices.body": "Die Werte deines Wheels abseits vom Handy: Uhren-Apps für Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (Uhren und Edge) und Amazfit sowie ein <a href=\"hud/\">MotoEye oder beliebiges Android-HUD am Helm</a>.",
 "fc.alarms.title": "Alarme & Stimme",
 "fc.alarms.body": "Alarme und Ansagen für Tempo, Akku und PWM, die Zahl, die zeigt, wie nah das Wheel an seinem Limit ist, in deiner Sprache. Frag per Stimme nach Akku oder Tempo, oder sag Hupe, Licht, Sperre.",
 "fc.studio.title": "Overlay Studio",

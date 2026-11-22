@@ -77,6 +77,18 @@ class OfflineDataViewModel(
         }
     }
 
+    /** Asks the server again, then hands back how many downloaded squares
+     *  have a newer build, or null when the server could not be reached. */
+    fun checkNow(onDone: (Int?) -> Unit) {
+        viewModelScope.launch {
+            loaded.value = false
+            val r = tiles.remote()
+            remote.value = r
+            loaded.value = true
+            onDone(r?.let { tiles.outdated(it).size })
+        }
+    }
+
     fun download(names: Collection<String>) {
         viewModelScope.launch { tiles.download(names) }
     }

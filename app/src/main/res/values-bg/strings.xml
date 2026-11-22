@@ -489,7 +489,6 @@
     <string name="engo_layout_quad">Четворно</string>
     <string name="engo_layout_turn">Завой</string>
     <string name="engo_layout_minimal">Минимално</string>
-    <string name="engo_element">Елемент</string>
     <string name="engo_element_metric">Показател</string>
     <string name="engo_slot_stat">Показване</string>
     <string name="engo_element_style">Стил</string>
@@ -745,7 +744,7 @@
     <string name="adv_compact_max_screen">Граница за компактен екран</string>
     <string name="adv_compact_max_screen_desc">Екрани с двете страни под тази стойност превключват към компактното табло, когато Компактно табло е на Малки екрани.</string>
     <string name="adv_cover_cutout_inset">Размер на изреза за камерата</string>
-    <string name="adv_cover_cutout_inset_desc">Място, оставено свободно за обективите на външния екран, когато Избягвай камерите на външния екран е включено. Твърде малко и обективите скриват бутони.</string>
+    <string name="adv_cover_cutout_inset_desc">Място, оставено свободно за обективите на външния екран, когато „Избягвай камерите на външния екран“ е включено. Ако е твърде малко, обективите скриват бутоните.</string>
     <string name="adv_simple_speedo_scale">Размер на простия скоростомер</string>
     <string name="adv_simple_speedo_scale_desc">Размер на простото число на скоростта спрямо областта на уреда. Ако е твърде голям, може да отреже мерната единица.</string>
     <string name="adv_nav_sidebar_width">Ширина на панела със спирки</string>
@@ -2797,7 +2796,7 @@
     <string name="crews_opensettings">Отвори настройките</string>
     <string name="crews_dev_title">Режим за разработчици</string>
     <string name="crews_dev_body">Връзка с %1$s вместо с обичайния сървър.</string>
-    <string name="crews_grant">Позволете на този браузър да носи вашите цветове.\n\nТой може да създаде екип, да влезе в екип, да го напусне и да управлява членовете. Не може да качва пътувания, да ви преименува или да трие каквото и да е, всичко това остава на този телефон.</string>
+    <string name="crews_grant">Позволете на този браузър да действа от ваше име.\n\nТой може да създаде екип, да влезе в екип, да го напусне и да управлява членовете. Не може да качва пътувания, да ви преименува или да трие каквото и да е, всичко това остава на този телефон.</string>
     <string name="crews_noprofile_title">Първо се включете в класацията</string>
     <string name="crews_noprofile_body">Екипите са свързани с профила ви в класацията, а на този телефон няма такъв. Включете се в %1$s, след това сканирайте отново.</string>
     <string name="crews_issue">Издай пропуска</string>
@@ -2806,7 +2805,7 @@
     <string name="crews_unreachable">Няма връзка с %1$s.</string>
     <string name="crews_refused">Сървърът отказа (%1$d).</string>
     <string name="crews_done_title">Пропускът е издаден</string>
-    <string name="crews_done_body">Този браузър вече носи вашите цветове. Оставете телефона.</string>
+    <string name="crews_done_body">Този браузър вече действа от ваше име. Можете да оставите телефона.</string>
     <string name="crews_failed_title">Не се получи</string>
     <string name="crews_tryagain">Опитай пак</string>
     <string name="crews_done">Готово</string>
@@ -2837,23 +2836,6 @@
         <item quantity="one">%d спирка</item>
         <item quantity="other">%d спирки</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Статистиката и бутоните на моноколелото на екран с Android Auto.</string>
-    <string name="car_waiting">Изчакване на моноколелото</string>
-    <string name="car_last_battery">Последна батерия %1$d%%</string>
-    <string name="car_waiting_wheel">Изчакване на моноколелото</string>
-    <string name="car_weather">Времето</string>
-    <string name="car_no_metrics">Няма избрани показатели</string>
-    <string name="car_alarm_channel_name">Аларми за Android Auto</string>
-    <string name="car_alarm_channel_description">Показва задействана аларма на екрана на Android Auto, върху картата.</string>
-    <string name="car_alarm_notifications">Аларми на екрана на Android Auto</string>
-    <string name="car_alarm_notifications_hint">Задействаната аларма се показва върху картата, за да я видите и докато навигирате. Звуковият сигнал и вибрацията не се променят.</string>
-    <string name="car_navigate">Навигирай</string>
-    <string name="car_places_title">Навигирай до</string>
-    <string name="car_place_home">Дом</string>
-    <string name="car_place_work">Работа</string>
-    <string name="car_planned_route">Планиран маршрут (%1$d)</string>
-    <string name="car_no_places">Първо запазете Дом или Работа или планирайте маршрут на телефона.</string>
     <string name="nav_solve_menu">Оптимизирай реда на спирките</string>
     <string name="nav_solve_effort">Точност</string>
     <string name="nav_solve_quick">Бързо</string>
@@ -2905,6 +2887,12 @@
     <string name="offline_data_update_all">Обнови всички (%1$d)</string>
     <string name="offline_data_update">Обнови</string>
     <string name="offline_data_wifi_updates">Седмично обновяване през Wi-Fi</string>
+    <string name="offline_data_check_now">Проверка за обновления</string>
+    <string name="offline_data_all_current">Всички ваши зони са актуални.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d зона може да се обнови.</item>
+        <item quantity="other">%1$d зони могат да се обновят.</item>
+    </plurals>
     <string name="offline_data_credit">Данни за карти и маршрути © сътрудниците на OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Да се изтегли ли тази зона (%1$s)?</string>
     <string name="offline_data_download">Изтегли</string>

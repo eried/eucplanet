@@ -462,7 +462,6 @@
     <string name="engo_layout_quad">Empat kotak</string>
     <string name="engo_layout_turn">Belok</string>
     <string name="engo_layout_minimal">Minimal</string>
-    <string name="engo_element">Elemen</string>
     <string name="engo_element_metric">Metrik</string>
     <string name="engo_slot_stat">Tampilkan</string>
     <string name="engo_element_style">Gaya</string>
@@ -492,8 +491,8 @@
     <string name="hud_discovery_both">Keduanya</string>
     <string name="hud_discovery_desc">Mode Otomatis mencari HUD sendiri. Mode Tetap hanya memakai alamat di bawah.</string>
     <string name="hud_server_port">Port</string>
-    <string name="hud_hotspot_unknown_hint">Pastikan HUD dan ponsel berada di jaringan WiFi yang sama. Jika memakai hotspot ponsel, nyalakan dulu.</string>
-    <string name="hud_hotspot_on_hint">Hotspot ponsel sudah aktif. Hubungkan HUD ke WiFi ponsel ini untuk mengaktifkan tautan.</string>
+    <string name="hud_hotspot_unknown_hint">Pastikan HUD dan ponsel berada di jaringan Wi-Fi yang sama. Jika memakai hotspot ponsel, nyalakan dulu.</string>
+    <string name="hud_hotspot_on_hint">Hotspot ponsel sudah aktif. Hubungkan HUD ke Wi-Fi ponsel ini untuk mengaktifkan tautan.</string>
     <string name="hud_setup_hint_iphone">Hubungkan HUD dan iPhone ke Wi-Fi yang sama, atau hubungkan HUD ke Hotspot Pribadi iPhone ini. Saat iOS bertanya, izinkan EUC Planet menemukan perangkat di jaringan lokal.</string>
     <string name="hud_overlay_subsection">Overlay kustom</string>
     <string name="hud_overlay_subsection_desc">Impor preset Overlay Studio ke layar Overlay kustom HUD, tanpa latar belakang. Preset disalin ke sini, jadi perubahan di studio tidak akan mengubah HUD sampai Anda mengimpor lagi.</string>
@@ -2624,7 +2623,7 @@
     <string name="crews_type_instead">Masukkan manual</string>
     <string name="crews_code_label">Kode pass</string>
     <string name="crews_foreign_title">Kode ini bukan dari eucstats</string>
-    <string name="crews_foreign_body">Kode ini mengarah ke %1$s, bukan tujuan perjalanan Anda. Menjawab ya berarti menyerahkan akun Anda kepada siapa pun yang mengelolanya.\n\nMenjalankan server sendiri? Aktifkan mode developer di Setelan dulu.</string>
+    <string name="crews_foreign_body">Kode ini mengarah ke %1$s, bukan tempat perjalanan Anda dikirim. Menjawab ya berarti menyerahkan akun Anda kepada siapa pun yang mengelolanya.\n\nMenjalankan server sendiri? Aktifkan mode developer di Setelan dulu.</string>
     <string name="crews_scan_switch">Pindai saja</string>
     <string name="crews_close">Tutup</string>
     <string name="crews_opensettings">Buka setelan</string>
@@ -2669,23 +2668,6 @@
     <plurals name="route_stop_count">
             <item quantity="other">%d perhentian</item>
         </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistik dan tombol EUC Anda di layar Android Auto.</string>
-    <string name="car_waiting">Menunggu EUC</string>
-    <string name="car_last_battery">Baterai terakhir %1$d%%</string>
-    <string name="car_waiting_wheel">Menunggu EUC</string>
-    <string name="car_weather">Cuaca</string>
-    <string name="car_no_metrics">Tidak ada metrik dipilih</string>
-    <string name="car_alarm_channel_name">Alarm Android Auto</string>
-    <string name="car_alarm_channel_description">Menampilkan alarm yang berbunyi di layar Android Auto, di atas peta.</string>
-    <string name="car_alarm_notifications">Alarm di layar Android Auto</string>
-    <string name="car_alarm_notifications_hint">Alarm yang berbunyi tampil di atas peta, jadi tetap terlihat saat navigasi. Bip dan getaran tidak berubah.</string>
-    <string name="car_navigate">Navigasi</string>
-    <string name="car_places_title">Navigasi ke</string>
-    <string name="car_place_home">Rumah</string>
-    <string name="car_place_work">Kantor</string>
-    <string name="car_planned_route">Rute terencana (%1$d)</string>
-    <string name="car_no_places">Simpan Rumah atau Kantor, atau rencanakan rute di ponsel dulu.</string>
     <string name="nav_solve_menu">Optimalkan urutan perhentian</string>
     <string name="nav_solve_effort">Upaya</string>
     <string name="nav_solve_quick">Cepat</string>
@@ -2737,6 +2719,11 @@
     <string name="offline_data_update_all">Perbarui semua (%1$d)</string>
     <string name="offline_data_update">Perbarui</string>
     <string name="offline_data_wifi_updates">Perbarui mingguan lewat Wi-Fi</string>
+    <string name="offline_data_check_now">Periksa pembaruan</string>
+    <string name="offline_data_all_current">Semua area Anda sudah terbaru.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">%1$d area bisa diperbarui.</item>
+    </plurals>
     <string name="offline_data_credit">Data peta dan rute © kontributor OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Unduh area ini (%1$s)?</string>
     <string name="offline_data_download">Unduh</string>

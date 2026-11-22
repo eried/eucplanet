@@ -477,7 +477,6 @@
     <string name="engo_layout_quad">Τετραπλή</string>
     <string name="engo_layout_turn">Στροφή</string>
     <string name="engo_layout_minimal">Λιτή</string>
-    <string name="engo_element">Στοιχείο</string>
     <string name="engo_element_metric">Μέτρηση</string>
     <string name="engo_slot_stat">Εμφάνιση</string>
     <string name="engo_element_style">Στυλ</string>
@@ -507,8 +506,8 @@
     <string name="hud_discovery_both">Και τα δύο</string>
     <string name="hud_discovery_desc">Η αυτόματη βρίσκει μόνη της το HUD. Η σταθερή χρησιμοποιεί μόνο την παρακάτω διεύθυνση.</string>
     <string name="hud_server_port">Θύρα</string>
-    <string name="hud_hotspot_unknown_hint">Βεβαιωθείτε ότι το HUD και το τηλέφωνο είναι στο ίδιο δίκτυο WiFi. Αν χρησιμοποιείτε το σημείο πρόσβασης του τηλεφώνου, ενεργοποιήστε το πρώτα.</string>
-    <string name="hud_hotspot_on_hint">Το σημείο πρόσβασης του τηλεφώνου εκπέμπει. Συνδέστε το HUD στο WiFi αυτού του τηλεφώνου για να ενεργοποιηθεί η σύνδεση.</string>
+    <string name="hud_hotspot_unknown_hint">Βεβαιωθείτε ότι το HUD και το τηλέφωνο είναι στο ίδιο δίκτυο Wi-Fi. Αν χρησιμοποιείτε το σημείο πρόσβασης του τηλεφώνου, ενεργοποιήστε το πρώτα.</string>
+    <string name="hud_hotspot_on_hint">Το σημείο πρόσβασης του τηλεφώνου εκπέμπει. Συνδέστε το HUD στο Wi-Fi αυτού του τηλεφώνου για να ενεργοποιηθεί η σύνδεση.</string>
     <string name="hud_setup_hint_iphone">Συνδέστε το HUD και το iPhone στο ίδιο Wi-Fi ή συνδέστε το HUD στο Προσωπικό hotspot αυτού του iPhone. Όταν ρωτήσει το iOS, επιτρέψτε στο EUC Planet να βρίσκει συσκευές στο τοπικό δίκτυο.</string>
     <string name="hud_overlay_subsection">Προσαρμοσμένη επικάλυψη</string>
     <string name="hud_overlay_subsection_desc">Εισαγάγετε μια προρύθμιση του Overlay Studio στις οθόνες Προσαρμοσμένη επικάλυψη του HUD, χωρίς φόντα. Η προρύθμιση αντιγράφεται εδώ, οπότε ό,τι αλλάξετε μετά στο studio δεν φτάνει στο HUD μέχρι να την εισαγάγετε ξανά.</string>
@@ -2185,7 +2184,7 @@
     <string name="nav_view_straight_line">ευθεία γραμμή</string>
     <string name="nav_view_heading_up">Κατεύθυνση επάνω, πατήστε για βορρά επάνω</string>
     <string name="nav_view_north_up">Βορράς επάνω, πατήστε για κατεύθυνση επάνω</string>
-    <string name="nav_view_tiles">Δεδομένα πλοήγησης</string>
+    <string name="nav_view_tiles">Πλακίδια στην πλοήγηση</string>
     <string name="nav_view_tiles_desc">Οι 4 αριθμοί δίπλα στην ταχύτητα κατά την πλοήγηση.</string>
     <string name="nav_view_speed">Ταχύτητα</string>
     <string name="nav_layer_dark">Esri Dark</string>
@@ -2490,7 +2489,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Ματ</string>
     <string name="dash_external_gps_settings">Ρυθμίσεις εξωτερικού GPS</string>
-    <string name="external_gps_caption">Ανάψτε τη συσκευή και πατήστε Σύζευξη για να βλέπετε ζωντανά την ταχύτητα και τη δύναμη G που μετράει, και αποθηκεύονται και στο CSV κάθε διαδρομής.</string>
+    <string name="external_gps_caption">Ανάψτε τη συσκευή και πατήστε Σύζευξη για να βλέπετε ζωντανά την ταχύτητα και τη δύναμη G που μετράει. Αποθηκεύονται επίσης στο CSV κάθε διαδρομής.</string>
     <string name="gps_prioritize_external_desc">Προτίμηση της συνδεδεμένης συσκευής αντί του τηλεφώνου για ταχύτητα, θέση και δύναμη G.</string>
     <string name="studio_cfg_show_value">Εμφάνιση τιμής</string>
     <string name="studio_cfg_unit_position">Μονάδα</string>
@@ -2755,23 +2754,6 @@
         <item quantity="one">%d στάση</item>
         <item quantity="other">%d στάσεις</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Τα στατιστικά σας και τα κουμπιά του μονότροχου σε οθόνη Android Auto.</string>
-    <string name="car_waiting">Αναμονή για το μονότροχο</string>
-    <string name="car_last_battery">Τελευταία μπαταρία %1$d%%</string>
-    <string name="car_waiting_wheel">Αναμονή για το μονότροχο</string>
-    <string name="car_weather">Καιρός</string>
-    <string name="car_no_metrics">Δεν επιλέχθηκαν μετρήσεις</string>
-    <string name="car_alarm_channel_name">Συναγερμοί Android Auto</string>
-    <string name="car_alarm_channel_description">Εμφανίζει τον συναγερμό που χτυπά στην οθόνη Android Auto, πάνω από τον χάρτη.</string>
-    <string name="car_alarm_notifications">Συναγερμοί στην οθόνη Android Auto</string>
-    <string name="car_alarm_notifications_hint">Όταν χτυπά συναγερμός, εμφανίζεται πάνω από τον χάρτη, ώστε να τον βλέπετε και κατά την πλοήγηση. Το μπιπ και η δόνηση δεν αλλάζουν.</string>
-    <string name="car_navigate">Πλοήγηση</string>
-    <string name="car_places_title">Πλοήγηση προς</string>
-    <string name="car_place_home">Σπίτι</string>
-    <string name="car_place_work">Εργασία</string>
-    <string name="car_planned_route">Σχεδιασμένο δρομολόγιο (%1$d)</string>
-    <string name="car_no_places">Αποθηκεύστε Σπίτι ή Εργασία ή σχεδιάστε πρώτα ένα δρομολόγιο στο τηλέφωνο.</string>
     <string name="nav_solve_menu">Βελτιστοποίηση σειράς στάσεων</string>
     <string name="nav_solve_effort">Ακρίβεια</string>
     <string name="nav_solve_quick">Γρήγορη</string>
@@ -2823,6 +2805,12 @@
     <string name="offline_data_update_all">Ενημέρωση όλων (%1$d)</string>
     <string name="offline_data_update">Ενημέρωση</string>
     <string name="offline_data_wifi_updates">Εβδομαδιαία ενημέρωση μέσω Wi-Fi</string>
+    <string name="offline_data_check_now">Έλεγχος για ενημερώσεις</string>
+    <string name="offline_data_all_current">Όλες οι περιοχές σας είναι ενημερωμένες.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d περιοχή μπορεί να ενημερωθεί.</item>
+        <item quantity="other">%1$d περιοχές μπορούν να ενημερωθούν.</item>
+    </plurals>
     <string name="offline_data_credit">Δεδομένα χάρτη και δρομολόγησης © συντελεστές του OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Λήψη αυτής της περιοχής (%1$s);</string>
     <string name="offline_data_download">Λήψη</string>

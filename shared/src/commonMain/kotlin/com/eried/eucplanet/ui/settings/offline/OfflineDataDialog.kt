@@ -21,7 +21,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -38,19 +42,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.platform.JSONObject
 import com.eried.eucplanet.platform.format
+import com.eried.eucplanet.platform.pluralStringResource
 import com.eried.eucplanet.platform.stringResource
 import com.eried.eucplanet.resources.Res
 import com.eried.eucplanet.resources.action_cancel
 import com.eried.eucplanet.resources.action_delete
 import com.eried.eucplanet.resources.action_retry
+import com.eried.eucplanet.resources.offline_data_all_current
 import com.eried.eucplanet.resources.offline_data_along_route
 import com.eried.eucplanet.resources.offline_data_around_me
 import com.eried.eucplanet.resources.offline_data_around_me_wide
+import com.eried.eucplanet.resources.offline_data_check_now
 import com.eried.eucplanet.resources.offline_data_credit
 import com.eried.eucplanet.resources.offline_data_delete_q
 import com.eried.eucplanet.resources.offline_data_download
@@ -71,6 +80,7 @@ import com.eried.eucplanet.resources.offline_data_tap_hint
 import com.eried.eucplanet.resources.offline_data_title
 import com.eried.eucplanet.resources.offline_data_update
 import com.eried.eucplanet.resources.offline_data_update_all
+import com.eried.eucplanet.resources.offline_data_updates_found
 import com.eried.eucplanet.resources.offline_data_wifi_updates
 import com.eried.eucplanet.ui.common.appMenuItemColors
 import com.eried.eucplanet.ui.theme.appColors
@@ -135,12 +145,31 @@ fun OfflineDataDialog(
     var pending by remember { mutableStateOf<Pending?>(null) }
     var bulk by remember { mutableStateOf<Bulk?>(null) }
     var selectOpen by remember { mutableStateOf(false) }
-    // A snackbar would sit behind this full-screen dialog: notes show inline.
-    var notice by remember { mutableStateOf<String?>(null) }
+    // The screen's snackbar would sit behind this full-screen dialog, so the
+    // dialog has its own, styled the same.
+    val snack = remember { SnackbarHostState() }
+    val snackScope = rememberCoroutineScope()
+    fun toast(message: String) {
+        snackScope.launch {
+            snack.currentSnackbarData?.dismiss()
+            snack.showSnackbar(message)
+        }
+    }
     val noRoute = stringResource(Res.string.offline_data_no_route)
     val allHere = stringResource(Res.string.offline_data_route_all_here)
     val nearAllHere = stringResource(Res.string.offline_data_near_all_here)
     val noLocation = stringResource(Res.string.offline_data_no_location)
+    // What Check for updates found, put into words here because a plural
+    // is read in composition; cleared once shown so the same count shows again.
+    var checked by remember { mutableStateOf<Int?>(null) }
+    checked?.let { n ->
+        val message = if (n == 0) stringResource(Res.string.offline_data_all_current)
+        else pluralStringResource(Res.plurals.offline_data_updates_found, n, n)
+        LaunchedEffect(n) {
+            toast(message)
+            checked = null
+        }
+    }
 
     fun size(b: Long) = host.formatSize(b)
 
@@ -149,7 +178,7 @@ fun OfflineDataDialog(
         if (routeSquares == null || routeAsked || state.loading) return@LaunchedEffect
         routeAsked = true
         val missing = viewModel.missingOf(routeSquares)
-        if (missing.isEmpty()) notice = allHere else bulk = Bulk(missing, route = true)
+        if (missing.isEmpty()) toast(allHere) else bulk = Bulk(missing, route = true)
     }
 
     fun ask(row: TileRow) {
@@ -160,6 +189,7 @@ fun OfflineDataDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
     ) {
+        Box(Modifier.fillMaxSize()) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -236,8 +266,8 @@ fun OfflineDataDialog(
                                 selectOpen = false
                                 val missing = viewModel.nearTilesMissing(km)
                                 when {
-                                    missing == null -> notice = noLocation
-                                    missing.isEmpty() -> notice = nearAllHere
+                                    missing == null -> toast(noLocation)
+                                    missing.isEmpty() -> toast(nearAllHere)
                                     else -> bulk = Bulk(missing, route = false)
                                 }
                             }
@@ -262,8 +292,8 @@ fun OfflineDataDialog(
                                     selectOpen = false
                                     val missing = viewModel.routeTilesMissing()
                                     when {
-                                        missing == null -> notice = noRoute
-                                        missing.isEmpty() -> notice = allHere
+                                        missing == null -> toast(noRoute)
+                                        missing.isEmpty() -> toast(allHere)
                                         else -> bulk = Bulk(missing, route = true)
                                     }
                                 },
@@ -289,21 +319,31 @@ fun OfflineDataDialog(
                 }
                 wv.run("setTiles($json)")
             }
-            notice?.let { n ->
-                LaunchedEffect(n) {
-                    kotlinx.coroutines.delay(4_000)
-                    notice = null
-                }
-                Text(
-                    n, style = MaterialTheme.typography.bodySmall, color = colors.textSecondary,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-            }
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     stringResource(Res.string.offline_data_wifi_updates),
                     color = colors.textPrimary, modifier = Modifier.weight(1f),
                 )
+                // Checks now instead of waiting for the week; the same still
+                // icon as the weather panel's refresh, dimmed while it asks.
+                // Only with something downloaded: there is nothing to update
+                // otherwise.
+                if (state.tiles.values.any { it.status == TileStatus.DOWNLOADED || it.status == TileStatus.UPDATE }) {
+                    IconButton(
+                        onClick = {
+                            // null: the list error line already says it.
+                            viewModel.checkNow { outdated -> checked = outdated }
+                        },
+                        enabled = !state.loading,
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = stringResource(Res.string.offline_data_check_now),
+                            tint = colors.textSecondary.copy(alpha = if (state.loading) 0.35f else 1f),
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
                 Switch(
                     checked = wifiAuto,
                     onCheckedChange = viewModel::setWifiAutoUpdate,
@@ -315,6 +355,15 @@ fun OfflineDataDialog(
                 style = MaterialTheme.typography.labelSmall, color = colors.textSecondary,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
+        }
+        SnackbarHost(snack, modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding()) {
+            Snackbar(
+                it,
+                containerColor = colors.snackbarBackground,
+                contentColor = colors.snackbarText,
+                actionContentColor = colors.snackbarAction,
+            )
+        }
         }
     }
 

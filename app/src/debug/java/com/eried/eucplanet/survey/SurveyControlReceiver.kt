@@ -42,10 +42,8 @@ import org.koin.core.component.get
  *     car screen used to die the moment a route went active, and proving that
  *     needs navState.active true on a machine with no GPS and no destination
  *     to search for.
- *   - SURVEY_CAR_ALARM: post one car-screen alarm card.
  *
- * Only in debug builds, and in a release built with -PaaosTest. See the
- * matching manifests at app/src/debug and app/src/aaosTest.
+ * Only in debug builds. See the matching manifest at app/src/debug.
  */
 class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
 
@@ -61,7 +59,6 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
             ACTION_SURVEY_APPLY -> applyConfig(intent)
             ACTION_SURVEY_CONNECT_VIRTUAL -> connectVirtual(context, intent)
             ACTION_SURVEY_START_NAV -> startNav(intent.getStringExtra(EXTRA_GEOMETRY))
-            ACTION_SURVEY_CAR_ALARM -> carAlarm(context)
             ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
             ACTION_SURVEY_SET -> set(context, intent)
             ACTION_SURVEY_IMPORT_SQUARE -> importSquare(intent.getStringExtra(EXTRA_FILE).orEmpty())
@@ -149,12 +146,6 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         }
     }
 
-    /** Fires one car-screen alarm card, so the thing can be looked at. */
-    private fun carAlarm(context: Context) {
-        Log.i(TAG, "SURVEY_CAR_ALARM")
-        com.eried.eucplanet.car.CarAlarmNotification.post(context, "PWM", "92 %")
-    }
-
     /** A two-point straight line through Oslo, enough for navState.active,
      *  or the line in [geometry] ("lat,lng;lat,lng;...") when one is given,
      *  for screens that draw the route itself. */
@@ -224,7 +215,6 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val ACTION_SURVEY_APPLY = "com.eried.eucplanet.SURVEY_APPLY"
         const val ACTION_SURVEY_CONNECT_VIRTUAL = "com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL"
         const val ACTION_SURVEY_START_NAV = "com.eried.eucplanet.SURVEY_START_NAV"
-        const val ACTION_SURVEY_CAR_ALARM = "com.eried.eucplanet.SURVEY_CAR_ALARM"
         const val ACTION_SURVEY_SOUND = "com.eried.eucplanet.SURVEY_SOUND"
         const val ACTION_SURVEY_SET = "com.eried.eucplanet.SURVEY_SET"
         const val EXTRA_KIND = "kind"
