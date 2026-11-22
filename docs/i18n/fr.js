@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigation, même hors ligne",
 "fc.navigation.body": "Itinéraires à plusieurs étapes avec guidage pas à pas. À vélo, ils privilégient les rues calmes, et un virage raté donne un nouvel itinéraire en quelques secondes. Téléchargez vos zones : carte, itinéraires et indications marchent sans réseau.",
 "fc.devices.title": "Montre et casque",
-"fc.devices.body": "Les chiffres de votre roue hors du téléphone : des applis montre pour Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (montres et Edge) et Amazfit, et un <a href=\"hud/\">MotoEye ou tout HUD de casque Android</a>, aussi en mode Android Auto avec l'itinéraire.",
+"fc.devices.body": "Les chiffres de votre roue hors du téléphone : des applis montre pour Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (montres et Edge) et Amazfit, et un <a href=\"hud/\">MotoEye ou tout HUD de casque Android</a>.",
 "fc.alarms.title": "Alarmes et voix",
 "fc.alarms.body": "Alarmes et annonces vocales pour la vitesse, la batterie et le PWM, le chiffre qui dit à quel point la roue approche de sa limite, dans votre langue. Demandez la batterie ou la vitesse à la voix, ou dites klaxon, phare, verrouiller.",
 "fc.studio.title": "Overlay Studio",

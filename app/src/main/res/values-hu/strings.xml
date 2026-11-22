@@ -2663,23 +2663,6 @@
         <item quantity="one">%d megálló</item>
         <item quantity="other">%d megálló</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Az adataid és az egykerekű gombjai egy Android Auto kijelzőn.</string>
-    <string name="car_waiting">Várakozás az egykerekűre</string>
-    <string name="car_last_battery">Akku legutóbb: %1$d%%</string>
-    <string name="car_navigate">Navigáció</string>
-    <string name="car_places_title">Navigáció ide</string>
-    <string name="car_place_home">Otthon</string>
-    <string name="car_place_work">Munkahely</string>
-    <string name="car_planned_route">Tervezett útvonal (%1$d)</string>
-    <string name="car_no_places">Előbb mentsd el az Otthont vagy a Munkahelyet, vagy tervezz útvonalat a telefonon.</string>
-    <string name="car_waiting_wheel">Várakozás az egykerekűre</string>
-    <string name="car_weather">Időjárás</string>
-    <string name="car_alarm_channel_name">Android Auto-riasztások</string>
-    <string name="car_alarm_channel_description">Megjeleníti az aktív riasztást az Android Auto kijelzőjén, a térkép felett.</string>
-    <string name="car_alarm_notifications">Riasztások az Android Auto kijelzőjén</string>
-    <string name="car_alarm_notifications_hint">Az aktív riasztás a térkép felett jelenik meg, így navigálás közben is eljut hozzád. A sípolás és a rezgés változatlan.</string>
-    <string name="car_no_metrics">Nincs kiválasztott mérőszám</string>
     <string name="nav_solve_menu">Megállók sorrendjének optimalizálása</string>
     <string name="nav_solve_effort">Módszer</string>
     <string name="nav_solve_quick">Gyors</string>

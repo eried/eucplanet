@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Dẫn đường, cả ngoại tuyến",
 "fc.navigation.body": "Lộ trình nhiều điểm dừng với chỉ dẫn từng chặng. Lộ trình xe đạp ưu tiên đường vắng, lỡ rẽ sai thì vài giây là có lộ trình mới. Tải trước những khu vực bạn hay chạy, mất sóng thì bản đồ, lộ trình và chỉ dẫn rẽ vẫn chạy.",
 "fc.devices.title": "Đồng hồ và mũ bảo hiểm",
-"fc.devices.body": "Số liệu của xe ngoài điện thoại: ứng dụng đồng hồ cho Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (đồng hồ và Edge) và Amazfit, cùng <a href=\"hud/\">MotoEye hoặc bất kỳ HUD mũ bảo hiểm nào chạy Android</a>, cả ở chế độ Android Auto kèm lộ trình.",
+"fc.devices.body": "Số liệu của xe ngoài điện thoại: ứng dụng đồng hồ cho Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (đồng hồ và Edge) và Amazfit, cùng <a href=\"hud/\">MotoEye hoặc bất kỳ HUD mũ bảo hiểm nào chạy Android</a>.",
 "fc.alarms.title": "Cảnh báo và giọng nói",
 "fc.alarms.body": "Cảnh báo và thông báo bằng giọng nói cho tốc độ, pin và PWM, con số cho biết xe đã sát giới hạn tới đâu, bằng ngôn ngữ của bạn. Hỏi pin hay tốc độ bằng giọng nói, hoặc nói còi, đèn, khóa.",
 "fc.studio.title": "Overlay Studio",

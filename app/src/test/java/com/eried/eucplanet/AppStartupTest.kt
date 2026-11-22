@@ -25,7 +25,6 @@ class AppStartupTest {
             "wearBridge.start()",
             "garminBridge.start()",
             "amazfitBridge.start()",
-            "CarAlarmNotification.start(this)",
             "hudServer.hashCode()",
             "syncManager.reconcileOnStart()",
             "OfflineWarmUp.start(",

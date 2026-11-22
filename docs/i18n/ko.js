@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "내비게이션, 오프라인까지",
 "fc.navigation.body": "여러 경유지 경로와 턴바이턴 안내. 자전거 경로는 한적한 길을 우선하고, 길을 잘못 들어도 몇 초 만에 새 경로가 나옵니다. 타고 다니는 지역을 내려받아 두면 신호가 없어도 지도, 경로, 회전 안내가 그대로 작동합니다.",
 "fc.devices.title": "워치와 헬멧",
-"fc.devices.body": "휠 수치를 휴대폰 밖에서도 봅니다. Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a>(워치와 Edge), Amazfit용 워치 앱, <a href=\"hud/\">MotoEye 또는 Android 기반 헬멧 HUD</a>, 경로를 보여 주는 Android Auto 모드도 지원합니다.",
+"fc.devices.body": "휠 수치를 휴대폰 밖에서도 봅니다. Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a>(워치와 Edge), Amazfit용 워치 앱, <a href=\"hud/\">MotoEye 또는 Android 기반 헬멧 HUD</a>.",
 "fc.alarms.title": "알람과 음성",
 "fc.alarms.body": "속도, 배터리, PWM 알람과 음성 안내를 내 언어로. PWM은 휠이 한계에 얼마나 가까운지 알려 주는 수치입니다. 배터리나 속도를 음성으로 물어보거나, 경적, 라이트, 잠금이라고 말하세요.",
 "fc.studio.title": "Overlay Studio",

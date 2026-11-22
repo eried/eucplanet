@@ -2766,23 +2766,6 @@
         <item quantity="many">%d tappe</item>
         <item quantity="other">%d tappe</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistiche e pulsanti della ruota su uno schermo Android Auto.</string>
-    <string name="car_waiting">In attesa della ruota</string>
-    <string name="car_last_battery">Ultima batteria %1$d%%</string>
-    <string name="car_navigate">Naviga</string>
-    <string name="car_places_title">Naviga verso</string>
-    <string name="car_place_home">Casa</string>
-    <string name="car_place_work">Lavoro</string>
-    <string name="car_planned_route">Percorso pianificato (%1$d)</string>
-    <string name="car_no_places">Salva prima Casa o Lavoro, o pianifica un percorso sul telefono.</string>
-    <string name="car_waiting_wheel">In attesa della ruota</string>
-    <string name="car_weather">Meteo</string>
-    <string name="car_alarm_channel_name">Allarmi Android Auto</string>
-    <string name="car_alarm_channel_description">Mostra un allarme attivo sullo schermo Android Auto, sopra la mappa.</string>
-    <string name="car_alarm_notifications">Allarmi sullo schermo Android Auto</string>
-    <string name="car_alarm_notifications_hint">Un allarme attivo compare sopra la mappa, così lo vedi anche mentre navighi. Bip e vibrazione non cambiano.</string>
-    <string name="car_no_metrics">Nessuna metrica selezionata</string>
     <string name="nav_solve_menu">Ottimizza ordine delle tappe</string>
     <string name="nav_solve_effort">Calcolo</string>
     <string name="nav_solve_quick">Veloce</string>

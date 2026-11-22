@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navegação, também offline",
 "fc.navigation.body": "Rotas com várias paragens e indicações passo a passo. As rotas de bicicleta preferem ruas calmas e, se falhar uma curva, tem uma nova rota em segundos. Transfira as zonas por onde anda e o mapa, as rotas e as indicações continuam a funcionar sem rede.",
 "fc.devices.title": "Relógio e capacete",
-"fc.devices.body": "Os números da roda fora do telemóvel: apps para relógio Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (relógios e Edge) e Amazfit, e um <a href=\"hud/\">HUD MotoEye ou qualquer HUD de capacete Android</a>, também no modo Android Auto com a rota.",
+"fc.devices.body": "Os números da roda fora do telemóvel: apps para relógio Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (relógios e Edge) e Amazfit, e um <a href=\"hud/\">HUD MotoEye ou qualquer HUD de capacete Android</a>.",
 "fc.alarms.title": "Alarmes e voz",
 "fc.alarms.body": "Alarmes e avisos falados para velocidade, bateria e PWM, o número que diz quão perto a roda está do limite, na sua língua. Pergunte pela bateria ou pela velocidade, ou diga buzina, luzes, bloquear.",
 "fc.studio.title": "Overlay Studio",

@@ -2865,23 +2865,6 @@
         <item quantity="many">%d przystanków</item>
         <item quantity="other">%d przystanku</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statystyki i przyciski koła na ekranie Android Auto.</string>
-    <string name="car_waiting">Oczekiwanie na koło</string>
-    <string name="car_last_battery">Ostatni stan baterii: %1$d%%</string>
-    <string name="car_navigate">Nawiguj</string>
-    <string name="car_places_title">Nawiguj do</string>
-    <string name="car_place_home">Dom</string>
-    <string name="car_place_work">Praca</string>
-    <string name="car_planned_route">Zaplanowana trasa (%1$d)</string>
-    <string name="car_no_places">Najpierw zapisz Dom lub Pracę albo zaplanuj trasę w telefonie.</string>
-    <string name="car_waiting_wheel">Oczekiwanie na koło</string>
-    <string name="car_weather">Pogoda</string>
-    <string name="car_alarm_channel_name">Alarmy Android Auto</string>
-    <string name="car_alarm_channel_description">Pokazuje aktywny alarm na ekranie Android Auto, nad mapą.</string>
-    <string name="car_alarm_notifications">Alarmy na ekranie Android Auto</string>
-    <string name="car_alarm_notifications_hint">Aktywny alarm pojawia się nad mapą, więc dotrze do Ciebie podczas nawigacji. Sygnał i wibracje bez zmian.</string>
-    <string name="car_no_metrics">Nie wybrano metryk</string>
     <string name="nav_solve_menu">Optymalizuj kolejność przystanków</string>
     <string name="nav_solve_effort">Dokładność</string>
     <string name="nav_solve_quick">Szybka</string>

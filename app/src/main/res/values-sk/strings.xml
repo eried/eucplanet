@@ -2827,23 +2827,6 @@
         <item quantity="many">%d zastávky</item>
         <item quantity="other">%d zastávok</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Vaše štatistiky a tlačidlá kolesa na obrazovke Android Auto.</string>
-    <string name="car_waiting">Čaká sa na koleso</string>
-    <string name="car_last_battery">Batéria naposledy %1$d%%</string>
-    <string name="car_waiting_wheel">Čaká sa na koleso</string>
-    <string name="car_weather">Počasie</string>
-    <string name="car_no_metrics">Nie sú vybrané žiadne metriky</string>
-    <string name="car_alarm_channel_name">Alarmy pre Android Auto</string>
-    <string name="car_alarm_channel_description">Zobrazí spustený alarm na obrazovke Android Auto nad mapou.</string>
-    <string name="car_alarm_notifications">Alarmy na obrazovke Android Auto</string>
-    <string name="car_alarm_notifications_hint">Spustený alarm sa zobrazí nad mapou, takže vás zastihne aj počas navigácie. Pípanie a vibrácia sa nemenia.</string>
-    <string name="car_navigate">Navigovať</string>
-    <string name="car_places_title">Kam navigovať</string>
-    <string name="car_place_home">Domov</string>
-    <string name="car_place_work">Práca</string>
-    <string name="car_planned_route">Naplánovaná trasa (%1$d)</string>
-    <string name="car_no_places">Uložte Domov alebo Prácu, alebo najprv naplánujte trasu v telefóne.</string>
     <string name="nav_solve_menu">Optimalizovať poradie zastávok</string>
     <string name="nav_solve_effort">Presnosť</string>
     <string name="nav_solve_quick">Rýchle</string>

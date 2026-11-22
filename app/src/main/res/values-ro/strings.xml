@@ -2666,23 +2666,6 @@
         <item quantity="few">%d opriri</item>
         <item quantity="other">%d de opriri</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statisticile și butoanele monociclului pe un ecran Android Auto.</string>
-    <string name="car_waiting">Se așteaptă monociclul</string>
-    <string name="car_last_battery">Baterie (ultima): %1$d%%</string>
-    <string name="car_navigate">Navighează</string>
-    <string name="car_places_title">Navighează spre</string>
-    <string name="car_place_home">Acasă</string>
-    <string name="car_place_work">Serviciu</string>
-    <string name="car_planned_route">Traseu planificat (%1$d)</string>
-    <string name="car_no_places">Salvează mai întâi Acasă sau Serviciu, sau planifică un traseu pe telefon.</string>
-    <string name="car_waiting_wheel">Se așteaptă monociclul</string>
-    <string name="car_weather">Vreme</string>
-    <string name="car_alarm_channel_name">Alarme Android Auto</string>
-    <string name="car_alarm_channel_description">Afișează o alarmă declanșată pe ecranul Android Auto, peste hartă.</string>
-    <string name="car_alarm_notifications">Alarme pe ecranul Android Auto</string>
-    <string name="car_alarm_notifications_hint">O alarmă declanșată apare peste hartă, așa că o vezi și în timpul navigării. Bipul și vibrația rămân la fel.</string>
-    <string name="car_no_metrics">Niciun indicator selectat</string>
     <string name="nav_solve_menu">Optimizează ordinea opririlor</string>
     <string name="nav_solve_effort">Efort</string>
     <string name="nav_solve_quick">Rapid</string>

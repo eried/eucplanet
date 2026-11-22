@@ -2654,23 +2654,6 @@
     <plurals name="route_stop_count">
         <item quantity="other">%d จุดแวะ</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">สถิติและปุ่มควบคุมล้อของคุณบนหน้าจอ Android Auto</string>
-    <string name="car_waiting">กำลังรอล้อ</string>
-    <string name="car_last_battery">แบตล่าสุด %1$d%%</string>
-    <string name="car_waiting_wheel">กำลังรอล้อ</string>
-    <string name="car_weather">สภาพอากาศ</string>
-    <string name="car_no_metrics">ไม่ได้เลือกค่า</string>
-    <string name="car_alarm_channel_name">สัญญาณเตือน Android Auto</string>
-    <string name="car_alarm_channel_description">แสดงสัญญาณเตือนที่กำลังดังบนหน้าจอ Android Auto ทับแผนที่</string>
-    <string name="car_alarm_notifications">สัญญาณเตือนบนหน้าจอ Android Auto</string>
-    <string name="car_alarm_notifications_hint">สัญญาณเตือนที่กำลังดังจะแสดงทับแผนที่ เพื่อให้คุณเห็นขณะนำทาง เสียงบี๊บและการสั่นไม่เปลี่ยนแปลง</string>
-    <string name="car_navigate">นำทาง</string>
-    <string name="car_places_title">นำทางไปยัง</string>
-    <string name="car_place_home">บ้าน</string>
-    <string name="car_place_work">ที่ทำงาน</string>
-    <string name="car_planned_route">เส้นทางที่วางแผนไว้ (%1$d)</string>
-    <string name="car_no_places">บันทึกบ้านหรือที่ทำงาน หรือวางแผนเส้นทางบนโทรศัพท์ก่อน</string>
     <string name="nav_solve_menu">จัดลำดับจุดแวะให้ดีที่สุด</string>
     <string name="nav_solve_effort">ความละเอียด</string>
     <string name="nav_solve_quick">เร็ว</string>

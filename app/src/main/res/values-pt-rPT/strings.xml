@@ -2743,23 +2743,6 @@
         <item quantity="many">%d paragens</item>
         <item quantity="other">%d paragens</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">As suas estatísticas e os botões da roda num ecrã Android Auto.</string>
-    <string name="car_waiting">A aguardar a roda</string>
-    <string name="car_last_battery">Última bateria %1$d%%</string>
-    <string name="car_waiting_wheel">A aguardar a roda</string>
-    <string name="car_weather">Meteorologia</string>
-    <string name="car_no_metrics">Nenhuma métrica selecionada</string>
-    <string name="car_alarm_channel_name">Alarmes do Android Auto</string>
-    <string name="car_alarm_channel_description">Mostra um alarme ativo no ecrã Android Auto, por cima do mapa.</string>
-    <string name="car_alarm_notifications">Alarmes no ecrã Android Auto</string>
-    <string name="car_alarm_notifications_hint">Um alarme ativo aparece por cima do mapa, para chegar até si durante a navegação. O bipe e a vibração não mudam.</string>
-    <string name="car_navigate">Navegar</string>
-    <string name="car_places_title">Navegar para</string>
-    <string name="car_place_home">Casa</string>
-    <string name="car_place_work">Trabalho</string>
-    <string name="car_planned_route">Rota planeada (%1$d)</string>
-    <string name="car_no_places">Guarde Casa ou Trabalho, ou planeie primeiro uma rota no telemóvel.</string>
     <string name="nav_solve_menu">Otimizar ordem das paragens</string>
     <string name="nav_solve_effort">Esforço</string>
     <string name="nav_solve_quick">Rápido</string>

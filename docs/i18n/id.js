@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigasi, juga offline",
 "fc.navigation.body": "Rute dengan banyak titik singgah dan panduan belokan demi belokan. Rute sepeda pilih jalan yang sepi, dan kalau belokan terlewat, rute baru muncul dalam hitungan detik. Unduh area riding-mu, dan peta, rute, serta petunjuk belokan tetap jalan tanpa sinyal.",
 "fc.devices.title": "Jam dan helm",
-"fc.devices.body": "Angka EUC-mu di luar ponsel: aplikasi jam untuk Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (jam dan Edge), dan Amazfit, serta <a href=\"hud/\">MotoEye atau HUD helm Android apa pun</a>, juga dalam mode Android Auto dengan rute.",
+"fc.devices.body": "Angka EUC-mu di luar ponsel: aplikasi jam untuk Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (jam dan Edge), dan Amazfit, serta <a href=\"hud/\">MotoEye atau HUD helm Android apa pun</a>.",
 "fc.alarms.title": "Alarm dan suara",
 "fc.alarms.body": "Alarm dan laporan suara untuk kecepatan, baterai, dan PWM, angka yang menunjukkan seberapa dekat EUC dengan batasnya, dalam bahasamu. Tanyakan baterai atau kecepatan lewat suara, atau ucapkan klakson, lampu, kunci.",
 "fc.studio.title": "Overlay Studio",

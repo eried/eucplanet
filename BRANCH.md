@@ -9,13 +9,15 @@ New features before they settle. Ride it only when you can cut the ride short.
 - HUD map comes from the phone (online, cached or offline squares); HUD app installs and updates from the phone.
 - Offline areas: street map and routing with no signal. Quieter bike routes and faster reroutes.
 - Map: heading-up, closer zoom near turns, shortest stop order, GPX tracks, reverse route.
-- Trip compare, navigator view with your tiles, Android Auto navigation and alarm cards.
+- Trip compare, navigator view with your tiles.
 - Engine sounds: recorded and synthesised engines.
 - Volume keys work with the screen off. New actions: volume, mute, flashlight, engine sound.
 - Units: altitude as its own setting, UK starts on miles.
 - 30 languages, all reread, English (UK) new.
 - InMotion V6, V8S and Begode Panther fixes. Watch: new layout.
 - Reset buttons grey out when there is nothing to reset.
+- Offline maps: a refresh button checks for newer squares now.
+- Android Auto is gone for now: Play would not pass it.
 
 ## Please test
 

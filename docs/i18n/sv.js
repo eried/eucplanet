@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Navigering, även offline",
 "fc.navigation.body": "Rutter med flera stopp och sväng-för-sväng-vägledning. Cykelrutter väljer helst lugna gator, och missar du en sväng får du en ny rutt på några sekunder. Ladda ner områdena där du åker, så fungerar kartan, rutterna och svänganvisningarna utan täckning.",
 "fc.devices.title": "Klocka och hjälm",
-"fc.devices.body": "Hjulets siffror, inte bara i mobilen: klockappar för Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (klockor och Edge) och Amazfit, och en <a href=\"hud/\">MotoEye eller valfri Android-HUD i hjälmen</a>, även i Android Auto-läge med rutten.",
+"fc.devices.body": "Hjulets siffror, inte bara i mobilen: klockappar för Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (klockor och Edge) och Amazfit, och en <a href=\"hud/\">MotoEye eller valfri Android-HUD i hjälmen</a>.",
 "fc.alarms.title": "Larm och röst",
 "fc.alarms.body": "Larm och upplästa rapporter för fart, batteri och PWM, siffran som visar hur nära gränsen hjulet är, på ditt språk. Fråga efter batteri eller fart med rösten, eller säg tuta, ljus, lås.",
 "fc.studio.title": "Overlay Studio",

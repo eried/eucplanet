@@ -2855,23 +2855,6 @@
     <plurals name="route_stop_count">
         <item quantity="other">%d 個停靠點</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">在 Android Auto 螢幕上顯示數據和獨輪車按鈕。</string>
-    <string name="car_waiting">正在等待獨輪車</string>
-    <string name="car_last_battery">上次電量 %1$d%%</string>
-    <string name="car_navigate">導航</string>
-    <string name="car_places_title">導航至</string>
-    <string name="car_place_home">住家</string>
-    <string name="car_place_work">公司</string>
-    <string name="car_planned_route">規劃的路線（%1$d）</string>
-    <string name="car_no_places">請先儲存住家或公司，或在手機上規劃路線。</string>
-    <string name="car_waiting_wheel">正在等待獨輪車</string>
-    <string name="car_weather">天氣</string>
-    <string name="car_alarm_channel_name">車機畫面警報</string>
-    <string name="car_alarm_channel_description">在 Android Auto 畫面的地圖上方顯示觸發的警報。</string>
-    <string name="car_alarm_notifications">在 Android Auto 畫面顯示警報</string>
-    <string name="car_alarm_notifications_hint">警報觸發時會顯示在地圖上方，導航時也看得到。嗶聲和震動不受影響。</string>
-    <string name="car_no_metrics">未選擇任何指標</string>
     <string name="nav_solve_menu">最佳化停靠點順序</string>
     <string name="nav_solve_effort">精確度</string>
     <string name="nav_solve_quick">快速</string>

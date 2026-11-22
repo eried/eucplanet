@@ -2654,23 +2654,6 @@
     <plurals name="route_stop_count">
             <item quantity="other">%d perhentian</item>
         </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistik dan tombol EUC Anda di layar Android Auto.</string>
-    <string name="car_waiting">Menunggu EUC</string>
-    <string name="car_last_battery">Baterai terakhir %1$d%%</string>
-    <string name="car_waiting_wheel">Menunggu EUC</string>
-    <string name="car_weather">Cuaca</string>
-    <string name="car_no_metrics">Tidak ada metrik dipilih</string>
-    <string name="car_alarm_channel_name">Alarm Android Auto</string>
-    <string name="car_alarm_channel_description">Menampilkan alarm yang berbunyi di layar Android Auto, di atas peta.</string>
-    <string name="car_alarm_notifications">Alarm di layar Android Auto</string>
-    <string name="car_alarm_notifications_hint">Alarm yang berbunyi tampil di atas peta, jadi tetap terlihat saat navigasi. Bip dan getaran tidak berubah.</string>
-    <string name="car_navigate">Navigasi</string>
-    <string name="car_places_title">Navigasi ke</string>
-    <string name="car_place_home">Rumah</string>
-    <string name="car_place_work">Kantor</string>
-    <string name="car_planned_route">Rute terencana (%1$d)</string>
-    <string name="car_no_places">Simpan Rumah atau Kantor, atau rencanakan rute di ponsel dulu.</string>
     <string name="nav_solve_menu">Optimalkan urutan perhentian</string>
     <string name="nav_solve_effort">Upaya</string>
     <string name="nav_solve_quick">Cepat</string>

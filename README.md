@@ -119,8 +119,7 @@ no signal.
 
 **Watch and helmet.** <sub>Android only</sub> Your wheel's numbers off the phone:
 watch apps for Wear OS, [Garmin](https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71) (watches and Edge)
-and Amazfit, and a [MotoEye or any Android helmet HUD](https://eucplanet.ried.no/hud/),
-also in Android Auto mode with the route.
+and Amazfit, and a [MotoEye or any Android helmet HUD](https://eucplanet.ried.no/hud/).
 - **Wear OS** (3 or newer): speed dial, your batteries, horn and light
   remotes, the next turn and a map. Ridden with a Galaxy Watch Ultra, Galaxy
   Watch 5 Pro and TicWatch 3 Pro. Architecture in [docs/WEAR_OS_MAP.md](docs/WEAR_OS_MAP.md).
@@ -135,8 +134,6 @@ also in Android Auto mode with the route.
   The phone updates the HUD app for you after the first install.
 - **ENGO 2 and ENGO 3 glasses**: pick a layout and what each place shows, as a
   number, a bar or a graph, with the next turn while you navigate.
-- **Android Auto**: turn-by-turn on an Android Auto HUD, your numbers beside the
-  map, and alarms as cards.
 
 **Alarms & voice.** Alarms and spoken reports for speed, battery and PWM, the
 number that says how close the wheel is to its limit, in your language. Ask for

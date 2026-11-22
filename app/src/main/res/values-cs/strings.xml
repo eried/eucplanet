@@ -2669,23 +2669,6 @@
         <item quantity="many">%d zastávky</item>
         <item quantity="other">%d zastávek</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistiky a tlačítka monokola na obrazovce Android Auto.</string>
-    <string name="car_waiting">Čekám na monokolo</string>
-    <string name="car_last_battery">Baterie naposledy %1$d %%</string>
-    <string name="car_navigate">Navigovat</string>
-    <string name="car_places_title">Kam navigovat</string>
-    <string name="car_place_home">Domov</string>
-    <string name="car_place_work">Práce</string>
-    <string name="car_planned_route">Plánovaná trasa (%1$d)</string>
-    <string name="car_no_places">Nejdřív uložte Domov nebo Práci, nebo naplánujte trasu v telefonu.</string>
-    <string name="car_waiting_wheel">Čekám na monokolo</string>
-    <string name="car_weather">Počasí</string>
-    <string name="car_alarm_channel_name">Alarmy pro Android Auto</string>
-    <string name="car_alarm_channel_description">Zobrazí spuštěný alarm na displeji Android Auto, přes mapu.</string>
-    <string name="car_alarm_notifications">Alarmy na displeji Android Auto</string>
-    <string name="car_alarm_notifications_hint">Spuštěný alarm se zobrazí přes mapu, takže se k vám dostane i při navigaci. Pípnutí a vibrace zůstávají.</string>
-    <string name="car_no_metrics">Nevybrány žádné metriky</string>
     <string name="nav_solve_menu">Optimalizovat pořadí zastávek</string>
     <string name="nav_solve_effort">Přesnost</string>
     <string name="nav_solve_quick">Rychle</string>

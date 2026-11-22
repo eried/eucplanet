@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "Nawigacja, też offline",
 "fc.navigation.body": "Trasy z przystankami i prowadzenie zakręt po zakręcie. Trasy rowerowe trzymają się spokojnych ulic, a po przegapionym skręcie nowa trasa jest w kilka sekund. Pobierz okolice, po których jeździsz, a mapa, trasy i wskazówki zadziałają bez zasięgu.",
 "fc.devices.title": "Zegarek i kask",
-"fc.devices.body": "Dane z koła nie tylko na telefonie: aplikacje na zegarki z Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (zegarki i Edge) i Amazfit oraz <a href=\"hud/\">HUD w kasku, MotoEye albo dowolny z Androidem</a>, także w trybie Android Auto z trasą.",
+"fc.devices.body": "Dane z koła nie tylko na telefonie: aplikacje na zegarki z Wear OS, <a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a> (zegarki i Edge) i Amazfit oraz <a href=\"hud/\">HUD w kasku, MotoEye albo dowolny z Androidem</a>.",
 "fc.alarms.title": "Alarmy i głos",
 "fc.alarms.body": "Alarmy i komunikaty głosowe o prędkości, baterii i PWM, czyli o tym, jak blisko swojego limitu jest koło, w twoim języku. Zapytaj głosem o baterię albo prędkość lub powiedz: klakson, światła, blokada.",
 "fc.studio.title": "Overlay Studio",

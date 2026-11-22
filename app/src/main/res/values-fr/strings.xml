@@ -2866,23 +2866,6 @@
         <item quantity="many">%d arrêts</item>
         <item quantity="other">%d arrêts</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Vos stats et les boutons de la roue sur un écran Android Auto.</string>
-    <string name="car_waiting">En attente de la roue</string>
-    <string name="car_last_battery">Dernière batterie : %1$d %%</string>
-    <string name="car_navigate">Naviguer</string>
-    <string name="car_places_title">Naviguer vers</string>
-    <string name="car_place_home">Domicile</string>
-    <string name="car_place_work">Travail</string>
-    <string name="car_planned_route">Itinéraire prévu (%1$d)</string>
-    <string name="car_no_places">Enregistrez Domicile ou Travail, ou planifiez d\'abord un itinéraire sur le téléphone.</string>
-    <string name="car_waiting_wheel">En attente de la roue</string>
-    <string name="car_weather">Météo</string>
-    <string name="car_alarm_channel_name">Alarmes Android Auto</string>
-    <string name="car_alarm_channel_description">Affiche une alarme qui se déclenche sur l\'écran Android Auto, par-dessus la carte.</string>
-    <string name="car_alarm_notifications">Alarmes sur l\'écran Android Auto</string>
-    <string name="car_alarm_notifications_hint">Une alarme qui se déclenche s\'affiche par-dessus la carte, vous la voyez donc même en navigation. Le bip et la vibration ne changent pas.</string>
-    <string name="car_no_metrics">Aucune mesure sélectionnée</string>
     <string name="nav_solve_menu">Optimiser l\'ordre des arrêts</string>
     <string name="nav_solve_effort">Effort</string>
     <string name="nav_solve_quick">Rapide</string>

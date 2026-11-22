@@ -2822,23 +2822,6 @@
         <item quantity="one">%d спирка</item>
         <item quantity="other">%d спирки</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Статистиката и бутоните на моноколелото на екран с Android Auto.</string>
-    <string name="car_waiting">Изчакване на моноколелото</string>
-    <string name="car_last_battery">Последна батерия %1$d%%</string>
-    <string name="car_waiting_wheel">Изчакване на моноколелото</string>
-    <string name="car_weather">Времето</string>
-    <string name="car_no_metrics">Няма избрани показатели</string>
-    <string name="car_alarm_channel_name">Аларми за Android Auto</string>
-    <string name="car_alarm_channel_description">Показва задействана аларма на екрана на Android Auto, върху картата.</string>
-    <string name="car_alarm_notifications">Аларми на екрана на Android Auto</string>
-    <string name="car_alarm_notifications_hint">Задействаната аларма се показва върху картата, за да я видите и докато навигирате. Звуковият сигнал и вибрацията не се променят.</string>
-    <string name="car_navigate">Навигирай</string>
-    <string name="car_places_title">Навигирай до</string>
-    <string name="car_place_home">Дом</string>
-    <string name="car_place_work">Работа</string>
-    <string name="car_planned_route">Планиран маршрут (%1$d)</string>
-    <string name="car_no_places">Първо запазете Дом или Работа или планирайте маршрут на телефона.</string>
     <string name="nav_solve_menu">Оптимизирай реда на спирките</string>
     <string name="nav_solve_effort">Точност</string>
     <string name="nav_solve_quick">Бързо</string>

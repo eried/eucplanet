@@ -2856,23 +2856,6 @@
         <item quantity="one">%d durak</item>
         <item quantity="other">%d durak</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Verileriniz ve teker düğmeleriniz Android Auto ekranında.</string>
-    <string name="car_waiting">Teker bekleniyor</string>
-    <string name="car_last_battery">Son batarya %%%1$d</string>
-    <string name="car_navigate">Navigasyon</string>
-    <string name="car_places_title">Şuraya git</string>
-    <string name="car_place_home">Ev</string>
-    <string name="car_place_work">İşyeri</string>
-    <string name="car_planned_route">Planlanan rota (%1$d)</string>
-    <string name="car_no_places">Önce Ev veya İşyeri kaydedin ya da telefonda bir rota planlayın.</string>
-    <string name="car_waiting_wheel">Teker bekleniyor</string>
-    <string name="car_weather">Hava durumu</string>
-    <string name="car_alarm_channel_name">Android Auto alarmları</string>
-    <string name="car_alarm_channel_description">Tetiklenen alarmı Android Auto ekranında, haritanın üstünde gösterir.</string>
-    <string name="car_alarm_notifications">Android Auto ekranındaki alarmlar</string>
-    <string name="car_alarm_notifications_hint">Tetiklenen alarm haritanın üstünde görünür, böylece navigasyon sırasında da size ulaşır. Bip ve titreşim değişmez.</string>
-    <string name="car_no_metrics">Seçili metrik yok</string>
     <string name="nav_solve_menu">Durak sırasını optimize et</string>
     <string name="nav_solve_effort">Düzey</string>
     <string name="nav_solve_quick">Hızlı</string>

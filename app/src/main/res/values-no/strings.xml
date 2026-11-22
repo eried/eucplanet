@@ -2746,23 +2746,6 @@
         <item quantity="one">%d stopp</item>
         <item quantity="other">%d stopp</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Statistikk og hjulknapper på en Android Auto-skjerm.</string>
-    <string name="car_waiting">Venter på hjulet</string>
-    <string name="car_last_battery">Siste batteri %1$d %%</string>
-    <string name="car_navigate">Naviger</string>
-    <string name="car_places_title">Naviger til</string>
-    <string name="car_place_home">Hjem</string>
-    <string name="car_place_work">Jobb</string>
-    <string name="car_planned_route">Planlagt rute (%1$d)</string>
-    <string name="car_no_places">Lagre Hjem eller Jobb, eller planlegg en rute på telefonen først.</string>
-    <string name="car_waiting_wheel">Venter på hjulet</string>
-    <string name="car_weather">Vær</string>
-    <string name="car_alarm_channel_name">Android Auto-alarmer</string>
-    <string name="car_alarm_channel_description">Viser en utløst alarm på Android Auto-skjermen, oppå kartet.</string>
-    <string name="car_alarm_notifications">Alarmer på Android Auto-skjermen</string>
-    <string name="car_alarm_notifications_hint">En utløst alarm vises oppå kartet, så den når deg mens du navigerer. Pip og vibrasjon er uendret.</string>
-    <string name="car_no_metrics">Ingen målinger valgt</string>
     <string name="nav_solve_menu">Optimaliser rekkefølgen på stoppene</string>
     <string name="nav_solve_effort">Grundighet</string>
     <string name="nav_solve_quick">Rask</string>

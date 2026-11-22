@@ -2864,23 +2864,6 @@
         <item quantity="many">%d paradas</item>
         <item quantity="other">%d paradas</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Suas estatísticas e botões da roda numa tela Android Auto.</string>
-    <string name="car_waiting">Aguardando a roda</string>
-    <string name="car_last_battery">Última bateria %1$d%%</string>
-    <string name="car_navigate">Navegar</string>
-    <string name="car_places_title">Navegar até</string>
-    <string name="car_place_home">Casa</string>
-    <string name="car_place_work">Trabalho</string>
-    <string name="car_planned_route">Rota planejada (%1$d)</string>
-    <string name="car_no_places">Salve Casa ou Trabalho, ou planeje uma rota no celular primeiro.</string>
-    <string name="car_waiting_wheel">Aguardando a roda</string>
-    <string name="car_weather">Clima</string>
-    <string name="car_alarm_channel_name">Alarmes do Android Auto</string>
-    <string name="car_alarm_channel_description">Mostra o alarme que disparou na tela do Android Auto, sobre o mapa.</string>
-    <string name="car_alarm_notifications">Alarmes na tela do Android Auto</string>
-    <string name="car_alarm_notifications_hint">Quando um alarme dispara, ele aparece sobre o mapa, então você vê mesmo navegando. Bipe e vibração continuam iguais.</string>
-    <string name="car_no_metrics">Nenhuma métrica selecionada</string>
     <string name="nav_solve_menu">Otimizar ordem das paradas</string>
     <string name="nav_solve_effort">Esforço</string>
     <string name="nav_solve_quick">Rápido</string>

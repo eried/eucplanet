@@ -26,7 +26,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.Locale
 import com.eried.eucplanet.R
-import com.eried.eucplanet.car.CarAlarmNotification
 import kotlin.math.absoluteValue
 
 class AlarmEngine(
@@ -219,9 +218,6 @@ class AlarmEngine(
             Log.i(TAG, "Constant tone START '${rule.name}' freq=$freq vol=$vol gap=${rule.beepGapMs}")
             tonePlayer.startStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
             constantRuleId = rule.id
-            // Once, as the tone starts. It skips executeActions (see evaluate),
-            // so without this a held alarm would never reach the car screen.
-            scope.launch { notifyCar(rule, value) }
         } else {
             tonePlayer.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
         }
@@ -387,7 +383,6 @@ class AlarmEngine(
             if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
         }
         scope.launch {
-            notifyCar(rule, triggerValue)
             if (rule.beepEnabled) {
                 val freq = AlarmLogic.modulatedBeepHz(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
@@ -453,7 +448,6 @@ class AlarmEngine(
             if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
         }
         scope.launch {
-            notifyCar(rule, triggerValue)
             if (rule.beepEnabled) {
                 val freq = AlarmLogic.modulatedBeepHz(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)
@@ -481,26 +475,6 @@ class AlarmEngine(
             .replace("{threatCount}", "${frame.threats.size}")
     }
 
-    /**
-     * Puts a firing rule on the Android Auto screen.
-     *
-     * The car screen is only in front of the rider while they are looking at
-     * it, and while navigating they are looking at Maps. A notification is the
-     * one thing the host draws over navigation, so this is the only way an
-     * alarm reaches a rider mid-route. Every action path calls this, wheel,
-     * radar and GPS alike, and a constant tone as it starts
-     * (AlarmCarWiringTest). Costs nothing when no car is
-     * attached: nothing is posted, and the channel is silent, because the
-     * rule's own beep and vibration have already fired.
-     */
-    private suspend fun notifyCar(rule: AlarmRule, triggerValue: Float) {
-        if (!settingsRepository.currentOrLoad().androidAuto.alarmNotifications) return
-        val title = rule.name.ifBlank { context.getString(R.string.app_name) }
-        runCatching {
-            CarAlarmNotification.post(context, title, "%.0f".format(triggerValue))
-        }.onFailure { Log.w(TAG, "car alarm notification failed", it) }
-    }
-
     private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float, speedUnit: String, distanceUnit: String, tempUnit: String, pressureUnit: String) {
         // Vibrate fires immediately; beep and voice are sequenced so the beep
         // finishes before the voice speaks.
@@ -512,7 +486,6 @@ class AlarmEngine(
         }
 
         scope.launch {
-            notifyCar(rule, triggerValue)
             if (rule.beepEnabled) {
                 val freq = AlarmLogic.modulatedBeepHz(
                     rule.beepFrequency, triggerValue, rule.comparator, rule.threshold, rule.beepModulation, rule.metric)

@@ -2865,23 +2865,6 @@
         <item quantity="many">%d точек</item>
         <item quantity="other">%d точки</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Показатели и кнопки моноколеса на экране Android Auto.</string>
-    <string name="car_waiting">Ожидание моноколеса</string>
-    <string name="car_last_battery">Последний заряд %1$d%%</string>
-    <string name="car_navigate">Навигация</string>
-    <string name="car_places_title">Маршрут до</string>
-    <string name="car_place_home">Дом</string>
-    <string name="car_place_work">Работа</string>
-    <string name="car_planned_route">Маршрут (%1$d)</string>
-    <string name="car_no_places">Сначала сохраните «Дом» или «Работу» либо постройте маршрут на телефоне.</string>
-    <string name="car_waiting_wheel">Ожидание моноколеса</string>
-    <string name="car_weather">Погода</string>
-    <string name="car_alarm_channel_name">Сигналы Android Auto</string>
-    <string name="car_alarm_channel_description">Показывает сработавший сигнал на экране Android Auto, поверх карты.</string>
-    <string name="car_alarm_notifications">Сигналы на экране Android Auto</string>
-    <string name="car_alarm_notifications_hint">Сработавший сигнал появляется поверх карты, поэтому вы заметите его во время навигации. Звук и вибрация не меняются.</string>
-    <string name="car_no_metrics">Показатели не выбраны</string>
     <string name="nav_solve_menu">Оптимизировать порядок точек</string>
     <string name="nav_solve_effort">Точность</string>
     <string name="nav_solve_quick">Быстро</string>

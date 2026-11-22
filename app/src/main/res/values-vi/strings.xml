@@ -2654,23 +2654,6 @@
     <plurals name="route_stop_count">
         <item quantity="other">%d điểm dừng</item>
     </plurals>
-    <string name="section_android_auto">Android Auto</string>
-    <string name="android_auto_hint">Thống kê và nút điều khiển xe trên màn hình Android Auto.</string>
-    <string name="car_waiting">Đang chờ xe</string>
-    <string name="car_last_battery">Pin gần nhất %1$d%%</string>
-    <string name="car_waiting_wheel">Đang chờ xe</string>
-    <string name="car_weather">Thời tiết</string>
-    <string name="car_no_metrics">Chưa chọn chỉ số</string>
-    <string name="car_alarm_channel_name">Cảnh báo Android Auto</string>
-    <string name="car_alarm_channel_description">Hiện cảnh báo đang kêu trên màn hình Android Auto, đè lên bản đồ.</string>
-    <string name="car_alarm_notifications">Cảnh báo trên màn hình Android Auto</string>
-    <string name="car_alarm_notifications_hint">Cảnh báo đang kêu hiện đè lên bản đồ, để bạn nhận được khi đang dẫn đường. Tiếng bíp và rung không đổi.</string>
-    <string name="car_navigate">Dẫn đường</string>
-    <string name="car_places_title">Dẫn đường đến</string>
-    <string name="car_place_home">Nhà</string>
-    <string name="car_place_work">Nơi làm việc</string>
-    <string name="car_planned_route">Lộ trình đã lập (%1$d)</string>
-    <string name="car_no_places">Hãy lưu Nhà hoặc Nơi làm việc, hoặc lập lộ trình trên điện thoại trước.</string>
     <string name="nav_solve_menu">Tối ưu thứ tự điểm dừng</string>
     <string name="nav_solve_effort">Mức tính toán</string>
     <string name="nav_solve_quick">Nhanh</string>

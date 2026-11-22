@@ -33,7 +33,7 @@ window.EUC_I18N_DICT = {
 "fc.navigation.title": "オフラインでもナビ",
 "fc.navigation.body": "複数の経由地を組めるルートと、ターンバイターンの案内。自転車ルートは静かな道を優先し、曲がり損ねても数秒で新しいルートが出ます。走るエリアをダウンロードしておけば、電波がなくても地図、ルート、曲がり角の案内が使えます。",
 "fc.devices.title": "ウォッチとヘルメット",
-"fc.devices.body": "ホイールの数値をスマホの外にも。Wear OS、<a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a>（ウォッチと Edge）、Amazfit のウォッチアプリ、そして <a href=\"hud/\">MotoEye や Android ベースのヘルメット HUD</a>。Android Auto モードでもルートを表示できます。",
+"fc.devices.body": "ホイールの数値をスマホの外にも。Wear OS、<a href=\"https://apps.garmin.com/apps/14c2d086-fcb5-4042-bd5b-034519d18a71\">Garmin</a>（ウォッチと Edge）、Amazfit のウォッチアプリ、そして <a href=\"hud/\">MotoEye や Android ベースのヘルメット HUD</a>。",
 "fc.alarms.title": "アラームと音声",
 "fc.alarms.body": "速度、バッテリー、PWM（ホイールが限界にどれだけ近いかを示す数値）のアラームと読み上げを、自分の言語で。バッテリーや速度を声で聞いたり、ホーン、ライト、ロックと言ったりできます。",
 "fc.studio.title": "Overlay Studio",
