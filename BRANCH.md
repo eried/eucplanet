@@ -25,6 +25,7 @@ ride, this is the branch.
 - Reset buttons grey out when there is nothing to reset.
 - Release builds are obfuscated (Play asks for it by Feb 2027).
 - Phones without Wi-Fi can install it again (Wi-Fi is only for the HUD and Amazfit links).
+- Two crash fixes from Play: reconnecting to the last wheel, and a memory leak on long rides when the phone clock jumps.
 
 ## Please test
 
