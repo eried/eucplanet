@@ -2925,6 +2925,11 @@
     <string name="offline_data_update_all">すべて更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">毎週 Wi-Fi で更新</string>
+    <string name="offline_data_check_now">アップデートを確認</string>
+    <string name="offline_data_all_current">すべてのエリアが最新です。</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">%1$d 件のエリアを更新できます。</item>
+    </plurals>
     <string name="offline_data_credit">マップとルートのデータ © OpenStreetMap 貢献者 (ODbL)。Protomaps、BRouter (MIT)。</string>
     <string name="offline_data_download_q">このエリアをダウンロードしますか（%1$s）？</string>
     <string name="offline_data_download">ダウンロード</string>

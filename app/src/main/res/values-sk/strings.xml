@@ -2895,6 +2895,14 @@
     <string name="offline_data_update_all">Aktualizovať všetko (%1$d)</string>
     <string name="offline_data_update">Aktualizovať</string>
     <string name="offline_data_wifi_updates">Aktualizovať týždenne cez Wi-Fi</string>
+    <string name="offline_data_check_now">Skontrolovať aktualizácie</string>
+    <string name="offline_data_all_current">Všetky vaše oblasti sú aktuálne.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d oblasť sa dá aktualizovať.</item>
+        <item quantity="few">%1$d oblasti sa dajú aktualizovať.</item>
+        <item quantity="many">%1$d oblasti sa dá aktualizovať.</item>
+        <item quantity="other">%1$d oblastí sa dá aktualizovať.</item>
+    </plurals>
     <string name="offline_data_credit">Dáta mapy a trás © prispievatelia OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Stiahnuť túto oblasť (%1$s)?</string>
     <string name="offline_data_download">Stiahnuť</string>

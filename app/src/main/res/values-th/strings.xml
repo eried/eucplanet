@@ -2722,6 +2722,11 @@
     <string name="offline_data_update_all">อัปเดตทั้งหมด (%1$d)</string>
     <string name="offline_data_update">อัปเดต</string>
     <string name="offline_data_wifi_updates">อัปเดตทุกสัปดาห์ผ่าน Wi-Fi</string>
+    <string name="offline_data_check_now">ตรวจหาอัปเดต</string>
+    <string name="offline_data_all_current">พื้นที่ทั้งหมดของคุณเป็นเวอร์ชันล่าสุดแล้ว</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">อัปเดตได้ %1$d พื้นที่</item>
+    </plurals>
     <string name="offline_data_credit">ข้อมูลแผนที่และเส้นทาง © ผู้ร่วมพัฒนา OpenStreetMap (ODbL), Protomaps, BRouter (MIT)</string>
     <string name="offline_data_download_q">ดาวน์โหลดพื้นที่นี้ (%1$s) ไหม?</string>
     <string name="offline_data_download">ดาวน์โหลด</string>

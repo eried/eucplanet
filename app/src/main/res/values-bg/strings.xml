@@ -2890,6 +2890,12 @@
     <string name="offline_data_update_all">Обнови всички (%1$d)</string>
     <string name="offline_data_update">Обнови</string>
     <string name="offline_data_wifi_updates">Седмично обновяване през Wi-Fi</string>
+    <string name="offline_data_check_now">Проверка за обновления</string>
+    <string name="offline_data_all_current">Всички ваши зони са актуални.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d зона може да се обнови.</item>
+        <item quantity="other">%1$d зони могат да се обновят.</item>
+    </plurals>
     <string name="offline_data_credit">Данни за карти и маршрути © сътрудниците на OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Да се изтегли ли тази зона (%1$s)?</string>
     <string name="offline_data_download">Изтегли</string>

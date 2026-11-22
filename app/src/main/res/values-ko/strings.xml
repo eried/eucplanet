@@ -2923,6 +2923,11 @@
     <string name="offline_data_update_all">모두 업데이트 (%1$d)</string>
     <string name="offline_data_update">업데이트</string>
     <string name="offline_data_wifi_updates">매주 Wi-Fi에서 업데이트</string>
+    <string name="offline_data_check_now">업데이트 확인</string>
+    <string name="offline_data_all_current">모든 지역이 최신 상태입니다.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">%1$d개 지역을 업데이트할 수 있습니다.</item>
+    </plurals>
     <string name="offline_data_credit">지도 및 경로 데이터 © OpenStreetMap 기여자 (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">이 지역(%1$s)을 다운로드할까요?</string>
     <string name="offline_data_download">다운로드</string>

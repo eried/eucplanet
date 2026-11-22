@@ -2934,6 +2934,13 @@
     <string name="offline_data_update_all">Tout mettre à jour (%1$d)</string>
     <string name="offline_data_update">Mettre à jour</string>
     <string name="offline_data_wifi_updates">Mettre à jour chaque semaine en Wi-Fi</string>
+    <string name="offline_data_check_now">Rechercher des mises à jour</string>
+    <string name="offline_data_all_current">Toutes vos zones sont à jour.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d zone peut être mise à jour.</item>
+        <item quantity="many">%1$d zones peuvent être mises à jour.</item>
+        <item quantity="other">%1$d zones peuvent être mises à jour.</item>
+    </plurals>
     <string name="offline_data_credit">Données de carte et d\'itinéraire © contributeurs OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Télécharger cette zone (%1$s) ?</string>
     <string name="offline_data_download">Télécharger</string>

@@ -2790,6 +2790,11 @@
     <string name="offline_data_update_all">全部更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">每周通过 Wi-Fi 更新</string>
+    <string name="offline_data_check_now">检查更新</string>
+    <string name="offline_data_all_current">你的所有区域都是最新的。</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">有 %1$d 个区域可以更新。</item>
+    </plurals>
     <string name="offline_data_credit">地图和路线数据 © OpenStreetMap 贡献者 (ODbL)。Protomaps、BRouter (MIT)。</string>
     <string name="offline_data_download_q">下载此区域（%1$s）？</string>
     <string name="offline_data_download">下载</string>

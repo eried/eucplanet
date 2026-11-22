@@ -2933,6 +2933,14 @@
     <string name="offline_data_update_all">Aktualizuj wszystko (%1$d)</string>
     <string name="offline_data_update">Aktualizuj</string>
     <string name="offline_data_wifi_updates">Aktualizuj co tydzień przez Wi-Fi</string>
+    <string name="offline_data_check_now">Sprawdź aktualizacje</string>
+    <string name="offline_data_all_current">Wszystkie Twoje obszary są aktualne.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d obszar można zaktualizować.</item>
+        <item quantity="few">%1$d obszary można zaktualizować.</item>
+        <item quantity="many">%1$d obszarów można zaktualizować.</item>
+        <item quantity="other">%1$d obszaru można zaktualizować.</item>
+    </plurals>
     <string name="offline_data_credit">Dane map i tras © współtwórcy OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Pobrać ten obszar (%1$s)?</string>
     <string name="offline_data_download">Pobierz</string>

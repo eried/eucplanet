@@ -2927,6 +2927,13 @@
     <string name="offline_data_update_all">Actualizar todo (%1$d)</string>
     <string name="offline_data_update">Actualizar</string>
     <string name="offline_data_wifi_updates">Actualizar cada semana por Wi-Fi</string>
+    <string name="offline_data_check_now">Buscar actualizaciones</string>
+    <string name="offline_data_all_current">Todas tus zonas están al día.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d zona se puede actualizar.</item>
+        <item quantity="many">%1$d zonas se pueden actualizar.</item>
+        <item quantity="other">%1$d zonas se pueden actualizar.</item>
+    </plurals>
     <string name="offline_data_credit">Datos de mapa y rutas © colaboradores de OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">¿Descargar esta zona (%1$s)?</string>
     <string name="offline_data_download">Descargar</string>

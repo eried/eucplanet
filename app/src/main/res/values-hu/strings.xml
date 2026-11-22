@@ -2731,6 +2731,12 @@
     <string name="offline_data_update_all">Összes frissítése (%1$d)</string>
     <string name="offline_data_update">Frissítés</string>
     <string name="offline_data_wifi_updates">Heti frissítés Wi-Fin</string>
+    <string name="offline_data_check_now">Frissítések keresése</string>
+    <string name="offline_data_all_current">Minden területed naprakész.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d terület frissíthető.</item>
+        <item quantity="other">%1$d terület frissíthető.</item>
+    </plurals>
     <string name="offline_data_credit">Térkép- és útvonaladatok © OpenStreetMap-közreműködők (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Letöltöd ezt a területet (%1$s)?</string>
     <string name="offline_data_download">Letöltés</string>

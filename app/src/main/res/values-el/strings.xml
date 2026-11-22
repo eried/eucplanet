@@ -2808,6 +2808,12 @@
     <string name="offline_data_update_all">Ενημέρωση όλων (%1$d)</string>
     <string name="offline_data_update">Ενημέρωση</string>
     <string name="offline_data_wifi_updates">Εβδομαδιαία ενημέρωση μέσω Wi-Fi</string>
+    <string name="offline_data_check_now">Έλεγχος για ενημερώσεις</string>
+    <string name="offline_data_all_current">Όλες οι περιοχές σας είναι ενημερωμένες.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d περιοχή μπορεί να ενημερωθεί.</item>
+        <item quantity="other">%1$d περιοχές μπορούν να ενημερωθούν.</item>
+    </plurals>
     <string name="offline_data_credit">Δεδομένα χάρτη και δρομολόγησης © συντελεστές του OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Λήψη αυτής της περιοχής (%1$s);</string>
     <string name="offline_data_download">Λήψη</string>

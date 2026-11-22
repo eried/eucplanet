@@ -2722,6 +2722,11 @@
     <string name="offline_data_update_all">Cập nhật tất cả (%1$d)</string>
     <string name="offline_data_update">Cập nhật</string>
     <string name="offline_data_wifi_updates">Cập nhật hằng tuần qua Wi-Fi</string>
+    <string name="offline_data_check_now">Kiểm tra cập nhật</string>
+    <string name="offline_data_all_current">Mọi khu vực của bạn đều đã mới nhất.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">Có thể cập nhật %1$d khu vực.</item>
+    </plurals>
     <string name="offline_data_credit">Dữ liệu bản đồ và tìm đường © những người đóng góp OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Tải khu vực này (%1$s)?</string>
     <string name="offline_data_download">Tải xuống</string>

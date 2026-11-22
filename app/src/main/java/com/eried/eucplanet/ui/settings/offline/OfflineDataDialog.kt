@@ -27,7 +27,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -45,6 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -84,8 +90,16 @@ fun OfflineDataDialog(
     var pending by remember { mutableStateOf<Pending?>(null) }
     var bulk by remember { mutableStateOf<Bulk?>(null) }
     var selectOpen by remember { mutableStateOf(false) }
-    // A snackbar would sit behind this full-screen dialog: notes show inline.
-    var notice by remember { mutableStateOf<String?>(null) }
+    // The screen's snackbar would sit behind this full-screen dialog, so the
+    // dialog has its own, styled the same.
+    val snack = remember { SnackbarHostState() }
+    val snackScope = rememberCoroutineScope()
+    fun toast(message: String) {
+        snackScope.launch {
+            snack.currentSnackbarData?.dismiss()
+            snack.showSnackbar(message)
+        }
+    }
     val noRoute = stringResource(R.string.offline_data_no_route)
     val allHere = stringResource(R.string.offline_data_route_all_here)
     val nearAllHere = stringResource(R.string.offline_data_near_all_here)
@@ -98,7 +112,7 @@ fun OfflineDataDialog(
         if (routeSquares == null || routeAsked || state.loading) return@LaunchedEffect
         routeAsked = true
         val missing = viewModel.missingOf(routeSquares)
-        if (missing.isEmpty()) notice = allHere else bulk = Bulk(missing, route = true)
+        if (missing.isEmpty()) toast(allHere) else bulk = Bulk(missing, route = true)
     }
 
     fun ask(row: TileRow) {
@@ -109,6 +123,7 @@ fun OfflineDataDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
     ) {
+        Box(Modifier.fillMaxSize()) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -210,8 +225,8 @@ fun OfflineDataDialog(
                                 selectOpen = false
                                 val missing = viewModel.nearTilesMissing(km)
                                 when {
-                                    missing == null -> notice = noLocation
-                                    missing.isEmpty() -> notice = nearAllHere
+                                    missing == null -> toast(noLocation)
+                                    missing.isEmpty() -> toast(nearAllHere)
                                     else -> bulk = Bulk(missing, route = false)
                                 }
                             }
@@ -236,8 +251,8 @@ fun OfflineDataDialog(
                                     selectOpen = false
                                     val missing = viewModel.routeTilesMissing()
                                     when {
-                                        missing == null -> notice = noRoute
-                                        missing.isEmpty() -> notice = allHere
+                                        missing == null -> toast(noRoute)
+                                        missing.isEmpty() -> toast(allHere)
                                         else -> bulk = Bulk(missing, route = true)
                                     }
                                 },
@@ -263,21 +278,36 @@ fun OfflineDataDialog(
                 }
                 wv.evaluateJavascript("setTiles($json)", null)
             }
-            notice?.let { n ->
-                LaunchedEffect(n) {
-                    kotlinx.coroutines.delay(4_000)
-                    notice = null
-                }
-                Text(
-                    n, style = MaterialTheme.typography.bodySmall, color = colors.textSecondary,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-            }
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     stringResource(R.string.offline_data_wifi_updates),
                     color = colors.textPrimary, modifier = Modifier.weight(1f),
                 )
+                // Checks now instead of waiting for the week; the same still
+                // icon as the weather panel's refresh, dimmed while it asks.
+                // Only with something downloaded: there is nothing to update
+                // otherwise.
+                if (state.tiles.values.any { it.status == TileStatus.DOWNLOADED || it.status == TileStatus.UPDATE }) {
+                    IconButton(
+                        onClick = {
+                            viewModel.checkNow { outdated ->
+                                when (outdated) {
+                                    null -> Unit // the list error line already says it
+                                    0 -> toast(ctx.getString(R.string.offline_data_all_current))
+                                    else -> toast(ctx.resources.getQuantityString(R.plurals.offline_data_updates_found, outdated, outdated))
+                                }
+                            }
+                        },
+                        enabled = !state.loading,
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.offline_data_check_now),
+                            tint = colors.textSecondary.copy(alpha = if (state.loading) 0.35f else 1f),
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
                 Switch(
                     checked = wifiAuto,
                     onCheckedChange = viewModel::setWifiAutoUpdate,
@@ -289,6 +319,15 @@ fun OfflineDataDialog(
                 style = MaterialTheme.typography.labelSmall, color = colors.textSecondary,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
+        }
+        SnackbarHost(snack, modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding()) {
+            Snackbar(
+                it,
+                containerColor = colors.snackbarBackground,
+                contentColor = colors.snackbarText,
+                actionContentColor = colors.snackbarAction,
+            )
+        }
         }
     }
 

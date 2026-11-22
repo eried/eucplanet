@@ -2734,6 +2734,13 @@
     <string name="offline_data_update_all">Actualizează tot (%1$d)</string>
     <string name="offline_data_update">Actualizează</string>
     <string name="offline_data_wifi_updates">Actualizează săptămânal pe Wi-Fi</string>
+    <string name="offline_data_check_now">Caută actualizări</string>
+    <string name="offline_data_all_current">Toate zonele tale sunt la zi.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d zonă poate fi actualizată.</item>
+        <item quantity="few">%1$d zone pot fi actualizate.</item>
+        <item quantity="other">%1$d de zone pot fi actualizate.</item>
+    </plurals>
     <string name="offline_data_credit">Date de hartă și rutare © contribuitorii OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Descarci această zonă (%1$s)?</string>
     <string name="offline_data_download">Descarcă</string>

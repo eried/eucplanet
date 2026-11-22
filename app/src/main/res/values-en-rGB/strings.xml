@@ -2950,6 +2950,12 @@
     <string name="offline_data_update_all">Update all (%1$d)</string>
     <string name="offline_data_update">Update</string>
     <string name="offline_data_wifi_updates">Update weekly on Wi-Fi</string>
+    <string name="offline_data_check_now">Check for updates</string>
+    <string name="offline_data_all_current">All your areas are up to date.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d area can be updated.</item>
+        <item quantity="other">%1$d areas can be updated.</item>
+    </plurals>
     <string name="offline_data_credit">Map and routing data © OpenStreetMap contributors (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Download this area (%1$s)?</string>
     <string name="offline_data_download">Download</string>

@@ -2929,6 +2929,12 @@
     <string name="offline_data_update_all">Alles bijwerken (%1$d)</string>
     <string name="offline_data_update">Bijwerken</string>
     <string name="offline_data_wifi_updates">Wekelijks bijwerken via wifi</string>
+    <string name="offline_data_check_now">Controleren op updates</string>
+    <string name="offline_data_all_current">Al je gebieden zijn bijgewerkt.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d gebied kan worden bijgewerkt.</item>
+        <item quantity="other">%1$d gebieden kunnen worden bijgewerkt.</item>
+    </plurals>
     <string name="offline_data_credit">Kaart- en routeringsgegevens © OpenStreetMap-bijdragers (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Dit gebied downloaden (%1$s)?</string>
     <string name="offline_data_download">Downloaden</string>

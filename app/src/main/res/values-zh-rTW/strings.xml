@@ -2923,6 +2923,11 @@
     <string name="offline_data_update_all">全部更新（%1$d）</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">每週透過 Wi-Fi 更新</string>
+    <string name="offline_data_check_now">檢查更新</string>
+    <string name="offline_data_all_current">你的所有區域都是最新的。</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">有 %1$d 個區域可以更新。</item>
+    </plurals>
     <string name="offline_data_credit">地圖與路線資料 © OpenStreetMap 貢獻者（ODbL）。Protomaps、BRouter（MIT）。</string>
     <string name="offline_data_download_q">要下載此區域（%1$s）嗎？</string>
     <string name="offline_data_download">下載</string>

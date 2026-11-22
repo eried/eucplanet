@@ -2927,6 +2927,12 @@
     <string name="offline_data_update_all">Uppdatera alla (%1$d)</string>
     <string name="offline_data_update">Uppdatera</string>
     <string name="offline_data_wifi_updates">Uppdatera varje vecka via wifi</string>
+    <string name="offline_data_check_now">Sök efter uppdateringar</string>
+    <string name="offline_data_all_current">Alla dina områden är uppdaterade.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d område kan uppdateras.</item>
+        <item quantity="other">%1$d områden kan uppdateras.</item>
+    </plurals>
     <string name="offline_data_credit">Kart- och ruttdata © OpenStreetMap-bidragsgivare (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Ladda ner det här området (%1$s)?</string>
     <string name="offline_data_download">Ladda ner</string>

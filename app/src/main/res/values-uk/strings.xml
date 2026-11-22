@@ -2930,6 +2930,14 @@
     <string name="offline_data_update_all">Оновити все (%1$d)</string>
     <string name="offline_data_update">Оновити</string>
     <string name="offline_data_wifi_updates">Оновлювати щотижня через Wi-Fi</string>
+    <string name="offline_data_check_now">Перевірити оновлення</string>
+    <string name="offline_data_all_current">Усі ваші області актуальні.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d область можна оновити.</item>
+        <item quantity="few">%1$d області можна оновити.</item>
+        <item quantity="many">%1$d областей можна оновити.</item>
+        <item quantity="other">%1$d області можна оновити.</item>
+    </plurals>
     <string name="offline_data_credit">Дані карт і маршрутів © учасники OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Завантажити цю область (%1$s)?</string>
     <string name="offline_data_download">Завантажити</string>

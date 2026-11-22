@@ -2924,6 +2924,12 @@
     <string name="offline_data_update_all">Tümünü güncelle (%1$d)</string>
     <string name="offline_data_update">Güncelle</string>
     <string name="offline_data_wifi_updates">Her hafta Wi-Fi ile güncelle</string>
+    <string name="offline_data_check_now">Güncellemeleri denetle</string>
+    <string name="offline_data_all_current">Tüm bölgeleriniz güncel.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d bölge güncellenebilir.</item>
+        <item quantity="other">%1$d bölge güncellenebilir.</item>
+    </plurals>
     <string name="offline_data_credit">Harita ve rota verileri © OpenStreetMap katkıcıları (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Bu bölge indirilsin mi (%1$s)?</string>
     <string name="offline_data_download">İndir</string>

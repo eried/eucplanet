@@ -2731,6 +2731,12 @@
     <string name="offline_data_update_all">Päivitä kaikki (%1$d)</string>
     <string name="offline_data_update">Päivitä</string>
     <string name="offline_data_wifi_updates">Päivitä viikoittain Wi-Fissä</string>
+    <string name="offline_data_check_now">Tarkista päivitykset</string>
+    <string name="offline_data_all_current">Kaikki alueesi ovat ajan tasalla.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d alueen voi päivittää.</item>
+        <item quantity="other">%1$d aluetta voi päivittää.</item>
+    </plurals>
     <string name="offline_data_credit">Kartta- ja reititysdata © OpenStreetMapin tekijät (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Ladataanko tämä alue (%1$s)?</string>
     <string name="offline_data_download">Lataa</string>

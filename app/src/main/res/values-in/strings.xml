@@ -2722,6 +2722,11 @@
     <string name="offline_data_update_all">Perbarui semua (%1$d)</string>
     <string name="offline_data_update">Perbarui</string>
     <string name="offline_data_wifi_updates">Perbarui mingguan lewat Wi-Fi</string>
+    <string name="offline_data_check_now">Periksa pembaruan</string>
+    <string name="offline_data_all_current">Semua area Anda sudah terbaru.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="other">%1$d area bisa diperbarui.</item>
+    </plurals>
     <string name="offline_data_credit">Data peta dan rute © kontributor OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Unduh area ini (%1$s)?</string>
     <string name="offline_data_download">Unduh</string>

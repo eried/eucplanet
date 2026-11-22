@@ -2834,6 +2834,13 @@
     <string name="offline_data_update_all">Aggiorna tutto (%1$d)</string>
     <string name="offline_data_update">Aggiorna</string>
     <string name="offline_data_wifi_updates">Aggiorna ogni settimana in Wi-Fi</string>
+    <string name="offline_data_check_now">Cerca aggiornamenti</string>
+    <string name="offline_data_all_current">Tutte le tue aree sono aggiornate.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d area può essere aggiornata.</item>
+        <item quantity="many">%1$d aree possono essere aggiornate.</item>
+        <item quantity="other">%1$d aree possono essere aggiornate.</item>
+    </plurals>
     <string name="offline_data_credit">Dati di mappe e percorsi © collaboratori di OpenStreetMap (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Scaricare quest\'area (%1$s)?</string>
     <string name="offline_data_download">Scarica</string>

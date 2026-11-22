@@ -2947,6 +2947,12 @@
     <string name="offline_data_update_all">Alle aktualisieren (%1$d)</string>
     <string name="offline_data_update">Aktualisieren</string>
     <string name="offline_data_wifi_updates">Wöchentlich im WLAN aktualisieren</string>
+    <string name="offline_data_check_now">Nach Updates suchen</string>
+    <string name="offline_data_all_current">Alle deine Gebiete sind aktuell.</string>
+    <plurals name="offline_data_updates_found">
+        <item quantity="one">%1$d Gebiet kann aktualisiert werden.</item>
+        <item quantity="other">%1$d Gebiete können aktualisiert werden.</item>
+    </plurals>
     <string name="offline_data_credit">Karten- und Routendaten © OpenStreetMap-Mitwirkende (ODbL). Protomaps, BRouter (MIT).</string>
     <string name="offline_data_download_q">Dieses Gebiet laden (%1$s)?</string>
     <string name="offline_data_download">Laden</string>
