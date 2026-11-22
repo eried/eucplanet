@@ -1,6 +1,8 @@
-Real engine sounds, and volume buttons that work with the screen off.
-
-- Motor sound: eight engines are now real recordings (V8, V-twin, V12, diesel and more), and the synthesised ones were rebuilt.
-- Volume buttons can fire their actions with the phone locked. Turn it on under Volume keys.
-- New actions for Flic, watch and tiles: volume up and down, mute, flashlight, engine sound.
-- Listen asks for the microphone when it is missing.
+- Offline areas: street map, routing and turn cues with no signal.
+- ENGO smart glasses supported (ENGO 2 and 3).
+- MotoEye HUD opens by itself, with the route on the map.
+- Share a route as a QR code or link. GPX tracks, heading-up map.
+- Dropbox syncs both ways, settings and themes too.
+- Crews: fly your crew's colours on eucstats.
+- Recorded engine sounds. Volume keys work with the screen off.
+- Better translations and new languages, like Portuguese (Portugal), Indonesian and Thai.

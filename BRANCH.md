@@ -13,11 +13,12 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Engine sounds: recorded and synthesised engines.
 - Volume keys work with the screen off. New actions: volume, mute, flashlight, engine sound.
 - Units: altitude as its own setting, UK starts on miles.
-- 30 languages, all reread, English (UK) new.
+- Better translations, and new languages like Portuguese (Portugal), Indonesian, Thai and English (UK).
 - InMotion V6, V8S and Begode Panther fixes. Watch: new layout.
 - Reset buttons grey out when there is nothing to reset.
 - Offline maps: a refresh button checks for newer squares now.
 - Android Auto is gone for now: Play would not pass it.
+- Phones without Wi-Fi can install it again (Wi-Fi is only for the HUD and Amazfit links).
 
 ## Please test
 
