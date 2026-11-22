@@ -11,7 +11,7 @@ ride, this is the branch.
 
 - 0.25.0 beta: everything from next-experimental, on the Play beta track and as a GitHub release.
 - Android Auto is gone for now. Play rejected 0.24.0 over it, so 0.24.0 never reached the beta.
-- ENGO 2 and ENGO 3 glasses as a HUD (Settings, Integration, Customize): pick a layout, fonts, and what each place shows as a number, a bar or a graph, with the next turn while you navigate.
+- ENGO smart glasses supported (ENGO 2 and 3), in Settings, Integration, Customize: pick a layout, fonts, and what each place shows as a number, a bar or a graph, with the next turn while you navigate.
 - HUD (MotoEye): opens by itself after the HUD powers on, turn arrow for the whole route, route line on every map, your own overlay over the map.
 - HUD map comes from the phone (online, cached or offline squares). The phone installs and updates the HUD app.
 - Offline areas: street map and routing with no signal, quieter bike routes, reroutes in about 8 s. A refresh button checks for newer squares.
@@ -20,7 +20,7 @@ ride, this is the branch.
 - Engine sounds: eight recorded engines, the synthesised ones rebuilt.
 - Volume keys work with the screen off. New actions: volume up and down, mute, flashlight, engine sound.
 - Units: altitude as its own setting, UK starts on miles.
-- 30 languages, all reread by native speakers, English (UK) new.
+- Better translations, and new languages like Portuguese (Portugal), Indonesian, Thai and English (UK).
 - InMotion V6, V8S and Begode Panther fixes. Watch: new layout.
 - Reset buttons grey out when there is nothing to reset.
 - Release builds are obfuscated (Play asks for it by Feb 2027).

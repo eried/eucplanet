@@ -132,7 +132,7 @@ and Amazfit, and a [MotoEye or any Android helmet HUD](https://eucplanet.ried.no
 - **Helmet HUD**: the dashboard mirrors to a MotoEye E6 or any Android HUD over
   local WiFi, with a Map + Nav screen that puts the route arrow over a moving map.
   The phone updates the HUD app for you after the first install.
-- **ENGO 2 and ENGO 3 glasses**: pick a layout and what each place shows, as a
+- **ENGO smart glasses** (ENGO 2 and 3): pick a layout and what each place shows, as a
   number, a bar or a graph, with the next turn while you navigate.
 
 **Alarms & voice.** Alarms and spoken reports for speed, battery and PWM, the
