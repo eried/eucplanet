@@ -24,6 +24,7 @@ ride, this is the branch.
 - InMotion V6, V8S and Begode Panther fixes. Watch: new layout.
 - Reset buttons grey out when there is nothing to reset.
 - Release builds are obfuscated (Play asks for it by Feb 2027).
+- Phones without Wi-Fi can install it again (Wi-Fi is only for the HUD and Amazfit links).
 
 ## Please test
 
