@@ -4,6 +4,7 @@ import android.util.Log
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.flic.FlicManager
+import com.eried.eucplanet.hud.protocol.HudAppPush
 import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.VersionCompat
 import com.eried.eucplanet.nav.NavigationEngine
@@ -35,9 +36,8 @@ class HudCommandSink(
     companion object { private const val TAG = "HudCommandSink" }
 
     // Reading the rider's joystick bindings is a suspend call (settings live in
-    // DataStore), so HudCommand.Action handling hops onto a coroutine. Main
-    // immediate keeps the common "already on main" dispatch synchronous-ish and
-    // matches where HudServer delivers commands from.
+    // DataStore), so HudCommand.Action handling hops onto a main-thread
+    // coroutine. Commands arrive on OkHttp's reader thread.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _hudVersionCompat = MutableStateFlow(VersionCompat.EXACT)
@@ -60,11 +60,27 @@ class HudCommandSink(
      *  diagnostics. */
     val hudVersion: StateFlow<String?> = _hudVersion.asStateFlow()
 
-    /** Called by [HudServer] on every WS open / close so the UI hint
-     *  doesn't linger after the HUD has disconnected. */
+    private val _hudVersionCode = MutableStateFlow(0)
+    /** The linked HUD app's version code, 0 when it did not say or none is
+     *  linked. Compared with the HUD app this phone carries. */
+    val hudVersionCode: StateFlow<Int> = _hudVersionCode.asStateFlow()
+
+    private val _hudBuild = MutableStateFlow("")
+    /** Which build of its version the linked HUD runs, "" when unknown. */
+    val hudBuild: StateFlow<String> = _hudBuild.asStateFlow()
+
+    private val _hudTakesApp = MutableStateFlow(false)
+    /** Whether the linked HUD can be sent its app, or asked to remove it. */
+    val hudTakesApp: StateFlow<Boolean> = _hudTakesApp.asStateFlow()
+
+    /** Called by [HudServer] when the WebSocket closes or fails, so the UI
+     *  hint doesn't linger after the HUD has disconnected. */
     fun onHudDisconnected() {
         _hudVersionCompat.value = VersionCompat.EXACT
         _hudVersion.value = null
+        _hudVersionCode.value = 0
+        _hudBuild.value = ""
+        _hudTakesApp.value = false
     }
 
     fun dispatch(cmd: HudCommand) {
@@ -77,6 +93,9 @@ class HudCommandSink(
                 val major = if (cmd.hudProtocolMajor == 0) 1 else cmd.hudProtocolMajor
                 _hudVersionCompat.value = VersionCompat.classify(major, cmd.hudProtocolMinor)
                 _hudVersion.value = cmd.hudVersion.ifBlank { null }
+                _hudVersionCode.value = cmd.hudVersionCode
+                _hudBuild.value = cmd.hudBuild
+                _hudTakesApp.value = HudAppPush.canReceive(major, cmd.hudProtocolMinor)
                 _hudEverConnected.value = true
                 // Also record the HUD's reported version in the shareable Service
                 // Mode log (not just logcat) so a tester's .txt shows which HUD
@@ -108,6 +127,10 @@ class HudCommandSink(
             HudCommand.StopNavigation -> {
                 Log.i(TAG, "HUD command: StopNavigation")
                 navigationEngine.stop()
+            }
+            is HudCommand.Note -> {
+                Log.i(TAG, "HUD note: ${cmd.text}")
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note("HUD auto-open: ${cmd.text}")
             }
             is HudCommand.Action -> {
                 // The slot ("UP"/"DOWN"/"LEFT"/"RIGHT") maps to a rider-configured

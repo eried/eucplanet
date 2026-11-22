@@ -26,11 +26,11 @@ import kotlinx.coroutines.runBlocking
  * Phone-side companion to the watch app.
  *
  * Subscribes to [WheelRepository] state and publishes a compact snapshot to the
- * Wearable Data Layer at `/euc/state`, throttled to 5 Hz so the watch face
- * stays smooth without burning Bluetooth bandwidth. The watch reads the same
+ * Wearable Data Layer at `/euc/state`, at the rider's watchUpdateRate tier
+ * (see [publishIntervalMsFor]). The watch reads the same
  * [WatchKeys] this writer uses; keep them in sync if you add a field.
  *
- * Started from [com.eried.eucplanet.EucPlanetApplication] so it lives for the
+ * Started from [com.eried.eucplanet.EucPlanetApp] so it lives for the
  * whole app process. No Activity lifecycle required, since the watch app
  * deserves data even when the user is on the lock screen looking at their
  * Watch Ultra.
@@ -161,19 +161,6 @@ class WearBridge(
     val pairedNodes: kotlinx.coroutines.flow.StateFlow<List<String>> = _pairedNodes
 
     /**
-     * Idempotent. Begins streaming snapshots to any paired Wear OS device.
-     * Safe to call from Application.onCreate even if no watch is paired; the
-     * Data Layer just keeps a local cache that future watches sync from.
-     */
-    /**
-     * Sends a one-shot `/euc/wake` Message to every paired Wear OS node so
-     * the watch's [com.eried.eucplanet.wear.bridge.WatchBridgeService] can
-     * launch MainActivity. Gated by the user's `watchAutoStart` setting.
-     * Best-effort: failures are logged at DEBUG and don't propagate. Called
-     * once on bridge startup and again from MainActivity.onResume() so the
-     * watch wakes whenever the user re-opens the phone app.
-     */
-    /**
      * Synchronous best-effort: tells the paired watch's bridge service to
      * close MainActivity. Sent right before WheelService tears its session
      * down, so the watch dial flips to "phone gone" instantly instead of
@@ -200,6 +187,14 @@ class WearBridge(
         }
     }
 
+    /**
+     * Sends a one-shot `/euc/wake` Message to every paired Wear OS node so
+     * the watch's [com.eried.eucplanet.wear.bridge.WatchBridgeService] can
+     * launch MainActivity. Gated by the user's `watchAutoStart` setting.
+     * Best-effort: failures are logged at DEBUG and don't propagate. Called
+     * from MainActivity.onResume() and the manual Settings action, never
+     * from [start].
+     */
     fun pingWatchToWake() {
         scope.launch {
             try {
@@ -245,6 +240,11 @@ class WearBridge(
         }
     }
 
+    /**
+     * Idempotent. Begins streaming snapshots to any paired Wear OS device.
+     * Safe to call from Application.onCreate even if no watch is paired; the
+     * Data Layer just keeps a local cache that future watches sync from.
+     */
     fun start() {
         if (started) return
         started = true

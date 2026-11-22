@@ -35,7 +35,8 @@ import java.nio.charset.StandardCharsets
 /**
  * Thin orange strip on the dashboard inviting users to report issues for
  * preliminary-supported wheels. Hidden when no wheel is connected and when the
- * connected wheel is the verified V14 family. Click flow:
+ * connected wheel is in the verified or rider-tested set (see
+ * VERIFIED_WHEEL_TOKENS). Click flow:
  *
  *   first click  → explainer dialog → [Report an issue] opens GitHub Issues form
  *                                   → [Cancel] keeps the dialog reappearing on next click
@@ -51,7 +52,7 @@ fun ExperimentalBanner(
     detectedWheelName: String? = null,
     detectedFirmware: String? = null
 ) {
-    // Only show for wheels other than the verified V14 family. A null name
+    // Only show for wheels outside the verified or rider-tested set. A null name
     // (disconnected) hides the banner, there's nothing to report yet.
     if (!isPreliminaryWheel(detectedWheelName)) return
 
@@ -181,6 +182,7 @@ private fun urlEncode(s: String): String =
  */
 private val VERIFIED_WHEEL_TOKENS = listOf(
     "V14", "P6",                 // InMotion V2 (author-verified)
+    "V6",                        // InMotion V6 (rider-tested by Klaus)
     "V8S",                       // InMotion V1 (rider-tested; only the V8S, not the
                                  // rest of the V1 family which stays preliminary)
     "Oryx", "Lynx S",            // Veteran (rider-tested)

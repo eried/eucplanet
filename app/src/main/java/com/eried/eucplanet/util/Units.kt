@@ -7,7 +7,7 @@ import com.eried.eucplanet.data.model.AppSettings
 object Units {
     /**
      * Converts a stored km/h value to the user's chosen speed unit.
-     * [unit] is "kmh", "mph" or "ms".
+     * [unit] is "kmh", "mph", "ms" or "kn".
      */
     fun speed(kmh: Float, unit: String): Float = when (unit) {
         "mph" -> kmh * 0.621371f
@@ -18,7 +18,7 @@ object Units {
 
     /**
      * Converts a stored km value to the user's chosen distance unit.
-     * [unit] is "km", "mi" or "m".
+     * [unit] is "km", "mi", "m", "ft" or "mil".
      */
     fun distance(km: Float, unit: String): Float = when (unit) {
         "mi" -> km * 0.621371f
@@ -73,7 +73,7 @@ object Units {
     /**
      * Localized speed unit. Norwegian uses "km/t", Dutch "km/u", Russian "км/ч",
      * etc., so we route through string resources rather than hardcoding "km/h".
-     * [unit] is "kmh", "mph" or "ms".
+     * [unit] is "kmh", "mph", "ms" or "kn".
      */
     fun speedUnit(context: Context, unit: String): String = when (unit) {
         "mph" -> context.getString(R.string.unit_mph)
@@ -82,7 +82,7 @@ object Units {
         else -> context.getString(R.string.unit_kmh)
     }
 
-    /** Distance unit symbol for "km", "mi" or "m". */
+    /** Distance unit symbol for "km", "mi", "m", "ft" or "mil". */
     fun distanceUnit(unit: String): String = when (unit) {
         "mi" -> "mi"
         "m" -> "m"
@@ -98,7 +98,7 @@ object Units {
         else -> "°C"
     }
 
-    /** Converts a stored kPa tire-pressure value to the chosen unit ("psi" or "bar"). */
+    /** Converts a stored kPa tire-pressure value to the chosen unit ("psi", "bar", "kgf" or "mpa"). */
     fun pressure(kpa: Float, unit: String): Float = when (unit) {
         "psi" -> kpa * 0.145038f
         "bar" -> kpa / 100f
@@ -159,7 +159,7 @@ object Units {
         return "%.${pressureDecimals(unit)}f %s".format(value, pressureUnit(unit))
     }
 
-    /** Tire-pressure unit symbol for "psi" or "bar" (kPa otherwise). */
+    /** Tire-pressure unit symbol for "psi", "bar", "kgf" or "mpa" (kPa otherwise). */
     fun pressureUnit(unit: String): String = when (unit) {
         "psi" -> "psi"
         "bar" -> "bar"
@@ -168,11 +168,6 @@ object Units {
         else -> "kPa"
     }
 
-    /**
-     * Effective tire-pressure unit. No dedicated per-metric setting yet, so it
-     * follows the rider's distance unit: imperial (mi) -> psi, everything else
-     * -> bar. A standalone pressure-unit picker can be added later.
-     */
     /**
      * The rider's pressure unit.
      *
@@ -187,18 +182,27 @@ object Units {
             if (effectiveDistanceUnit(s) == "mi") "psi" else "bar"
         }
 
+    /**
+     * The rider's unit for heights, "m" or "ft": altitude, GPS accuracy,
+     * ascent and descent. Its own setting. A blank [AppSettings.unitAltitude]
+     * is a rider from before it existed, who keeps what the distance unit
+     * gave them (see [com.eried.eucplanet.hud.protocol.AltitudeUnit]).
+     */
+    fun effectiveAltitudeUnit(s: AppSettings): String =
+        com.eried.eucplanet.hud.protocol.AltitudeUnit.resolve(s.unitAltitude, effectiveDistanceUnit(s))
+
     /** The three top-level measurement-unit modes. CUSTOM is a derived label. */
     enum class UnitSystem { METRIC, IMPERIAL, CUSTOM }
 
     /**
-     * The effective speed unit ("kmh", "mph" or "ms"). A blank [AppSettings.unitSpeed]
+     * The effective speed unit ("kmh", "mph", "ms" or "kn"). A blank [AppSettings.unitSpeed]
      * is the pre-migration value: fall back to the legacy [AppSettings.imperialUnits] flag.
      */
     fun effectiveSpeedUnit(s: AppSettings): String =
         if (s.unitSpeed.isBlank()) (if (s.imperialUnits) "mph" else "kmh") else s.unitSpeed
 
     /**
-     * The effective distance unit ("km", "mi" or "m"). A blank [AppSettings.unitDistance]
+     * The effective distance unit ("km", "mi", "m", "ft" or "mil"). A blank [AppSettings.unitDistance]
      * is the pre-migration value: fall back to the legacy [AppSettings.imperialUnits] flag.
      */
     fun effectiveDistanceUnit(s: AppSettings): String =
@@ -212,17 +216,18 @@ object Units {
         if (s.unitTemp.isBlank()) (if (s.imperialUnits) "F" else "C") else s.unitTemp
 
     /**
-     * Derives the top-level [UnitSystem] label from the three per-unit choices:
+     * Derives the top-level [UnitSystem] label from the per-unit choices:
      * all metric -> METRIC, all imperial -> IMPERIAL, any other mix (including
-     * m/s or meters) -> CUSTOM.
+     * m/s or meters, or miles with heights in metres) -> CUSTOM.
      */
     fun unitSystemOf(s: AppSettings): UnitSystem {
         val speed = effectiveSpeedUnit(s)
         val dist = effectiveDistanceUnit(s)
         val temp = effectiveTempUnit(s)
+        val alt = effectiveAltitudeUnit(s)
         return when {
-            speed == "kmh" && dist == "km" && temp == "C" -> UnitSystem.METRIC
-            speed == "mph" && dist == "mi" && temp == "F" -> UnitSystem.IMPERIAL
+            speed == "kmh" && dist == "km" && temp == "C" && alt == "m" -> UnitSystem.METRIC
+            speed == "mph" && dist == "mi" && temp == "F" && alt == "ft" -> UnitSystem.IMPERIAL
             else -> UnitSystem.CUSTOM
         }
     }

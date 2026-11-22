@@ -2,9 +2,9 @@ package com.eried.eucplanet.ble
 
 /**
  * Outbound command builders for the Veteran (LeaperKim) BLE protocol.
- * Commands are mostly short ASCII writes to the same 0xFFE1 characteristic
- * the wheel notifies on. The horn is the only non-ASCII command: a 14-byte
- * binary blob whose internal structure is partially understood (see spec).
+ * Legacy commands are short ASCII writes to the same 0xFFE1 characteristic
+ * the wheel notifies on. Current firmware uses binary `LkAp` / `LdAp` vendor
+ * frames with a CRC32 trailer (horn, high beam, lock, speeds).
  *
  * Spec: docs/protocols/veteran.md section 6.
  */

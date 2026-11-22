@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -101,9 +102,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -124,6 +127,11 @@ import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.groupKey
 import com.eried.eucplanet.service.AlarmLogic
+import com.eried.eucplanet.service.displayDecimals
+import com.eried.eucplanet.service.displayScale
+import com.eried.eucplanet.service.displayThreshold
+import com.eried.eucplanet.service.formatThreshold
+import com.eried.eucplanet.service.spokenAlarmValue
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -138,6 +146,7 @@ import com.eried.eucplanet.ui.theme.themedSliderColors
 import kotlin.math.roundToInt
 import org.koin.compose.viewmodel.koinViewModel
 import sh.calvin.reorderable.ReorderableColumn
+import com.eried.eucplanet.ui.theme.themedTextButtonColors
 
 // "Don't ask again" for the constant-tone prompt: process-scoped so it lasts the
 // rest of this app run but resets on next launch (per the rider's request, not
@@ -149,81 +158,10 @@ private fun leadSeconds(ms: Int): String =
     String.format(java.util.Locale.US, "%.1f", ms / 1000f).removeSuffix(".0")
 
 /**
- * Metrics whose useful range is too short for whole numbers are edited in
- * tenths.
- *
- * The stepper holds an Int. A tyre runs about 1 to 4 bar and g-force about 0
- * to 3, so whole units would offer a rider four settings across the entire
- * range they care about. For those the displayed number is ten times the
- * reading and [NumberUpDown]'s format/parse put the point back. psi is 15 to
- * 60 and needs no help, which is why pressure's scale depends on the unit and
- * g-force's does not.
+ * A threshold the rider typed, back to the unit rules are stored in. The
+ * inverse of [displayThreshold], which lives beside the alarm engine with the
+ * rest of the reading-to-text conversion.
  */
-internal fun displayScale(metric: AlarmMetric, pressureUnit: String): Float = when (metric) {
-    // Each pressure unit needs its own scale, not just bar. A tyre tops out
-    // near 5 bar, 5.1 kgf/cm2 or 0.5 MPa, so in MPa whole numbers gave the
-    // rider a range of nought to nought and a stepper that would not move at
-    // all. The scale is whatever it takes to keep the useful range about fifty
-    // steps wide.
-    AlarmMetric.TIRE_PRESSURE -> when (pressureUnit) {
-        "bar", "kgf" -> 10f
-        "mpa" -> 100f
-        else -> 1f      // psi and kPa are already wide enough
-    }
-    AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G -> 10f
-    else -> 1f
-}
-
-/** Decimals implied by [displayScale], for formatting and parsing. */
-internal fun displayDecimals(metric: AlarmMetric, pressureUnit: String): Int =
-    when (displayScale(metric, pressureUnit)) {
-        100f -> 2
-        10f -> 1
-        else -> 0
-    }
-
-/**
- * The threshold as the rider reads it, decimals and all.
- *
- * The list rows used to print the raw scaled integer, so a three bar rule read
- * "< 30bar" and a 1.5 g rule read the same way. The scale is an editing
- * device, never something to show.
- */
-internal fun formatThreshold(
-    metric: AlarmMetric,
-    valueInternal: Float,
-    speedUnit: String,
-    tempUnit: String,
-    pressureUnit: String,
-): String {
-    val shown = displayThreshold(metric, valueInternal, speedUnit, tempUnit, pressureUnit) /
-        displayScale(metric, pressureUnit)
-    val decimals = displayDecimals(metric, pressureUnit)
-    return if (decimals == 0) shown.roundToInt().toString()
-    else String.format(java.util.Locale.US, "%.${decimals}f", shown)
-}
-
-internal fun displayThreshold(
-    metric: AlarmMetric,
-    valueInternal: Float,
-    speedUnit: String,
-    tempUnit: String,
-    pressureUnit: String,
-): Float =
-    when (metric) {
-        AlarmMetric.SPEED, AlarmMetric.GPS_SPEED, AlarmMetric.EXTERNAL_GPS_SPEED -> Units.speed(valueInternal, speedUnit)
-        // The three sensors convert exactly like the metric they were hiding in.
-        AlarmMetric.TEMPERATURE,
-        AlarmMetric.MOTOR_TEMP,
-        AlarmMetric.CONTROLLER_TEMP,
-        AlarmMetric.BATTERY_TEMP -> Units.temperature(valueInternal, tempUnit)
-        AlarmMetric.TIRE_PRESSURE ->
-            Units.pressure(valueInternal, pressureUnit) * displayScale(metric, pressureUnit)
-        AlarmMetric.G_FORCE, AlarmMetric.LATERAL_G ->
-            valueInternal * displayScale(metric, pressureUnit)
-        else -> valueInternal
-    }
-
 internal fun internalThreshold(
     metric: AlarmMetric,
     valueDisplayed: Float,
@@ -266,7 +204,6 @@ private fun displayUnit(
 fun AlarmSettingsContent(
     viewModel: AlarmViewModel = koinViewModel()
 ) {
-    val rules by viewModel.rules.collectAsState()
     val groups by viewModel.groupedRules.collectAsState()
     val studioPlaying by viewModel.studioPlaying.collectAsState()
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
@@ -301,7 +238,7 @@ fun AlarmSettingsContent(
     ) {
         // The priority hint only makes sense once there are alarms to prioritise.
         if (groups.isNotEmpty()) {
-            HintText(stringResource(R.string.alarm_help), small = true)
+            HintText(stringResource(R.string.alarm_help))
             Spacer(Modifier.height(12.dp))
         }
 
@@ -518,7 +455,7 @@ private fun AlarmRuleCard(
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        // Drag handle | tap-to-edit text | enable switch.
+        // Indent | tap-to-edit text | enable switch.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -609,7 +546,7 @@ private fun AlarmRuleEditorDialog(
     onDelete: (() -> Unit)? = null,
     onPreviewBeep: (Int, Int, Int, Int, Int, Int, Int, Int) -> Unit,
     onPreviewTone: (Int, Int) -> Unit,
-    onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
+    onPreviewVoice: (String, AlarmMetric, String) -> Unit,
     onPreviewVibrate: (Int) -> Unit,
     studioPlaying: Boolean = false,
     onStudioTone: (Int, Int, Int, Int, Int, Int, Int, Int) -> Unit = { _, _, _, _, _, _, _, _ -> },
@@ -618,7 +555,6 @@ private fun AlarmRuleEditorDialog(
 ) {
     val initial = rule ?: AlarmRule()
 
-    var name by remember { mutableStateOf(initial.name) }
     var metric by remember { mutableStateOf(initial.metric) }
     var comparator by remember { mutableStateOf(initial.comparator) }
     var threshold by remember { mutableFloatStateOf(initial.threshold) }
@@ -638,8 +574,6 @@ private fun AlarmRuleEditorDialog(
     var beepEffect by remember { mutableIntStateOf(initial.beepEffect) }
     var beepVolume by remember { mutableIntStateOf(initial.beepVolume) }
     var beepVolumeModulation by remember { mutableIntStateOf(initial.beepVolumeModulation) }
-    var beepModulationReachPct by remember { mutableIntStateOf(initial.beepModulationReachPct) }
-    var beepVolumeReachPct by remember { mutableIntStateOf(initial.beepVolumeReachPct) }
     var showStudio by remember { mutableStateOf(false) }
 
     var voiceEnabled by remember { mutableStateOf(initial.voiceEnabled) }
@@ -689,7 +623,12 @@ private fun AlarmRuleEditorDialog(
         BeepStudioDialog(
             metric = selectedMetric,
             unit = displayedUnit,
-            toDisplay = { displayThreshold(selectedMetric, it, speedUnit, tempUnit, pressureUnit) },
+            // Divided back out of the stepper's scale, so the studio labels
+            // read the real value (3 bar, 1.5 g) and not the editing integer.
+            toDisplay = {
+                displayThreshold(selectedMetric, it, speedUnit, tempUnit, pressureUnit) /
+                    displayScale(selectedMetric, pressureUnit)
+            },
             comparator = comparator,
             threshold = threshold,
             baseFreq = beepFrequency,
@@ -816,7 +755,7 @@ private fun AlarmRuleEditorDialog(
                         .weight(1f, fill = false)
                         .verticalScroll(rememberScrollState())
                 ) {
-                // Metric (60%) + comparator (40%) share a row so the editor
+                // Metric + comparator share a row (half each) so the editor
                 // stays compact vertically. Comparator field shows just the
                 // glyph (≥ or <) when collapsed but opens to full-word labels
                 // so first-time users still understand what each option means.
@@ -1091,7 +1030,15 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_voice),
                     color = MaterialTheme.appColors.statusGood,
                     enabled = voiceEnabled,
-                    onPreview = { onPreviewVoice(voiceText, selectedMetric, displayedThreshold) }
+                    // The same text the engine speaks when the rule fires.
+                    // displayedThreshold is the stepper's scaled integer
+                    // (tenths of a bar or g), not a reading.
+                    onPreview = {
+                        onPreviewVoice(
+                            voiceText, selectedMetric,
+                            spokenAlarmValue(selectedMetric.name, threshold, speedUnit, tempUnit, pressureUnit),
+                        )
+                    }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1113,7 +1060,7 @@ private fun AlarmRuleEditorDialog(
                         shape = RoundedCornerShape(12.dp),
                         colors = themedFieldColors(),
                     )
-                    HintText(stringResource(R.string.alarm_voice_template_help), small = true)
+                    HintText(stringResource(R.string.alarm_voice_template_help))
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -1183,10 +1130,8 @@ private fun AlarmRuleEditorDialog(
                 Spacer(Modifier.height(8.dp))
 
                 // --- Advanced (collapsed) ---
-                // Cooldown, repeat mode and anticipation live here. Their
-                // defaults (5 s, Single, Realtime) suit most alarms, so a new
-                // rule never needs to open this. It auto-opens when editing a
-                // rule that already uses non-default values.
+                // Cooldown, repeat mode, anticipation and the wheel binding
+                // live here, collapsed until the rider opens it.
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1212,7 +1157,7 @@ private fun AlarmRuleEditorDialog(
                     // threshold + unit, and the comparator direction). "triggered"
                     // is the alarm side; "safe" is its inverse (for the re-arm).
                     val metricName = stringResource(selectedMetric.labelRes)
-                    val thrText = "${displayedThreshold.roundToInt()} $displayedUnit"
+                    val thrText = "${formatThreshold(selectedMetric, threshold, speedUnit, tempUnit, pressureUnit)} $displayedUnit"
                     val isGe = AlarmComparator.parse(comparator) == AlarmComparator.GREATER_EQUAL
                     val triggeredPhrase = stringResource(
                         if (isGe) R.string.alarm_state_atleast else R.string.alarm_state_below,
@@ -1274,8 +1219,7 @@ private fun AlarmRuleEditorDialog(
                                 stringResource(R.string.alarm_repeat_help_once_instant, triggeredPhrase, safePhrase)
                             else ->
                                 stringResource(R.string.alarm_repeat_help_once, triggeredPhrase, safePhrase, cooldownSeconds)
-                        },
-                        small = true
+                        }
                     )
 
                     Spacer(Modifier.height(8.dp))
@@ -1314,8 +1258,7 @@ private fun AlarmRuleEditorDialog(
                         if (leadTimeMs <= 0)
                             stringResource(R.string.alarm_predict_help_now, triggeredPhrase)
                         else
-                            stringResource(R.string.alarm_predict_help_lead, leadSeconds(leadTimeMs), triggeredPhrase),
-                        small = true
+                            stringResource(R.string.alarm_predict_help_lead, leadSeconds(leadTimeMs), triggeredPhrase)
                     )
 
                     Spacer(Modifier.height(8.dp))
@@ -1373,7 +1316,6 @@ private fun AlarmRuleEditorDialog(
                             onClick = {
                                 onSave(
                                     (rule ?: AlarmRule()).copy(
-                                        name = name,
                                         metric = metric,
                                         comparator = comparator,
                                         threshold = threshold,
@@ -1388,8 +1330,6 @@ private fun AlarmRuleEditorDialog(
                                         beepEffect = beepEffect,
                                         beepVolume = beepVolume,
                                         beepVolumeModulation = beepVolumeModulation,
-                                        beepModulationReachPct = beepModulationReachPct,
-                                        beepVolumeReachPct = beepVolumeReachPct,
                                         voiceEnabled = voiceEnabled,
                                         voiceText = voiceText,
                                         vibrateEnabled = vibrateEnabled,
@@ -1511,7 +1451,7 @@ private fun BeepStudioDialog(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     NumberFieldWithDefault(
                         value = pitchFactor,
-                        default = NEW_RULE.beepModulationReachPct,
+                        default = NEW_RULE.beepModulation,
                         onValueChange = { pitchFactor = it },
                         range = 10..1000, step = 10,
                         format = { "%.1fx".format(it / 100f) },
@@ -1521,7 +1461,7 @@ private fun BeepStudioDialog(
                     )
                     NumberFieldWithDefault(
                         value = volFactor,
-                        default = NEW_RULE.beepVolumeReachPct,
+                        default = NEW_RULE.beepVolumeModulation,
                         onValueChange = { volFactor = it },
                         range = 10..1000, step = 10,
                         format = { "%.1fx".format(it / 100f) },
@@ -1597,7 +1537,15 @@ private fun BeepStudioDialog(
                 Row(modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically) {
                     // Reset commits no modulation (1x pitch and volume) and closes.
-                    TextButton(onClick = { onCommit(100, 100); onDismiss() }, shape = RoundedCornerShape(12.dp)) {
+                    // Greyed when both are already 1x, saved and on screen.
+                    val atDefault = pitchReachPct == 100 && volReachPct == 100 &&
+                        pitchFactor == 100 && volFactor == 100
+                    TextButton(
+                        onClick = { onCommit(100, 100); onDismiss() },
+                        enabled = !atDefault,
+                        colors = themedTextButtonColors(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
                         Text(stringResource(R.string.alarm_studio_reset))
                     }
                     Spacer(Modifier.weight(1f))
@@ -1797,10 +1745,10 @@ private fun SectionTitleWithPreview(
 private val NEW_RULE = com.eried.eucplanet.data.model.AlarmRule()
 
 /**
- * Numeric up/down as one cohesive pill: a borderless centered number with its
- * unit, flanked by - / + steppers inside a single rounded field-coloured
- * surface. Optional caption above. Values clamp to [range]; the number reflects
- * the live value when unfocused and lets the user type freely while focused
+ * Numeric field: a bordered box with the value right-aligned against its unit
+ * and an optional notched label. While focused, an up/down stepper bubble
+ * appears beside it. Values clamp to [range]; the number reflects the live
+ * value when unfocused and lets the user type freely while focused
  * (reconciling to the clamped value on blur).
  */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
@@ -1830,6 +1778,11 @@ internal fun NumberUpDown(
     // The surface behind the notched label. Settings sections by default; a
     // field placed straight on a dialog passes the dialog fill.
     notchFill: Color = Color.Unspecified,
+    // Typed digits apply when the field loses focus or Done is pressed, not on
+    // every keystroke. For values that reach the wheel: typing 19 used to apply
+    // 1 on the way, which also pulled anything capped by it down for good.
+    // The steppers still apply at once.
+    commitOnBlur: Boolean = false,
 ) {
     val fieldText = MaterialTheme.appColors.fieldText
     val fieldLabelColor = MaterialTheme.appColors.fieldLabel
@@ -1841,6 +1794,16 @@ internal fun NumberUpDown(
     // rememberUpdatedState so the hold-to-repeat loop below always steps from the
     // freshly committed value, not the value captured when the press started.
     val latestValue by rememberUpdatedState(value)
+    val latestOnValueChange by rememberUpdatedState(onValueChange)
+    val focusManager = LocalFocusManager.current
+    fun commitTyped() {
+        val typed = parse(text)?.coerceIn(range) ?: return
+        if (typed != latestValue) latestOnValueChange(typed)
+    }
+    if (commitOnBlur) {
+        // Leaving the screen with the keyboard up still keeps what was typed.
+        DisposableEffect(Unit) { onDispose { if (focused) commitTyped() } }
+    }
     fun stepBy(delta: Int) {
         val nv = (latestValue + delta).coerceIn(range)
         if (nv != latestValue) { text = format(nv); onValueChange(nv) }
@@ -1877,7 +1840,9 @@ internal fun NumberUpDown(
                                 raw.filter { it.isDigit() || it == '-' || it == '.' }.take(7)
                             else raw.filter { it.isDigit() }.take(6)
                             text = filtered
-                            parse(filtered)?.let { if (it in range) onValueChange(it) }
+                            if (!commitOnBlur) {
+                                parse(filtered)?.let { if (it in range) onValueChange(it) }
+                            }
                         },
                         singleLine = true,
                         enabled = enabled,
@@ -1889,12 +1854,15 @@ internal fun NumberUpDown(
                         ),
                         cursorBrush = SolidColor(fieldText),
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number
+                            keyboardType = if (allowSign) KeyboardType.Decimal else KeyboardType.Number,
+                            imeAction = if (commitOnBlur) ImeAction.Done else ImeAction.Default,
                         ),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { f ->
                                 if (f.isFocused) text = format(value)
+                                else if (focused && commitOnBlur) commitTyped()
                                 focused = f.isFocused
                             }
                     )

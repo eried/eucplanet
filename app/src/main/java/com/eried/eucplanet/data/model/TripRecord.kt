@@ -10,7 +10,8 @@ data class TripRecord(
     val endTime: Long? = null,
     val fileName: String,
     val distanceKm: Float = 0f,
-    // Cloud upload state: 0=not applicable/none, 1=pending, 2=uploaded, 3=failed
+    // Backup folder state: 0=none, 1=pending, 2=uploaded, 3=failed,
+    // 4=mirror only if the folder has no file by that name
     val uploadStatus: Int = 0,
     val uploadedAt: Long? = null,
     // --- eucstats online upload (separate from folder-sync uploadStatus above) ---

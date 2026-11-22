@@ -74,37 +74,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * The Join tab's camera area: a square live preview that reads a friend's
- * share QR, so a rider joining a ride can point the phone at their screen
- * instead of copying a 60 character URL.
- *
- * A CameraX preview plus an ImageAnalysis stream, decoded with ZXing. The
- * analysis keeps only the latest frame: decoding is slower than the camera,
- * and a queue of stale frames would only delay the hit the rider is waiting
- * for. The first frame whose text parses as a share link is handed up.
- *
- * It is an area inside the share dialog, not a dialog of its own: the tab IS
- * the scanner, so there is nothing to open and nothing to explain, and no
- * caption sits under a live camera saying what to point it at.
- */
-@Composable
-fun ShareQrScannerArea(
-    onLink: (ShareLink) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val crewPass = stringResource(R.string.share_scan_is_crewpass)
-    QrScannerArea(
-        parse = { parseShareText(it) },
-        onFound = onLink,
-        invalidText = stringResource(R.string.share_link_invalid),
-        modifier = modifier,
-        // A crew pass scans cleanly and parses to nothing here, so without this it reads as
-        // a broken code rather than as the right code in the wrong place.
-        misfit = { if (PairLink.parse(it) != null) crewPass else null },
-    )
-}
-
-/**
  * The camera square, the permission dance and the decode loop, for any kind of QR.
  *
  * Generalised out of the share-link scanner when crews pairing needed the same camera: the
@@ -136,7 +105,7 @@ fun <T : Any> QrScannerArea(
 
     val activity = remember(context) { context.findActivity() }
     var granted by remember { mutableStateOf(context.hasCameraPermission()) }
-    // Nothing is asked on open: the rider picked the Join tab, not a
+    // Nothing is asked on open: the rider opened a scanner, not a
     // permission prompt, and the button below is the ask. Set once the system
     // dialog has come back with a no, which is what separates "not asked yet"
     // from "answered no" when reading the rationale flag.
@@ -343,7 +312,7 @@ private fun <T : Any> QrCameraPreview(
         }
     }
 
-    // This composable is only in the tree while the Join tab is scanning with
+    // This composable is only in the tree while a scanner is open with
     // the camera allowed, so being in composition is the enabled flag; the
     // keys are what the camera is bound to.
     DisposableEffect(lifecycleOwner, previewView) {

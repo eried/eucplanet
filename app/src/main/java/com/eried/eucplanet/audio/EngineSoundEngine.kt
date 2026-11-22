@@ -6,7 +6,6 @@ import android.media.AudioFocusRequest
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
-import android.os.Build
 import android.util.Log
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
@@ -52,8 +51,6 @@ class EngineSoundEngine(private val context: Context) {
     private val model = EngineDynamics()
     private val profile: EngineProfile get() = model.profile
 
-    private var masterVolume: Float = 0.6f
-    private var volumeAutoEnabled: Boolean = false
     private var headphonesOnly: Boolean = false
     /** Tracks the previous applySettings()'s enabled flag so we only log toggle edges. */
     private var lastAppliedEnabled: Boolean = false
@@ -86,8 +83,6 @@ class EngineSoundEngine(private val context: Context) {
             model.engineBrakeMode = s.engineBrake
             model.duckMode = s.engineDuckOnVoice
         }
-        masterVolume = s.engineVolume.coerceIn(0f, 1f)
-        volumeAutoEnabled = s.engineVolumeAutoEnabled
         headphonesOnly = s.engineHeadphonesOnly
         lastAppliedEnabled = s.engineSoundEnabled
 
@@ -146,8 +141,8 @@ class EngineSoundEngine(private val context: Context) {
     /**
      * Live preview while user is on the settings page (no telemetry yet).
      *
-     * Optional overrides let the caller A/B-test a specific knob (volume slider,
-     * muffler/gearbox option) without committing the change first. When null,
+     * Optional overrides let the caller A/B-test a specific knob (muffler or
+     * gearbox option) without committing the change first. When null,
      * the engine's current state (last [applySettings]) is used.
      *
      * [scenario] picks the motion fed to the engine for the preview duration:
@@ -159,18 +154,15 @@ class EngineSoundEngine(private val context: Context) {
     fun previewProfile(
         key: String,
         durationMs: Long = 2500L,
-        volume: Float? = null,
         muffler: String? = null,
         gearbox: String? = null,
         scenario: String = "DEFAULT"
     ) {
         val savedProfile = profile
-        val savedVolume = masterVolume
         val savedMuffler = model.mufflerKey
         val savedGearbox = model.gearboxKey
         val savedPwmEverNonZero = model.pwmEverNonZero
         model.profile = EngineProfile.byKey(key)
-        if (volume != null) masterVolume = volume.coerceIn(0f, 1f)
         if (muffler != null) model.mufflerKey = muffler
         if (gearbox != null) model.gearboxKey = gearbox
         // Scenario-driven paths use pushTelemetry which only honors pwm-based load once
@@ -189,7 +181,6 @@ class EngineSoundEngine(private val context: Context) {
                 stop()
             } finally {
                 model.profile = savedProfile
-                masterVolume = savedVolume
                 model.mufflerKey = savedMuffler
                 model.gearboxKey = savedGearbox
                 model.pwmEverNonZero = savedPwmEverNonZero
@@ -293,19 +284,17 @@ class EngineSoundEngine(private val context: Context) {
 
     private fun requestAudioFocus() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val attrs = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-                val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-                    .setAudioAttributes(attrs)
-                    .setWillPauseWhenDucked(false)
-                    .setOnAudioFocusChangeListener { /* mix with whatever the system says */ }
-                    .build()
-                focusRequest = req
-                audioManager.requestAudioFocus(req)
-            }
+            val attrs = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+            val req = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                .setAudioAttributes(attrs)
+                .setWillPauseWhenDucked(false)
+                .setOnAudioFocusChangeListener { /* mix with whatever the system says */ }
+                .build()
+            focusRequest = req
+            audioManager.requestAudioFocus(req)
         } catch (e: Throwable) {
             Log.w(TAG, "requestAudioFocus failed", e)
         }
@@ -313,10 +302,8 @@ class EngineSoundEngine(private val context: Context) {
 
     private fun abandonAudioFocus() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                focusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
-                focusRequest = null
-            }
+            focusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
+            focusRequest = null
         } catch (_: Throwable) {}
     }
 

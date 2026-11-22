@@ -50,7 +50,7 @@ class VoiceSessionTest {
             is VoiceMatch.Hit ->
                 VoiceAnswer.answerFor(m.term, values[m.term.key], unavailable[m.term.key])
             is VoiceMatch.Ambiguous -> Answer.NeedsChoice(m.candidates.map { it.name })
-            VoiceMatch.None -> VoiceAnswer.notUnderstood(vocabulary, onDashboard)
+            VoiceMatch.None -> VoiceAnswer.notUnderstood(vocabulary)
         }
     }
 
@@ -130,7 +130,7 @@ class VoiceSessionTest {
             splitName = "Ultimo tratto",
             helpPhrases = "aiuto,cosa posso dire",
         )
-        val a = VoiceAnswer.notUnderstood(italian, emptySet())
+        val a = VoiceAnswer.notUnderstood(italian)
         assertEquals("aiuto", (a as Answer.NotUnderstood).helpPhrase)
     }
 

@@ -8,8 +8,9 @@ import com.eried.eucplanet.data.model.WheelData
  * Pure, Android-free decision math for the alarm engine, split out so the
  * tricky parts -- predictive projection, trend slope, and "which of several
  * matching rules on one metric is the most severe" -- can be unit-tested
- * without a Context, tone player, or database. [AlarmEngine] owns the stateful
- * side (cooldown, edge detection, side effects) and calls into here.
+ * without a Context, tone player, or database. [AlarmEvaluator] carries the
+ * state (cooldown, edge detection) and [AlarmEngine] the side effects; both
+ * call into here.
  */
 object AlarmLogic {
 

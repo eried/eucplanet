@@ -146,15 +146,10 @@ class VeteranParser {
          * it picks the per-pack voltage curve and decides whether to trust
          * the hardware PWM field at offsets 34..35 (only valid for
          * model >= Abrams firmware per spec section 7).
-         *
-         * [signedSpeedMode] mirrors the canonical "gotwayNegative" preference:
-         * 0 = unsigned (force absolute), 1 = use the i16 sign as-is,
-         * -1 = invert. Default 1 matches what most firmwares emit honestly.
          */
         fun parseTelemetry(
             frame: ByteArray,
-            model: VeteranModel?,
-            signedSpeedMode: Int = 1
+            model: VeteranModel?
         ): WheelData? {
             // The last mandatory field (temperature) ends at byte 19.
             if (frame.size < 20) return null
@@ -166,10 +161,7 @@ class VeteranParser {
             val rawCurrent = ByteUtils.getInt16BE(frame, 16)
             val rawTempC = ByteUtils.getInt16BE(frame, 18)
             // Wheel-enforced speed-alert and tilt-back thresholds, both u16 BE
-            // in 0.1 km/h. These are set by the vendor (LeaperKim) app on
-            // the wheel firmware itself; our adapter has no write command
-            // for them (spec section 8) so we surface them read-only so
-            // Settings reflects reality.
+            // in 0.1 km/h, surfaced so Settings shows what the wheel holds.
             val rawAlertKmh = if (frame.size >= 26) ByteUtils.getUint16BE(frame, 24) / 10f else -1f
             val rawTiltbackKmh = if (frame.size >= 28) ByteUtils.getUint16BE(frame, 26) / 10f else -1f
 
@@ -182,11 +174,11 @@ class VeteranParser {
             val resolvedModel = VeteranModel.fromMVer(mVer) ?: model
 
             val voltage = voltageCv / 100f
-            val speedKmh = applySignMode(rawSpeed, signedSpeedMode) / 10f
+            val speedKmh = rawSpeed / 10f
             // Note: this offset carries PHASE current. We expose it on the
             // `current` field for now; downstream consumers that need bus
             // current have to derive it from phase * pwm / 100.
-            val current = applySignMode(rawCurrent, signedSpeedMode) / 10f
+            val current = rawCurrent / 10f
             val tripKm = rawTrip / 1000f
             val totalKm = rawTotal / 1000f
             val tempC = rawTempC / 100f
@@ -247,11 +239,10 @@ class VeteranParser {
 
         /**
          * Parse a smart-BMS long frame (LEN > 38). Returned data is best-effort:
-         * we cover the slices the spec documents (`pnum` 0..7) and silently
-         * accept `pnum == 8`, which the spec marks as "contents not yet
-         * decoded". Cell-voltage and BMS-temperature arrays are returned
-         * separately; the caller merges them into a richer telemetry view
-         * once we have UI for per-cell state.
+         * we cover the slices the spec documents (`pnum` 0..7); `pnum == 8`
+         * is the settings page (see [parsePage8]) and returns a stub slice.
+         * Cell-voltage and BMS-temperature arrays are returned separately;
+         * the caller stitches them into the per-cell view.
          */
         fun parseLongFrame(frame: ByteArray): BmsSlice? {
             // Smart-BMS frames carry pnum at offset 46. If the buffer is
@@ -261,7 +252,7 @@ class VeteranParser {
 
             return when (pnum) {
                 0, 4 -> {
-                    // Pack-current header. Two i16 BE in 0.1 A at 69 and 71.
+                    // Pack-current header. Two i16 BE in 0.01 A at 69 and 71.
                     if (frame.size < 73) return null
                     val pack1 = ByteUtils.getInt16BE(frame, 69) / 100f
                     val pack2 = ByteUtils.getInt16BE(frame, 71) / 100f
@@ -375,11 +366,7 @@ class VeteranParser {
             val pedalDipCompensation = extractByte(68)?.takeIf { it in 0..100 }
             val headlightMode = extractByte(47)?.takeIf { it in 0..3 }
 
-            val rawPayload = if (frame.size >= 71) {
-                frame.copyOfRange(47, 71)
-            } else {
-                ByteArray(0)
-            }
+            val rawPayload = frame.copyOfRange(47, 71)
 
             return VeteranPage8Settings(
                 headlightMode = headlightMode,
@@ -428,12 +415,6 @@ class VeteranParser {
             if (frame.size < 51) return null
             val soc = frame[50].toInt() and 0xFF
             return if (soc in 0..100) soc else null
-        }
-
-        private fun applySignMode(raw: Int, mode: Int): Int = when (mode) {
-            0 -> abs(raw)
-            -1 -> -raw
-            else -> raw
         }
 
         /**

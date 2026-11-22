@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * Lives in its own module so both Gradle projects compile against the same
  * Kotlin types and the JSON encoding can't drift between sides. The HUD is a
  * passive renderer: every field here is something the HUD knows how to draw
- * on one of its four screens. Anything the HUD cannot use stays on the phone.
+ * on one of its screens. Anything the HUD cannot use stays on the phone.
  *
  * Versioning: see [PROTOCOL_MAJOR] / [PROTOCOL_MINOR] below. Additions are
  * always backwards-compatible because the JSON decoder runs with
@@ -91,6 +91,10 @@ data class HudState(
      *  [unitDistance]: a rider on kilometres can still run psi in the tyre.
      *  Defaulted so an older phone leaves the HUD reading bar as before. */
     val unitPressure: String = "bar",
+    /** m | ft, for heights. Its own setting on the phone (see
+     *  [AltitudeUnit]). Blank from an older phone: the HUD then goes by
+     *  [unitDistance] as it used to. Added at PROTOCOL_MINOR 25. */
+    val unitAltitude: String = "",
 
     /** Accent colour as an `#AARRGGBB` hex string from phone settings. */
     val accentArgb: String = "#FF00C853",
@@ -177,9 +181,9 @@ data class HudState(
     val customOverlayJson: String = "",
 
     /** Ordered list of HUD screens the rider has enabled, by stable id
-     *  ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
-     *  "Map", "Nav"). Empty list = default (all seven in declaration
-     *  order). Non-empty = use EXACTLY this list in this order; any
+     *  ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam", "CustomMap",
+     *  "Map", "Nav", ...). Empty = no list yet, the HUD keeps its
+     *  waiting splash. Non-empty = use EXACTLY this list in this order; any
      *  screen not in the list is hidden from the carousel.
      *
      *  Lets the rider trim and reorder screens on the phone side
@@ -190,13 +194,10 @@ data class HudState(
      *  a "no such screen" state. */
     val enabledHudScreens: List<String> = emptyList(),
 
-    /** Map-tile style code the HUD should use for its Map screen and
-     *  for any MAP element inside a Custom overlay. Empty = HUD picks
-     *  its compiled-in default. Recognised codes mirror CartoCDN's
-     *  basemap raster styles: "voyager", "dark_matter",
-     *  "dark_matter_nolabels", "light_all", "positron". Any other value
-     *  is treated as empty so a rider can't get a blank map by typing
-     *  garbage into a future free-form picker. */
+    /** Map layer id for the HUD's Map screen, resolved by
+     *  [MapLayers.byId]. Empty = the HUD's default (LIGHT). Old Carto
+     *  slugs ("voyager", "dark_matter", ...) still resolve; an unknown
+     *  id falls back to OSM. */
     val hudMapStyle: String = "",
     /** Per-axis tile post-processing applied as a ColorMatrix on the
      *  drawn tile bitmaps. Both default to neutral; the HUD skips the
@@ -208,7 +209,9 @@ data class HudState(
     val hudMapBrightnessPct: Int = 0,
 
     // --- Navigation popup mirror ---
-    /** Whether to render the turn-by-turn overlay/screen. */
+    /** Whether a route runs, so the turn badge and the Nav screen show the
+     *  next turn. True for the whole route, not only while the phone's own
+     *  turn popup is on screen. */
     val navActive: Boolean = false,
     /** Arrow angle in degrees, 0=straight up, +clockwise. */
     val navArrowAngleDeg: Float = 0f,
@@ -218,6 +221,16 @@ data class HudState(
     val navDistance: String = "",
     /** True when the rider is at the final destination. */
     val navArrived: Boolean = false,
+    /** Arrival time and distance left, as the phone's navigator words
+     *  them ("14:32 · 3.2 km"); empty while the phone cannot say. Sent
+     *  for the whole route, also while [navActive] is off between turns. The
+     *  phone formats it so the clock and the unit are the rider's own.
+     *  Wired in minor 23. */
+    val navEta: String = "",
+    /** The route line around the rider for the HUD map, as an encoded
+     *  string (see [RouteWindow]); empty when there is no route. Wired in
+     *  minor 20. */
+    val navRoute: String = "",
 
     // --- Joystick long-press action labels ---
     /** Human-readable label of the action bound to the HUD joystick
@@ -262,7 +275,13 @@ data class HudState(
      * The HUD shows a rider-facing advisory ("turn phone Wi-Fi off for a stable
      * link") when set. Added at PROTOCOL_MINOR 10; older HUDs ignore it.
      */
-    val phoneWifiInterfering: Boolean = false
+    val phoneWifiInterfering: Boolean = false,
+    /**
+     * Whether the HUD app opens by itself when the HUD starts. The HUD keeps
+     * the last value it got, because at start-up no phone is linked yet.
+     * Added at PROTOCOL_MINOR 26; older HUDs ignore it and never start alone.
+     */
+    val autoStart: Boolean = true
 ) {
     companion object {
         /**
@@ -334,8 +353,32 @@ data class HudState(
          * 19: [HudState.batteryEnvelope], the load-free battery line, so the
          *    overlay can show the number that only moves when the charge
          *    moved. An older HUD never draws the element.
+         * 20: [HudState.navRoute], the route line for the HUD map. An older
+         *    HUD ignores it and keeps showing the turn badge alone, so the
+         *    bump is what tells the rider there is a line to gain.
+         * 21: the HUD takes its own app from the phone and a request to
+         *    remove it (see [HudAppPush]), and reports its version code in
+         *    [HudCommand.Pair]. The phone offers neither to an older HUD.
+         * 22: no new field. The HUD now draws the TORQUE, WH_CONSUMED,
+         *    WH_PER_KM, RANGE_ESTIMATE and GPS_ALTITUDE custom-overlay metric
+         *    keys from fields the phone already sent. A HUD older than this
+         *    renders such an element as SPEED, so the minor bump is what
+         *    surfaces the "update your HUD" hint.
+         * 23: [HudState.navEta], the arrival time and distance left under
+         *    the turn badge. An older HUD ignores it. The Custom + map
+         *    screen came with it: an older HUD drops that screen id.
+         * 24: no new field. The phone's tile server answers for a layer
+         *    (see [HudTiles]), so the HUD takes every map picture from the
+         *    phone: online, the phone's cache, or its offline map, as the
+         *    rider set it there. Against an older phone the HUD still
+         *    fetches online tiles itself.
+         * 25: [HudState.unitAltitude], the rider's own unit for heights.
+         *    An older HUD ignores it and goes by the distance unit.
+         * 26: [HudState.autoStart]. The HUD app opens when the HUD starts,
+         *    unless the rider turned it off. An older HUD never does.
+         * 27: [HudCommand.Note], the HUD's auto-open steps in the phone's log.
          */
-        const val PROTOCOL_MINOR: Int = 19
+        const val PROTOCOL_MINOR: Int = 27
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
@@ -421,8 +464,8 @@ enum class VersionCompat {
 }
 
 /**
- * One-shot commands the HUD sends back to the phone. Posted to /command as
- * `{"type": "...", ...}`. Each remote-button binding on the HUD maps to one.
+ * One-shot commands the HUD sends back to the phone on the state WebSocket,
+ * as `{"type": "...", ...}`. Each remote-button binding on the HUD maps to one.
  */
 @Serializable
 sealed class HudCommand {
@@ -441,6 +484,15 @@ sealed class HudCommand {
         val hudVersion: String,
         val hudProtocolMajor: Int = 0,
         val hudProtocolMinor: Int = 0,
+        /** The HUD app's own version code, so the phone can tell an older
+         *  HUD from the one it carries (see [HudAppPush]). 0 from a HUD
+         *  that does not say. Added at PROTOCOL_MINOR 21. */
+        val hudVersionCode: Int = 0,
+        /** Which build of that version the HUD runs (the commit it was
+         *  built from), so the phone can tell its own build of the same
+         *  version from another one. Empty when unknown. Added with
+         *  [hudVersionCode]. */
+        val hudBuild: String = "",
         /** Compact human-readable summary of the HUD's most recent WiFi
          *  self-heal, threaded back so it lands in the rider's shareable
          *  diagnostics .txt (the phone logs the Pair greeting as a NOTE).
@@ -469,6 +521,12 @@ sealed class HudCommand {
      *  protocol-version mismatch surfaces as the usual "update phone" hint. */
     @Serializable
     data class Action(val slot: String) : HudCommand()
+
+    /** One line for the rider's Service Mode log, for now the steps of the
+     *  HUD opening its app at start-up. Sent only to a phone at
+     *  PROTOCOL_MINOR 27 or later. */
+    @Serializable
+    data class Note(val text: String) : HudCommand()
 }
 
 /**
@@ -480,8 +538,8 @@ object HudDiscovery {
     const val SERVICE_TYPE: String = "_eucplanet._tcp.local."
     /** Default port; overridable per phone if 28080 collides on the LAN. */
     const val DEFAULT_PORT: Int = 28080
-    /** Port the phone serves its offline map on, `GET /tiles/z/x/y.png`. The
-     *  HUD asks it there when its own tile fetch fails, as with no signal. */
+    /** Port the phone serves map pictures on, `GET /tiles/z/x/y.png`. See
+     *  [HudTiles] for what the HUD asks there. */
     const val TILE_PORT: Int = 28081
     /**
      * True when [text] is a complete dotted-quad IPv4 address.
@@ -501,21 +559,13 @@ object HudDiscovery {
         }
     }
 
-    /** TXT-record key for the wire protocol version. HUD refuses to pair
-     *  against a phone advertising a higher major version than it speaks. */
+    /** TXT-record key for the wire protocol major version the HUD speaks. */
     const val TXT_VERSION: String = "v"
-    /** TXT-record key for the SSE state-stream path. */
+    /** TXT-record key for the state WebSocket path. */
     const val TXT_STATE_PATH: String = "state"
-    /** TXT-record key for the command POST path. */
-    const val TXT_COMMAND_PATH: String = "cmd"
-    /** TXT-record key for the map-tile proxy path prefix. */
-    const val TXT_TILES_PATH: String = "tiles"
 
-    /** Canonical endpoint paths. */
+    /** Path of the state WebSocket on the HUD's server. */
     const val PATH_STATE: String = "/state"
-    const val PATH_COMMAND: String = "/command"
-    const val PATH_TILES_PREFIX: String = "/tiles"
-    const val PATH_HEALTH: String = "/health"
 
     /**
      * UDP beacon port. The HUD broadcasts a small text packet here every

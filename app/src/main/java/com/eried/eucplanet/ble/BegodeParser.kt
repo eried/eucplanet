@@ -25,7 +25,7 @@ class BegodeParser {
 
     private val buffer = ArrayDeque<Byte>()
 
-    /** Most recent voltage scaler; cached so 0x04 / 0x07 frames can render alongside 0x00. */
+    /** Most recent pack voltage in volts; cached so 0x04 / 0x07 frames can render alongside 0x00. */
     @Volatile private var lastVoltage: Float = 0f
 
     /**
@@ -176,7 +176,7 @@ class BegodeParser {
         )
         return when (tag) {
             0x00 -> parseLiveA(frame, model)?.let { DecodeResult.Telemetry(it) }
-            0x01 -> parseBmsSummary(frame, model)?.let { DecodeResult.Telemetry(it) }
+            0x01 -> { cacheBmsVoltage(frame); null }
             0x02, 0x03 -> null // BMS cell pages: cell-level UI not exposed yet, skip cleanly.
             0x04 -> parseLiveB(frame)?.let { DecodeResult.Settings(it) }
             0x07 -> parseExtras(frame)?.let { DecodeResult.Telemetry(it) }
@@ -195,7 +195,7 @@ class BegodeParser {
 
     /**
      * Live A telemetry (spec 4.1). Voltage at offsets 2..3 is u16 BE in
-     * centivolts at the wheel's *unscaled* 84 V reference; multiply by the
+     * centivolts on the *unscaled* 67.2 V (16S) reference; multiply by the
      * per-pack ratio from [voltageRatioFor] to land on real volts.
      */
     private fun parseLiveA(frame: ByteArray, model: BegodeModel?): WheelData? {
@@ -341,17 +341,15 @@ class BegodeParser {
      * We only cache the value here; the next Live-A frame picks it up
      * via [lastBmsVoltage] and surfaces it as the dashboard voltage,
      * sidestepping the per-model tier table that doesn't have rows for
-     * every voltage class (e.g. the Race's 50S/210V pack). Returning null
+     * every voltage class (e.g. the Race's 50S/210V pack). Emitting nothing
      * keeps Live-A as the single emission point so we don't double-fire
      * telemetry off the BMS frame.
      */
-    @Suppress("UNUSED_PARAMETER")
-    private fun parseBmsSummary(frame: ByteArray, model: BegodeModel?): WheelData? {
+    private fun cacheBmsVoltage(frame: ByteArray) {
         val rawDV = ByteUtils.getUint16BE(frame, 6)
         if (rawDV > 0) {
             lastBmsVoltage = rawDV / 10f
         }
-        return null
     }
 
     /**
@@ -371,7 +369,8 @@ class BegodeParser {
     /**
      * Extras frame (spec 4.6 tag 0x07). Carries true battery current,
      * motor temperature and true PWM; present on post-2022 firmwares.
-     * After the first 0x07 we trust these over the derived values from 0x00.
+     * Once a field has proved itself wired (non-zero PWM, a streak of real
+     * current) it is trusted over the 0x00 values.
      */
     private fun parseExtras(frame: ByteArray): WheelData? {
         // Invert the raw sign so positive current means motoring and
@@ -493,10 +492,9 @@ class BegodeParser {
     }
 
     /**
-     * Battery percent from raw centi-volts on the 84 V reference scale (spec
-     * 4.3, "better percents" curve). Callers must pass the *unscaled* cV so
-     * the curve constants line up; for non-84 V packs we divide voltage by
-     * the per-pack scaler before applying the curve.
+     * Battery percent from raw centi-volts on the 67.2 V (16S) reference
+     * scale (spec 4.3, "better percents" curve). Callers must pass the
+     * *unscaled* cV so the curve constants line up.
      */
     private fun batteryPercentFromRawCv(rawCv: Int): Int {
         return when {

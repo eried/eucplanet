@@ -4,7 +4,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
@@ -145,9 +144,7 @@ class VoiceService(
                 tts?.setOnUtteranceProgressListener(utteranceListener)
                 // Route TTS output through the same attributes we use to request focus,
                 // so ducking/pausing other audio is consistent with where TTS actually plays.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
-                }
+                try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
                 Log.i(TAG, "TTS initialized")
                 // onInit runs on the main thread, and the voice lists are a few
                 // hundred voices over binder (Google TTS has 442), so they load
@@ -218,18 +215,12 @@ class VoiceService(
             else -> return
         }
 
-        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val req = AudioFocusRequest.Builder(focusGain)
-                .setAudioAttributes(ttsAudioAttributes)
-                .setOnAudioFocusChangeListener { }
-                .build()
-            val r = audioManager.requestAudioFocus(req)
-            if (r == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) activeFocusRequest = req
-            r
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, focusGain)
-        }
+        val req = AudioFocusRequest.Builder(focusGain)
+            .setAudioAttributes(ttsAudioAttributes)
+            .setOnAudioFocusChangeListener { }
+            .build()
+        val result = audioManager.requestAudioFocus(req)
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) activeFocusRequest = req
         focusHeld = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
@@ -237,12 +228,7 @@ class VoiceService(
     private fun abandonAudioFocus() {
         if (!focusHeld) return
         val req = activeFocusRequest
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && req != null) {
-            audioManager.abandonAudioFocusRequest(req)
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager.abandonAudioFocus(null)
-        }
+        if (req != null) audioManager.abandonAudioFocusRequest(req)
         activeFocusRequest = null
         focusHeld = false
     }
@@ -309,9 +295,7 @@ class VoiceService(
 
     private fun applyOutputChannel() {
         ttsAudioAttributes = buildTtsAudioAttributes(currentOutputChannel)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
-        }
+        try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
         // Drop any focus held under the old attributes; next speak will re-request with new ones.
         abandonAudioFocus()
     }
@@ -661,7 +645,8 @@ class VoiceService(
     }
 
     /**
-     * Answer one report out loud, for a rider who asked for it by name.
+     * What a report would say right now, or null when it has nothing to say,
+     * for a rider who asked for it by name.
      *
      * Separate from [announceTrigger] in one way that matters: it ignores the
      * per-report enable flags. Those say what a periodic announcement or a
@@ -669,18 +654,11 @@ class VoiceService(
      * rider just asked for. Someone who says "PWM" wants PWM, whether or not
      * they wanted it read out every two minutes.
      *
-     * Returns false when there is nothing to say, so the caller can fall back
-     * to explaining why rather than going silent.
-     */
-    /**
-     * What a report would say right now, or null when it has nothing to say.
-     *
-     * Split out of [answerReport] because a spoken answer needs the sentence,
-     * not just the fact that one was spoken: the rider sees it in the
-     * transcript, and the controller has to be able to tell "the wheel has no
-     * reading for this" from "the report said it" before it decides what to
-     * speak. Returning a Boolean made those two indistinguishable, and every
-     * report-backed question answered "no data yet" with the value on screen.
+     * Returns the sentence rather than speaking it because a spoken answer
+     * needs the sentence, not just the fact that one was spoken: the rider
+     * sees it in the transcript, and the controller has to be able to tell
+     * "the wheel has no reading for this" from "the report said it" before it
+     * decides what to speak.
      */
     fun reportText(
         report: String,
@@ -717,21 +695,6 @@ class VoiceService(
         return parts.joinToString(", ")
     }
 
-    fun answerReport(
-        report: String,
-        data: WheelData,
-        settings: AppSettings,
-        isRecording: Boolean = false,
-    ): Boolean {
-        val text = reportText(report, data, settings, isRecording) ?: return false
-        speakInternal(
-            text, isTrigger = true,
-            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale,
-            voiceName = settings.voiceName,
-        )
-        return true
-    }
-
     /**
      * "Phase amps, 42 A" for a catalog metric with no report of its own: the
      * value a spoken question reads, in the tile's units. Null, and so left
@@ -761,6 +724,7 @@ class VoiceService(
             ),
             distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
             pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
+            altitudeUnit = com.eried.eucplanet.util.Units.effectiveAltitudeUnit(settings),
         )
 
     /**
@@ -808,7 +772,7 @@ class VoiceService(
      * "Estimated battery, 43%" for a report the metric catalog already knows.
      *
      * Name, value and units all come from the catalog, so the sentence needs
-     * no format string of its own in twenty-three languages and cannot drift
+     * no format string of its own in every language and cannot drift
      * from the tile. Null when the wheel has sent nothing usable: a row is
      * skipped rather than announcing a confident zero, the same rule the
      * hand-written load reports follow.
@@ -842,6 +806,7 @@ class VoiceService(
             ),
             distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings),
             pressureUnit = com.eried.eucplanet.util.Units.effectivePressureUnit(settings),
+            altitudeUnit = com.eried.eucplanet.util.Units.effectiveAltitudeUnit(settings),
         )
         return "$name, $value"
     }

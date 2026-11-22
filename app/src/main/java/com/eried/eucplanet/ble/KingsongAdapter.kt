@@ -386,9 +386,11 @@ class KingsongAdapter : WheelAdapter {
                 KingsongCommands.horn(), HORN),
 
             // --- Light: cycle off / on / auto ---
-            DiagnosticCommand("T73_12", "Turn headlight off",
+            // The label suffix is the wire byte at offset 2: 0x13 = off,
+            // 0x12 = on, 0x14 = auto (see KingsongCommands.setLightMode).
+            DiagnosticCommand("T73_13", "Turn headlight off",
                 KingsongCommands.setLightMode(0), LIGHT),
-            DiagnosticCommand("T73_13", "Turn headlight on",
+            DiagnosticCommand("T73_12", "Turn headlight on",
                 KingsongCommands.setLightMode(1), LIGHT),
             DiagnosticCommand("T73_14", "Set headlight to auto mode",
                 KingsongCommands.setLightMode(2), LIGHT),

@@ -60,6 +60,7 @@ import com.eried.eucplanet.data.model.TripMeterSplit
 import com.eried.eucplanet.data.model.TripMeterState
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripMeterRepository
+import com.eried.eucplanet.data.repository.hasData
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.GraphScale
 import com.eried.eucplanet.util.Units
@@ -248,13 +249,15 @@ fun TripMeterDetailScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // Reset button (confirm dialog). No accidental wipe: the meter is a
-                // long-lived odometer.
+                // long-lived odometer. Greyed out while the meter is still at zero.
+                val canReset = state.hasData()
+                val resetTint = if (canReset) accent else MaterialTheme.appColors.textDisabled
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(accent.copy(alpha = 0.12f))
-                            .clickableReset { showResetConfirm = true }
+                            .background(resetTint.copy(alpha = 0.12f))
+                            .clickable(enabled = canReset) { showResetConfirm = true }
                             .padding(horizontal = 14.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -262,14 +265,14 @@ fun TripMeterDetailScreen(
                             Icons.Filled.Restore,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
-                            tint = accent
+                            tint = resetTint
                         )
                         Text(
                             // Screen is already titled "Trip meter", so the button
                             // just reads "Reset" (the confirm dialog carries the full
                             // "Reset trip meter" title + the danger copy).
                             stringResource(R.string.action_reset),
-                            color = accent,
+                            color = resetTint,
                             fontWeight = FontWeight.Medium,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(start = 6.dp)
@@ -306,10 +309,6 @@ fun TripMeterDetailScreen(
         }
     }
 }
-
-/** Small clickable modifier wrapper so the reset icon + label share one target. */
-private fun Modifier.clickableReset(onClick: () -> Unit): Modifier =
-    this.clickable(onClick = onClick)
 
 @Composable
 private fun HeaderRow(
@@ -447,7 +446,7 @@ private fun SplitBarChart(
                 drawText(lbl, topLeft = Offset(cx - lbl.size.width / 2f, h + 6f))
             }
 
-            // Overlay (segment max) as a dotted line + dots on top of the bars.
+            // Overlay (segment max) as a line with dots on top of the bars.
             if (overlay != null && overlay.size == n) {
                 var prev: Offset? = null
                 overlay.forEachIndexed { idx, v ->

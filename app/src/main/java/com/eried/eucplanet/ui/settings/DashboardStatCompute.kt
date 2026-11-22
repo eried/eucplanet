@@ -5,7 +5,7 @@ import com.eried.eucplanet.data.repository.MetricSample
 /**
  * Shared computation for every place the dashboard surfaces a per-cell
  * statistic (composite cell renderer, the slot-sheet preview, and the
- * future per-corner stat readouts on the live grid).
+ * per-slot stat readouts on the live grid).
  *
  * Returns null when there's not enough buffered data to satisfy the
  * requested stat (callers render a placeholder dash in that case).
@@ -29,7 +29,6 @@ fun computeDashboardStatValue(
         DashboardStat.MIN -> values.min()
         DashboardStat.MAX -> values.max()
         // Highest level HELD for >= 2s, so a momentary spike doesn't count.
-        // (Was plain max(), which contradicted the "ignore <2s spikes" intent.)
         DashboardStat.SUSTAINED_PEAK -> sustainedPeak(samples, windowMs = 2000L)
         DashboardStat.AVG -> values.average().toFloat()
         DashboardStat.MEDIAN -> percentileOf(values, 0.50)

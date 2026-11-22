@@ -6,6 +6,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.wear.compose.material.MaterialTheme
 import com.eried.eucplanet.wear.R
 import com.eried.eucplanet.wear.bridge.WatchState
@@ -174,6 +175,23 @@ data class WatchColors(
     }
 }
 
+/** WCAG contrast ratio between two colours (1 to 21). */
+internal fun contrastRatio(a: Color, b: Color): Float {
+    val la = a.luminance() + 0.05f
+    val lb = b.luminance() + 0.05f
+    return if (la > lb) la / lb else lb / la
+}
+
+/**
+ * [preferred] when it reads on [background] (3:1, the large-text and icon
+ * minimum), otherwise whichever of white and black contrasts more.
+ */
+internal fun readableOn(background: Color, preferred: Color): Color {
+    if (contrastRatio(background, preferred) >= 3f) return preferred
+    return if (contrastRatio(background, Color.White) >= contrastRatio(background, Color.Black))
+        Color.White else Color.Black
+}
+
 /** Parse the phone's packed theme string; any missing/bad field keeps the default. */
 fun parseWatchColors(packed: String): WatchColors {
     if (packed.isBlank()) return WatchColors.Default
@@ -213,11 +231,17 @@ internal fun WatchTheme(
     state: WatchState,
     content: @Composable (accent: Color) -> Unit,
 ) {
-    val colors = remember(state.themePacked) {
+    val parsed = remember(state.themePacked) {
         parseWatchColors(state.themePacked)
     }
-    val accent = if (state.themePacked.isNotBlank()) colors.accent
+    val accent = if (state.themePacked.isNotBlank()) parsed.accent
     else accentColorFor(state.accentKey)
+    // A rider who darkens the accent (black, dark blue) on a light theme
+    // keeps the light theme's dark "on primary", and the icon on a filled
+    // button vanishes. Swap it for white or black when it is hard to read.
+    val colors = remember(parsed, accent) {
+        parsed.copy(onAccent = readableOn(accent, parsed.onAccent))
+    }
     CompositionLocalProvider(LocalWatchColors provides colors) {
         MaterialTheme {
             content(accent)

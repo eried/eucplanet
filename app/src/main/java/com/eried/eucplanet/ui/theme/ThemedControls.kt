@@ -101,6 +101,7 @@ fun themedTextButtonColors(): ButtonColors {
     val c = MaterialTheme.appColors
     return ButtonDefaults.textButtonColors(
         contentColor = c.textButton,
+        disabledContentColor = c.textDisabled,
     )
 }
 

@@ -5,21 +5,16 @@ import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import java.io.ByteArrayOutputStream
 
 /**
- * WheelAdapter for the InMotion V2 protocol family: V11, V12HS/HT/PRO/S, V13, V14.
- *
- * Phase 1 wraps the existing [InMotionV2Commands] / [InMotionV2Parser] / [InMotionV2Protocol]
- * objects without changing their behavior. Phase 2 will fold model-conditional logic
- * (V11 vs V12 vs V14 parsers, beep vs sound horn, short vs extended max-speed packet)
- * into this class once those models actually need it.
- *
- * The decode dispatch mirrors the legacy WheelRepository.handlePacket() switch
- * exactly so the refactor is provably no-op for V14.
+ * WheelAdapter for the InMotion V2 protocol family: V11, V12HS/HT/PRO/S, V13, V14,
+ * X1, plus the P6 and V6 extended-routing dialects. Picks commands and parsers
+ * per detected model.
  */
 class InMotionV2Adapter : WheelAdapter {
 
     override val familyId: String = "inmotion_v2"
     override val familyDisplayName: String = "InMotion V14 / V12 / P6 / V6"
-    override val capabilities: WheelCapabilities = WheelCapabilities.INMOTION_V2
+    override val capabilities: WheelCapabilities
+        get() = if (useV6Protocol) WheelCapabilities.INMOTION_V6 else WheelCapabilities.INMOTION_V2
 
     override fun inspectMessageTypes(): List<String> =
         listOf("V14 realtime", "P6 realtime", "P6 detailed", "V6 realtime")
@@ -54,6 +49,9 @@ class InMotionV2Adapter : WheelAdapter {
      * `V6-XXXXXXXX`, and telemetry never flips it.
      */
     @Volatile private var useV6Protocol: Boolean = false
+
+    /** The V6's slow slot alternates its settings page and lifetime stats. */
+    @Volatile private var v6SettingsTurn: Boolean = false
 
     companion object {
         /** `p6` as its own token: not preceded or followed by a letter or digit. */
@@ -114,6 +112,8 @@ class InMotionV2Adapter : WheelAdapter {
      */
     private val reassemblyBuffer = ByteArrayOutputStream()
 
+    private fun isV6Name(deviceName: String?): Boolean = isV6NameForTest(deviceName)
+
     /**
      * Pre-select model from the BLE advertised name. The InMotion P6 uses an
      * extended-routing-only command set: the legacy `02 [cmd]` queries return
@@ -122,8 +122,6 @@ class InMotionV2Adapter : WheelAdapter {
      * `P6-XXXXXXXX` is the cleanest pre-connect signal, so we set the model now
      * and let [initSequence] / [pollRealtime] / [decode] take the P6 branch.
      */
-    private fun isV6Name(deviceName: String?): Boolean = isV6NameForTest(deviceName)
-
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         // Every P6-specific path in this adapter hangs off this one line: the
         // command set, the realtime parse, the temperatures, the speed cap and
@@ -202,24 +200,27 @@ class InMotionV2Adapter : WheelAdapter {
 
     /**
      * Periodic settings refresh. The P6 returns a 51-byte settings page on
-     * `02 21 20 [20]`; the parser pulls the current tiltback at offset 13-14.
+     * `02 21 20 [20]`; the parser pulls tiltback and alarm speed from it
+     * (see [InMotionV2Parser.parseP6Settings]).
      */
     override fun pollSettings(): ByteArray = when {
         useP6Protocol -> InMotionV2Commands.getP6Settings()
-        // V6: no known settings page yet; the slow slot refreshes the
-        // lifetime odometer instead (extended 0x11 -> TotalDistance).
-        useV6Protocol -> InMotionV2Commands.getV6TotalStats()
+        // V6: the P6's settings page (tilt-back), taking turns with the
+        // lifetime odometer (extended 0x11 -> TotalDistance).
+        useV6Protocol -> {
+            v6SettingsTurn = !v6SettingsTurn
+            if (v6SettingsTurn) InMotionV2Commands.getP6Settings()
+            else InMotionV2Commands.getV6TotalStats()
+        }
         else -> InMotionV2Commands.getCurrentSettings()
     }
 
     /** Stats-cadence poll. For V14 family, rotates through the 4 BMS pack
      *  cell-voltage queries (one per call), so the 128 cells refresh once
      *  per ~18s at the default poll cadence. For P6 it queries the 0x84
-     *  detailed-data frame - the ONLY place the motor temperature actually
-     *  arrives. The realtime 0x87 stream does not carry it (body[31]/[38]
-     *  there are constants), so without this poll the motor-temp pill stays
-     *  blank. The adapter caches the value from the response and injects it
-     *  into the realtime frames (see decode() sub 0x04 / sub 0x07). */
+     *  detailed-data frame, which carries controller and battery temperature
+     *  (and a fallback motor value). The adapter caches them and injects them
+     *  into the realtime frames, see [decodeP6Extended]. */
     override fun pollStats(): ByteArray? {
         if (useP6Protocol) return InMotionV2Commands.getP6Stats()
         // V6: realtime and totals already cover everything we can parse; the
@@ -283,6 +284,10 @@ class InMotionV2Adapter : WheelAdapter {
         // The X1's settings page is the P6's, so its speeds go the P6 way:
         // tiltback alone here, the alarm in its own packet below.
         if (useP6Protocol || isX1) return InMotionV2Commands.setP6MaxSpeed(tiltbackKmh)
+        if (useV6Protocol) {
+            return InMotionV2Protocol.escapeChecksum(
+                InMotionV2LegacyCommands.setMaxSpeedShort(tiltbackKmh))
+        }
         val m = detectedModel
         return if (m == null || m.maxSpeedHasAlarms) {
             InMotionV2Commands.setMaxSpeedV14(tiltbackKmh, alarmKmh)
@@ -295,7 +300,7 @@ class InMotionV2Adapter : WheelAdapter {
      * No flash-commit needed for P6 max-speed. Earlier builds sent a
      * `60 3e [tilt 00 00]` write here, believing it was a "commit max-speed
      * to flash" packet. Re-analysis of the labelled max-speed-drag capture
-     * (`docs/P6_CAPTURE_LABELS.md`) showed that opcode is the **alarm-speed**
+     * showed that opcode is the **alarm-speed**
      * setter; the InMotion app fires it with the new max-speed value only
      * to clamp `alarm ≤ max` after a downward drag. `60 21 [tilt]` alone
      * is sufficient and persists across reboots; multiple mid-drag `60 21`
@@ -358,9 +363,7 @@ class InMotionV2Adapter : WheelAdapter {
 
     /**
      * Walk the reassembly buffer for complete AA AA frames, parse each, decode,
-     * and return the resulting DecodeResults. Mirrors the legacy reassembly that
-     * used to live in BleConnectionManager, preserved byte-for-byte to keep V14
-     * behavior identical.
+     * and return the resulting DecodeResults.
      */
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
         reassemblyBuffer.write(rawBytes)
@@ -412,6 +415,7 @@ class InMotionV2Adapter : WheelAdapter {
         detectedModel = null
         useP6Protocol = false
         useV6Protocol = false
+        v6SettingsTurn = false
     }
 
     /**
@@ -426,7 +430,7 @@ class InMotionV2Adapter : WheelAdapter {
         // Service Mode is research-grade; show the catalogue regardless of
         // whether the connected wheel is actually a P6. The wrap (extended
         // routing) is only sent when fired manually, so it doesn't affect
-        // V14 / V12 telemetry. The user picks "InMotion V14 / V12 / P6" in
+        // V14 / V12 telemetry. The user picks "InMotion V14 / V12 / P6 / V6" in
         // the family dropdown and gets the full P6 query / control set.
         val LIGHT = DiagnosticCommand.Category.LIGHT
         val MODE = DiagnosticCommand.Category.MODE
@@ -586,8 +590,10 @@ class InMotionV2Adapter : WheelAdapter {
     /**
      * Unwrap a P6-style extended-routing response. The frame body looks like
      * `02 (sub|0x80) (01 00) (payload)` for sub 0x06 (info) and 0x07 (realtime),
-     * and `02 (sub|0x80) (payload)` for sub 0x10 / 0x11 / 0x60 etc. We only
-     * decode the two we trust today; the rest pass through silently.
+     * and `02 (sub|0x80) (payload)` for sub 0x10 / 0x11 / 0x60 etc. Decodes
+     * realtime (0x07), detailed data or V6 realtime (0x04), V6 totals (0x11),
+     * info (0x06), settings (0x20) and battery info (0x05). Anything else is
+     * logged.
      */
     private fun decodeP6Extended(data: ByteArray): DecodeResult {
         if (data.size < 3 || data[0] != 0x02.toByte()) return DecodeResult.Unknown
@@ -601,11 +607,6 @@ class InMotionV2Adapter : WheelAdapter {
                     "P6 realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
                 )
                 val telem = InMotionV2Parser.parseP6Telemetry(body) ?: return DecodeResult.Unknown
-                // Motor temp now comes straight from realtime body[31]
-                // (parseP6Telemetry, slot 0), refreshed every frame. Keep it
-                // when present; only fall back to the cached 0x84 detailed-frame
-                // motor temp on a firmware where body[31] read implausible and
-                // parseP6Telemetry left slot 0 at 0.
                 // Live motor from this realtime frame (slot 0); controller and
                 // battery from the cached 0x84 detailed block (slots 1/2). Fall
                 // back to the cached 0x84 motor only if the realtime byte read
@@ -666,7 +667,7 @@ class InMotionV2Adapter : WheelAdapter {
                 // result so the eucstats upload meta gets `model = "InMotion
                 // P6"` (uniform with V14 / V12) and `serial = "..."` in a
                 // separate JSON field. The dashboard label was already set
-                // earlier from notifyConnectingTo (line 72), so we don't need
+                // earlier from notifyConnectingTo, so we don't need
                 // to re-emit a ModelName here.
                 if (data.size < 4) return DecodeResult.Unknown
                 val serial = InMotionV2Parser.parseP6Serial(data.copyOfRange(4, data.size))
@@ -674,9 +675,11 @@ class InMotionV2Adapter : WheelAdapter {
             }
             0x20 -> {
                 // settings page A: `02 a0 [body]`. The body starts with a 0x20
-                // sub-cmd echo and the parser pulls tiltback at offset 13-14.
+                // sub-cmd echo; the parser pulls tiltback and alarm speed.
                 if (data.size < 3) return DecodeResult.Unknown
-                val settings = InMotionV2Parser.parseP6Settings(data.copyOfRange(2, data.size))
+                val page = data.copyOfRange(2, data.size)
+                val settings = if (useV6Protocol) InMotionV2Parser.parseV6Settings(page)
+                    else InMotionV2Parser.parseP6Settings(page)
                 settings?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
             }
             0x05 -> {
@@ -737,6 +740,10 @@ class InMotionV2Adapter : WheelAdapter {
             val temps = t.temperatures.filterIndexed { i, _ -> i != 2 && i != 4 }
             t.copy(temperatures = temps, maxTemperature = temps.maxOrNull() ?: 0f)
         }
+        // A V6 that answers the plain realtime poll (firmware 2.2.4, seen in a
+        // tester's Service Mode log) still sends its own body layout. Read as a
+        // V14 its duty landed in the speed slot and the battery read 0 %.
+        InMotionV2Model.V6 -> InMotionV2Parser.parseV6Telemetry(data)
         else -> InMotionV2Parser.parseTelemetry(data)
     }
 

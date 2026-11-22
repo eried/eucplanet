@@ -247,7 +247,7 @@ fun OverlayStudioScreen(
     var replayPanelOffset by remember { mutableStateOf<Offset?>(null) }
     var replayPanelSize by remember { mutableStateOf(IntSize.Zero) }
     var panelsDimmed by remember { mutableStateOf(false) }
-    // When ON, drag / resize handlers snap to a 5 px grid (in canvas-
+    // When ON, drag / resize handlers snap to a 10 dp grid (in canvas-
     // fraction units). Persists across navigation through Manage so the
     // rider doesn't need to keep re-enabling it; resets per Studio open
     // because it's an editor-mode preference, not a persisted setting.
@@ -354,7 +354,8 @@ fun OverlayStudioScreen(
         recording -> (stopwatchNowMs - recordingStartMs).coerceAtLeast(0L)
         else -> 0L
     }
-    // Replay APNG export: offline frame-by-frame render with a progress bar.
+    // Replay clip export (GIF / APNG / MP4): offline frame-by-frame render
+    // with a progress bar.
     var rendering by remember { mutableStateOf(false) }
     var renderProgress by remember { mutableStateOf(0f) }
     // A small, slowly-updated preview of the frame being rendered, shown on the
@@ -412,18 +413,6 @@ fun OverlayStudioScreen(
         }.toSet()
     }
     val videoHub = rememberStudioVideoHub(replayVideoUris, enabled = replayMode)
-
-    // Camera conversion is never paused: a paused feed shows the rider the
-    // LAST converted frame frozen behind the translucent scrim, which reads
-    // as "the dialog is a screenshot, the app is broken". Recording also
-    // keeps capturing live frames regardless, so a frozen preview misleads
-    // about what's actually being recorded. The GC pressure that motivated
-    // the original pause needs to be addressed at its source (reusing
-    // Bitmaps in the YUV→Bitmap fan-out, throttling slider recomposition)
-    // rather than by hiding the feed.
-    LaunchedEffect(hub) {
-        hub.convertPaused = false
-    }
 
     // --- Permissions -------------------------------------------------------
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -710,9 +699,9 @@ fun OverlayStudioScreen(
         // renders that much faster. Slow speeds add frames for smoother slow-mo.
         // Frames only ever sample inside the trimmed [start, end] range.
         val outputMs = (span / replaySpeed.coerceAtLeast(0.05f)).toLong()
-        // Raised from 240 so a longer clip stays smooth; the clip's *duration*
-        // is fixed by the per-frame PTS below, not by the frame count, so the
-        // cap only trades smoothness (fps) for render time on very long clips.
+        // The clip's *duration* is fixed by the per-frame PTS below, not by the
+        // frame count, so the cap only trades smoothness (fps) for render time
+        // on very long clips.
         val maxFrames = 900
         val frameCount = ((outputMs / frameMs).toInt() + 1).coerceIn(2, maxFrames)
         val stepMs: Long = span / (frameCount - 1)
@@ -772,9 +761,9 @@ fun OverlayStudioScreen(
                         // export frame's cursor (`pos`) here, on the producing
                         // side: the offscreen session's frame clock only ever
                         // draws an already-decoded bitmap, it never calls into
-                        // the retriever itself. Missing/out-of-range/no-clip
-                        // all resolve to null, which the viewport layer draws
-                        // as nothing (transparent), same as the live preview.
+                        // the retriever itself. Out-of-range and no-clip both
+                        // resolve to a null frame; what the pane then shows is
+                        // decided by videoFills below.
                         val videoFrames: Map<Int, ImageBitmap?> =
                             preset.viewports.mapIndexedNotNull { idx, vp ->
                                 val face = vp.replay
@@ -787,10 +776,32 @@ fun OverlayStudioScreen(
                                 )
                                 idx to (if (timeUs == null) null else videoHub.frameAt(uri, timeUs))
                             }.toMap()
+                        // What each VIDEO pane shows on this frame, by the same
+                        // decision the on-screen replay takes: the No-media
+                        // placeholder with no usable clip, black past the clip
+                        // with the Black edge. Read after the frames above, so
+                        // a clip whose decode just failed counts as unusable.
+                        val videoFills: Map<Int, ReplayVideoFill> =
+                            preset.viewports.mapIndexedNotNull { idx, vp ->
+                                val face = vp.replay
+                                if (face?.source != ReplaySourceType.VIDEO) {
+                                    return@mapIndexedNotNull null
+                                }
+                                val uri = face.videoUri
+                                val usable = uri != null && !videoHub.isInvalid(uri)
+                                idx to replayVideoFill(
+                                    hasUsableClip = usable,
+                                    cursorMs = pos,
+                                    offsetMs = face.videoOffsetMs,
+                                    videoDurationMs = if (uri != null && usable) videoHub.durationMs(uri) else 0L,
+                                    edge = face.videoEdge,
+                                )
+                            }.toMap()
                         OverlayFrameSpec(
                             elements = frameElements,
                             preset = preset,
                             videoFrames = videoFrames,
+                            videoFills = videoFills,
                             data = StudioElementData(
                                 wheelData = trip.dataAt(pos),
                                 wheelName = displayWheelName,
@@ -804,6 +815,7 @@ fun OverlayStudioScreen(
                                 distanceUnit = viewModel.distanceUnit,
                                 tempUnit = viewModel.tempUnit,
                                 pressureUnit = viewModel.pressureUnit,
+                                altitudeUnit = viewModel.altitudeUnit,
                                 clockTimeMs = trip.startEpochMs + pos,
                                 stopwatchMs = pos,
                                 liveGForceTrail = emptyList(),
@@ -1167,6 +1179,7 @@ fun OverlayStudioScreen(
                         distanceUnit = viewModel.distanceUnit,
                         tempUnit = viewModel.tempUnit,
                         pressureUnit = viewModel.pressureUnit,
+                                altitudeUnit = viewModel.altitudeUnit,
                         clockTimeMs = clockTimeMs,
                         stopwatchMs = stopwatchMs,
                         // Live mode feeds the G-Force overlay its 50 Hz rolling
@@ -1557,10 +1570,6 @@ fun OverlayStudioScreen(
         StudioSheet.ManageElements -> ManageElementsSheet(
             elements = preset.elements,
             canAddElement = canAddElement,
-            // Panes button mirrors the tools-flyout's "Panes" entry: the
-            // layout is shared between live and replay, so it stays
-            // changeable in both.
-            canChangePanes = true,
             snapToGrid = snapToGrid,
             onMove = { from, to -> viewModel.moveElement(from, to) },
             onSelect = { id ->
@@ -1805,7 +1814,8 @@ private fun flattenOntoChroma(
     )
     val canvas = android.graphics.Canvas(flat)
     canvas.drawColor(chroma.toInt())
-    // getPixels needs a software bitmap; toImageBitmap() may hand back HARDWARE.
+    // A software canvas cannot draw a HARDWARE bitmap, and toImageBitmap() may
+    // hand one back.
     val sw = if (src.config == android.graphics.Bitmap.Config.HARDWARE) {
         src.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
     } else src

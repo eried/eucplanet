@@ -66,8 +66,8 @@ data class OcmPhoto(
 /**
  * Talks to the key-required Open Charge Map API. Same plain [HttpURLConnection]
  * + [Dispatchers.IO] style as [RoutingService] / [PoiService]. Only called when
- * the rider has set a (free) OCM API key and taps a charger in the flyout, so
- * nothing runs in the background.
+ * the rider has set a (free) OCM API key: for the charger layer on the map and
+ * for a tapped charger's details. Nothing runs in the background.
  */
 class OcmService {
 

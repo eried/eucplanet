@@ -67,7 +67,7 @@ class MetricTextTest {
      */
     @Test fun everyKnownKeyFormatsWithALiveWheel() {
         val placeholderToday = setOf(
-            "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
+            "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
             "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM",
         )
         val full = wheel.copy(

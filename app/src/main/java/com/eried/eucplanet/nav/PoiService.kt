@@ -61,11 +61,11 @@ data class PointOfInterest(
 data class BBox(val minLat: Double, val minLng: Double, val maxLat: Double, val maxLng: Double)
 
 /**
- * Fetches chargers and fuel stations near a route from the key-less Overpass
- * (OpenStreetMap) API. Same plain [HttpURLConnection] + [Dispatchers.IO] style
- * as [RoutingService]; nothing runs in the background and no telemetry is sent.
- * The layer is opt-in from the Route Builder, so this is only called when the
- * rider asks to see places along their route.
+ * Fetches places (chargers, stores, food, rest stops, sights) for the visible
+ * map area from the key-less Overpass (OpenStreetMap) API. Same plain
+ * [HttpURLConnection] + [Dispatchers.IO] style as [RoutingService]; nothing
+ * runs in the background and no telemetry is sent. The layer is opt-in from
+ * the Route Builder, so this is only called when the rider asks to see places.
  */
 class PoiService {
 
@@ -325,66 +325,6 @@ class PoiService {
             PoiKind.FOOD -> tags.optString("cuisine").replace('_', ' ').replace(';', ',')
             PoiKind.REST -> tags.optString("amenity").replace('_', ' ').replaceFirstChar { it.uppercase() }
             PoiKind.SIGHTS -> tags.optString("tourism").replace('_', ' ').replaceFirstChar { it.uppercase() }
-        }
-    }
-
-    /**
-     * Fetches chargers + fuel stations within the route's padded bounding box,
-     * then keeps only those within [PoiService.ROUTE_BUFFER_M] of the route.
-     * Returns an empty list on success-but-none, and **null on any failure**
-     * (network / HTTP / parse) so the caller can tell "nothing nearby" apart
-     * from "couldn't load" and message the rider accordingly.
-     */
-    suspend fun poisAlongRoute(
-        geometry: List<GeoPoint>,
-        endpoint: String = DEFAULT_OVERPASS,
-        categories: Set<PoiKind> = setOf(PoiKind.CHARGER),
-    ): List<PointOfInterest>? = withContext(Dispatchers.IO) {
-        if (geometry.size < 2 || categories.isEmpty()) return@withContext emptyList()
-        val bbox = routeBoundingBox(geometry) ?: return@withContext emptyList()
-        try {
-            val body = fetchOverpass(endpoint, overpassQuery(bbox, categories))
-            if (body == null) {
-                Log.w(TAG, "poisAlongRoute: null body (network/HTTP error)")
-                return@withContext null
-            }
-            val parsed = parseOverpass(body, categories)
-            val filtered = filterNearRoute(parsed, geometry)
-            Log.i(TAG, "poisAlongRoute: cats=$categories bytes=${body.length} parsed=${parsed.size} kept=${filtered.size}")
-            filtered
-        } catch (e: Exception) {
-            Log.w(TAG, "poisAlongRoute failed: ${e.message}")
-            null
-        }
-    }
-
-    /**
-     * Like [poisAlongRoute] but around a single [center] point (the rider's
-     * location or the map centre) for when there's no route yet. Returns null on
-     * failure, empty on none.
-     */
-    suspend fun poisAround(
-        center: GeoPoint,
-        radiusKm: Double = 1.5,
-        endpoint: String = DEFAULT_OVERPASS,
-        categories: Set<PoiKind> = setOf(PoiKind.CHARGER),
-    ): List<PointOfInterest>? = withContext(Dispatchers.IO) {
-        if (categories.isEmpty()) return@withContext emptyList()
-        val radiusM = radiusKm * 1000.0
-        val bbox = bboxAround(center, radiusM)
-        try {
-            val body = fetchOverpass(endpoint, overpassQuery(bbox, categories))
-            if (body == null) {
-                Log.w(TAG, "poisAround: null body (network/HTTP error)")
-                return@withContext null
-            }
-            val parsed = parseOverpass(body, categories)
-            val filtered = filterNearPoint(parsed, center, radiusM)
-            Log.i(TAG, "poisAround: cats=$categories parsed=${parsed.size} kept=${filtered.size}")
-            filtered
-        } catch (e: Exception) {
-            Log.w(TAG, "poisAround failed: ${e.message}")
-            null
         }
     }
 

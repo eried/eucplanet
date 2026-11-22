@@ -102,7 +102,7 @@ data class StatusContext(
     val tripRecording: Boolean = false,
     /** Imperial-unit toggle state from settings. */
     val imperialUnits: Boolean = false,
-    /** Alarms-muted flag from settings. Not yet wired upstream, defaults false. */
+    /** Alarms-muted flag from settings. False where the caller does not pass it. */
     val alarmsMuted: Boolean = false,
     /** True when the wheel is currently in safety / legal mode. */
     val safetyActive: Boolean = false,

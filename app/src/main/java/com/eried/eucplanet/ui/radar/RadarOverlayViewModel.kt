@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.delay
 
 /**
- * Drives [RadarOverlay] visibility. The overlay is on screen when:
+ * Drives the dashboard radar lane (DashboardRadarMiniForSide). The overlay is on screen when:
  *  - a radar is paired AND the radar-overlay setting is on,
  *  - the connection is CONNECTED OR INITIALIZING (so connect/handshake
  *    flicker doesn't hide the lane), and

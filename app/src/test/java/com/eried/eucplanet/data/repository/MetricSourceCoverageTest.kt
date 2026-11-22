@@ -30,8 +30,6 @@ class MetricSourceCoverageTest {
         "SLOPE",
         // Needs adapter-side plumbing: no family puts RPM on WheelData.
         "MOTOR_RPM",
-        // Safety headroom against the PWM ceiling. Never computed anywhere.
-        "HEADROOM",
     )
 
     @Test

@@ -67,8 +67,7 @@ object TripCsv {
         if (s.isEmpty()) return null
         val normalised = normaliseFraction(s)
         for (fmt in FORMATS) {
-            val matched = try { fmt.parse(normalised) } catch (_: Exception) { null } ?: continue
-            @Suppress("UNUSED_VARIABLE") val ignored = matched
+            try { fmt.parse(normalised) } catch (_: Exception) { null } ?: continue
             val bound = fmt.clone() as SimpleDateFormat
             return { raw ->
                 val t = raw?.trim().orEmpty()

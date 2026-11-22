@@ -14,7 +14,29 @@ import java.util.UUID
 import java.util.zip.GZIPOutputStream
 
 /** Outcome of a single [EucStatsRepository.uploadTrip] call. */
-enum class Outcome { UPLOADED, FAILED_PERMANENT, NEEDS_RETRY }
+enum class Outcome {
+    UPLOADED,
+    FAILED_PERMANENT,
+    NEEDS_RETRY,
+    /** The server is rate limiting this rider (429). Nothing else goes
+     *  through until the limit rolls over, so the pass ends and the next
+     *  one waits on the backoff curve. */
+    BACK_OFF,
+    /** The server does not know this rider (400 rider_not_registered). That
+     *  is not the trip's fault: it stays pending, and no other trip can do
+     *  better, so the pass ends with no retry. */
+    RIDER_UNKNOWN;
+
+    /** No further upload is worth sending in this pass. A refused upload
+     *  counts against the rider's hourly limit, so a pass that kept going
+     *  spent the limit on answers it already had. */
+    val endsPass: Boolean get() = this == BACK_OFF || this == RIDER_UNKNOWN
+
+    companion object {
+        /** What [body] of a 400 says when the rider is unknown to the server. */
+        const val RIDER_NOT_REGISTERED = "rider_not_registered"
+    }
+}
 
 /** How many held trips a background sweep re-checks, newest first. */
 const val BACKGROUND_HELD_LIMIT = 20
@@ -35,9 +57,8 @@ data class SyncResult(val total: Int, val uploaded: Int, val cleared: Int = 0) {
  * fields plus the .txt-backed rider id so [EucStatsRepository] stays
  * JVM-testable without a DataStore, Android Context, or SyncManager.
  *
- *  - [get] / [update] read / write the (now slim) AppSettings record
- *    (which carries only `onlineUploadEnabled` on the eucstats side; the
- *    full profile no longer ships in DataStore).
+ *  - [get] / [update] read and write AppSettings, of which only
+ *    `onlineUploadEnabled` belongs to eucstats.
  *  - [riderStoreId] reads the current rider id from whichever backing
  *    store the host wires up. In production this delegates to
  *    `SyncManager.riderStoreId.value` (the `.txt` recovery file is the
@@ -213,8 +234,12 @@ class EucStatsRepository(
                 Outcome.UPLOADED
             }
             is UploadResult.PermanentFailure -> {
-                tripDao.update(trip.copy(eucstatsStatus = 3))
-                Outcome.FAILED_PERMANENT
+                if (result.code == 400 && Outcome.RIDER_NOT_REGISTERED in result.body) {
+                    Outcome.RIDER_UNKNOWN
+                } else {
+                    tripDao.update(trip.copy(eucstatsStatus = 3))
+                    Outcome.FAILED_PERMANENT
+                }
             }
             is UploadResult.AuthFailure -> {
                 // Re-mint token once and retry.
@@ -242,7 +267,7 @@ class EucStatsRepository(
                     else -> Outcome.NEEDS_RETRY
                 }
             }
-            is UploadResult.Retry -> Outcome.NEEDS_RETRY
+            is UploadResult.Retry -> if (result.code == 429) Outcome.BACK_OFF else Outcome.NEEDS_RETRY
         }
     }
 
@@ -273,6 +298,7 @@ class EucStatsRepository(
                 if (outcome == Outcome.UPLOADED) uploaded++
                 done++
                 onProgress(done, total)
+                if (outcome?.endsPass == true) break
             }
             SyncResult(total = total, uploaded = uploaded, cleared = cleared)
         }

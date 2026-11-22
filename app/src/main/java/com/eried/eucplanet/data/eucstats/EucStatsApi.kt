@@ -39,8 +39,6 @@ data class RiderProfile(
  */
 data class TripStatus(
     val validationStatus: String?,   // "validated" | "flagged" | "rejected"
-    val verdict: String?,            // "accepted" | "under_review" | "rejected"
-    val reasons: List<String>,
     /**
      * The server answered that it has no such trip (404). That is an answer, not a
      * failure to read one: the trip was removed there, and asking again gets the same
@@ -50,7 +48,7 @@ data class TripStatus(
 ) {
     companion object {
         /** The server no longer has the trip. */
-        val GONE = TripStatus(validationStatus = null, verdict = null, reasons = emptyList(), gone = true)
+        val GONE = TripStatus(validationStatus = null, gone = true)
 
         /** What a trip's stored verdict becomes once the server no longer has it:
          *  not held any more, and not shared either. */
@@ -62,7 +60,7 @@ sealed interface UploadResult {
     data class Ok(val validationStatus: String?, val duplicate: Boolean) : UploadResult
     data class PermanentFailure(val code: Int, val body: String) : UploadResult  // 400/403/413/422
     data class AuthFailure(val code: Int) : UploadResult                          // 401 (re-mint)
-    data class Retry(val code: Int, val retryAfterSec: Long?) : UploadResult      // 429/5xx/network
+    data class Retry(val code: Int) : UploadResult                                // 429/5xx/network
 }
 
 /**
@@ -242,12 +240,8 @@ class EucStatsApi(
                 if (resp.code == 404) return@use TripStatus.GONE
                 if (!resp.isSuccessful) return@use null
                 val o = JSONObject(resp.body?.string().orEmpty())
-                val arr = o.optJSONArray("reasons")
                 TripStatus(
                     validationStatus = o.optString("validation_status").ifEmpty { null },
-                    verdict = o.optString("verdict").ifEmpty { null },
-                    reasons = (0 until (arr?.length() ?: 0))
-                        .mapNotNull { arr?.optString(it)?.ifEmpty { null } },
                 )
             }
         } catch (e: Exception) {
@@ -282,13 +276,13 @@ class EucStatsApi(
                     400, 403, 413, 422 -> UploadResult.PermanentFailure(resp.code, text)
                     // Rate limited -- temporary, keep the trip queued and retry
                     // with backoff (no Retry-After header today, so own backoff).
-                    429 -> UploadResult.Retry(429, resp.header("Retry-After")?.toLongOrNull())
+                    429 -> UploadResult.Retry(429)
                     // 5xx / unexpected -> transient, retry (the trip is never dropped).
-                    else -> UploadResult.Retry(resp.code, null)
+                    else -> UploadResult.Retry(resp.code)
                 }
             }
         } catch (e: Exception) {
-            UploadResult.Retry(0, null) // network error
+            UploadResult.Retry(0) // network error
         }
     }
 }

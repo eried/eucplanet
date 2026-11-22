@@ -36,7 +36,7 @@ import kotlinx.coroutines.runBlocking
  *
  * Inject-and-forget: `EucPlanetApp.onCreate()` calls [start] once and the
  * bridge lives for the whole process. With no watch polling it costs a
- * listening loopback socket and a once-a-second bookkeeping tick.
+ * listening loopback socket and a bookkeeping tick every five seconds.
  */
 class AmazfitBridge(
     private val context: Context,
@@ -71,7 +71,6 @@ class AmazfitBridge(
      *  wheel is connected again, so a watch that polls during tear-down sees
      *  the dial zero out instead of the last live frame. */
     @Volatile private var farewell = false
-    private var server: AmazfitLocalServer? = null
 
     /** Name of the watch currently polling, or empty when none has polled in
      *  the last [PRESENCE_WINDOW_MS]. Feeds the Settings "Devices" card. */
@@ -84,7 +83,7 @@ class AmazfitBridge(
     val deliveryRateHz: StateFlow<Double> = _deliveryRateHz
 
     /** Epoch millis of the last `/state` poll. The Settings card reads this
-     *  through the same 3 s window it uses for Garmin's Live badge. */
+     *  through PairedSurface.AMAZFIT_LIVE_WINDOW_MS for the Live badge. */
     private val _lastSuccessAtMs = MutableStateFlow(0L)
     val lastSuccessAtMs: StateFlow<Long> = _lastSuccessAtMs
 
@@ -99,7 +98,6 @@ class AmazfitBridge(
             while (true) {
                 val s = AmazfitLocalServer(AMAZFIT_PORT, ::handle) { msg -> Log.w(TAG, msg) }
                 if (s.start()) {
-                    server = s
                     Log.i(TAG, "listening on 127.0.0.1:${s.boundPort}")
                     return@launch
                 }

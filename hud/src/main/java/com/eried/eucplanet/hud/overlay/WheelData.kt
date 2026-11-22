@@ -6,7 +6,7 @@ package com.eried.eucplanet.hud.overlay
  * code that takes a WheelData parameter compiles unchanged on the HUD.
  *
  * Populated by adapting [com.eried.eucplanet.hud.protocol.HudState] in
- * [HudStudioElementData.from] each frame.
+ * [StudioElementData.from] each frame.
  */
 
 data class WheelData(
@@ -40,8 +40,20 @@ data class WheelData(
     /** Ground speed in km/h from the paired external GPS box, -1 when none. */
     val externalGpsSpeedKmh: Float = -1f,
     /** Ground speed in km/h from the PHONE's fused GPS, -1 when no fix.
-     *  Fed from HudState.gpsSpeedKmh when gpsSource == "PHONE". */
+     *  Fed from HudState.phoneGpsSpeedKmh, or from HudState.gpsSpeedKmh
+     *  when an older phone sends only that and gpsSource == "PHONE". */
     val gpsSpeedKmh: Float = -1f,
+    /** GPS altitude in metres, NaN when there is no fix or it carries no
+     *  altitude. Fed from HudState.gpsAltitudeM. */
+    val gpsAltitudeM: Float = Float.NaN,
+    /** Wh drawn from the pack since connect. Fed from HudState.whConsumed. */
+    val whConsumed: Float = 0f,
+    /** Consumption over the phone's rolling window in Wh per km, NaN until
+     *  the phone can say. Fed from HudState.whPerKm. */
+    val whPerKmRecent: Float = Float.NaN,
+    /** Remaining range in km at that rate, NaN until the phone can say.
+     *  Fed from HudState.rangeKm. */
+    val rangeKmEstimate: Float = Float.NaN,
     /** Running trip-meter distance in km (connect-scoped car odometer), -1 when
      *  none. Fed from HudState.tripMeterKm. */
     val tripMeterKm: Float = -1f,

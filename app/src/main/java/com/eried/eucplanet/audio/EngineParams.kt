@@ -17,7 +17,7 @@ data class EngineParams(
     val decelAmount: Float = 0f,
     /** Idle envelope 0..1, fades the whole signal out after parked timeout. */
     val idleAmount: Float = 1f,
-    /** Master output gain 0..1 (master volume × duck factor). */
+    /** Speed-curve gain times the voice duck factor, 0..1. */
     val masterGain: Float = 1f,
     /** Number of decel pop events queued for this buffer (0+, typically 0 or 1). */
     val pendingPops: Int = 0,

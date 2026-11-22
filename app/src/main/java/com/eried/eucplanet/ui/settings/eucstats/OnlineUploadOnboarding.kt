@@ -513,7 +513,7 @@ internal fun countryName(code: String): String =
 
 // ---- Private helpers --------------------------------------------------------
 
-/** Encode the cropped 64×64 avatar to a base64 PNG (no data-URL prefix). */
+/** Encode the cropped avatar to a base64 PNG (no data-URL prefix). */
 private fun encodeBitmapToBase64(bitmap: Bitmap): String {
     val baos = ByteArrayOutputStream()
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)

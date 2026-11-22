@@ -254,10 +254,10 @@ class RadarRepository(
         // tracker that just appeared at constant distance) gets NONE.
         if (d.approachSpeedKmh < staticTargetKmh && prev == null) return ThreatLevel.NONE
 
-        // Fast closing: either speed is high, or the target is already inside
-        // the safety bubble. The OR is intentional ,  a parked car 10 m behind
-        // the rider with approach_speed=0 is still a hazard to flag amber, but
-        // a 30 km/h car 30 m back is the textbook "behind you, watch out".
+        // Fast closing: either the speed is high, or the target is inside the
+        // safety bubble and still closing (at or above the static threshold).
+        // A 30 km/h car 30 m back is flagged; a target that is not closing
+        // is not.
         if (d.approachSpeedKmh >= fastApproachSpeedKmh) return ThreatLevel.FAST_APPROACH
         if (d.distanceM <= fastApproachDistM && d.approachSpeedKmh >= staticTargetKmh) {
             return ThreatLevel.FAST_APPROACH
@@ -308,7 +308,6 @@ class RadarRepository(
     }
 
     suspend fun pairedAddress(): String? = settingsRepository.get().radarAddress
-    suspend fun pairedName(): String? = settingsRepository.get().radarName
     suspend fun pairedVendor(): RadarVendor? =
         settingsRepository.get().radarVendor?.let {
             runCatching { RadarVendor.valueOf(it) }.getOrNull()

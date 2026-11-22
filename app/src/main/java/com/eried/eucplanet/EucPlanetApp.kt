@@ -9,6 +9,8 @@ import com.eried.eucplanet.garmin.GarminBridge
 import com.eried.eucplanet.map.MapTileCache
 import com.eried.eucplanet.util.CrashHandler
 import com.eried.eucplanet.wear.WearBridge
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
@@ -108,6 +110,15 @@ class EucPlanetApp : Application(), Configuration.Provider {
         // All run a few seconds in so the rider id / link token have loaded, and
         // no-op when their destination is not configured.
         syncManager.reconcileOnStart()
+        // The first offline route after a start no longer pays for BRouter's
+        // first run: a short one runs near the rider a few seconds in, when a
+        // square is downloaded. The location is read then, not here.
+        com.eried.eucplanet.nav.offline.OfflineWarmUp.start(
+            get(),
+            kotlinx.coroutines.flow.flow {
+                emitAll(get<com.eried.eucplanet.data.repository.TripRepository>().lastKnownLocation)
+            }.map { it?.let { l -> com.eried.eucplanet.data.model.GeoPoint(l.latitude, l.longitude) } },
+        )
         // Legal Mode Lockdown stops service mode too. DiagnosticsLogger is an
         // object with no injection, so the armed state is mirrored onto it here,
         // the one place that already lives for the whole process.

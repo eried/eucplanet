@@ -63,7 +63,6 @@ class PhoneSensorRepository(
     val imu: StateFlow<PhoneImuSample?> = _imu.asStateFlow()
 
     val latest: PhoneImuSample? get() = _imu.value
-    val isAvailable: Boolean get() = linearAccel != null
 
     // Reference count of active consumers (a connected wheel, the data-sources
     // sheet, the Overlay Studio). The listener is registered while it is > 0.
@@ -82,10 +81,9 @@ class PhoneSensorRepository(
     // deliver events, and a brand-new Looper kicks it loose.
     private var sensorThread: HandlerThread = HandlerThread("PhoneIMU-sensor").also { it.start() }
     private var sensorHandler: Handler = Handler(sensorThread.looper)
-    // Periodic re-register heartbeat, Android can quietly stop delivering
-    // events to a non-wake-up sensor while the AP sleeps (screen off mid-ride);
-    // re-registering every 15 s self-heals it as long as the AP has been woken
-    // at least once in the meantime (BLE polling during a trip wakes it).
+    // Stall heartbeat: every 3 s it checks that events are arriving and
+    // re-registers when they are not. Android can quietly stop delivering
+    // events to a non-wake-up sensor while the AP sleeps (screen off mid-ride).
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var heartbeat: Job? = null
 

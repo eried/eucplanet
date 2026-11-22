@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data.store
 
 import com.eried.eucplanet.data.model.BatteryPercentSettings
+import com.eried.eucplanet.data.model.HudDisplaySettings
 import com.eried.eucplanet.data.model.ProximityLockSettings
 import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
@@ -65,6 +66,9 @@ object SettingsJson {
         // addresses, and a backup restored on a second phone must not pair it
         // to sensors that are not on that phone's wheel.
         tpms = s.tpms.copy(pairedAddress = null, pairedAddresses = emptyList()),
+        // The paired glasses are this phone's too. Their options (the two
+        // numbers, turns) travel; which pair, and whether it is linked, do not.
+        engoHud = s.engoHud.copy(enabled = false, pairedAddress = null, pairedName = null),
         syncFolderUri = null,
         // Don't write the live Dropbox link into a backup / portable settings
         // file -- it's device + account state, and an access token shouldn't sit
@@ -163,8 +167,6 @@ object SettingsJson {
             put("resumeEnabled", s.mediaControl.resumeEnabled)
             put("resumeAboveKmh", s.mediaControl.resumeAboveKmh)
             put("requireExternalOutput", s.mediaControl.requireExternalOutput)
-            put("rateApplyWhen", s.mediaControl.rateApplyWhen)
-            put("rateCurve", s.mediaControl.rateCurve)
         })
         put("share", JSONObject().apply {
             put("trailMinutes", s.share.trailMinutes); put("shareStatsDefault", s.share.shareStatsDefault)
@@ -173,11 +175,6 @@ object SettingsJson {
             put("deviceSecret", s.share.deviceSecret)
         })
         put("tpms", JSONObject().apply {
-            // Never written until now, so a paired sensor was forgotten on
-            // every restart and a rider who picked psi got it back as bar. The
-            // fields existed on the model and the model was simply not on this
-            // list, which is the one way a setting can look wired up and still
-            // go nowhere.
             put("pairedAddress", s.tpms.pairedAddress)
             put("pairedAddresses", org.json.JSONArray(s.tpms.pairedAddresses))
             put("pressureUnit", s.tpms.pressureUnit)
@@ -246,6 +243,7 @@ object SettingsJson {
         put("unitSpeed", s.unitSpeed)
         put("unitDistance", s.unitDistance)
         put("unitTemp", s.unitTemp)
+        put("unitAltitude", s.unitAltitude)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
         put("phoneShowOverLockScreen", s.phoneShowOverLockScreen)
         put("rotateDashboard", s.rotateDashboard)
@@ -270,8 +268,7 @@ object SettingsJson {
         put("androidAutoAlarmNotifications", s.androidAuto.alarmNotifications)
         put("navigatorViewMetrics", s.navigatorView.metrics)
         put("navigatorViewNorthUp", s.navigatorView.northUp)
-        // Nested voice extras, written as flat keys so the file stays readable
-        // and a future move back to top level would not break existing saves.
+        // Weather group, written as flat keys.
         put("weatherEnabled", s.weather.enabled)
         put("weatherWindowHours", s.weather.windowHours)
         put("weatherOpenExpanded", s.weather.openExpanded)
@@ -399,7 +396,6 @@ object SettingsJson {
         put("navAdvancedMap", s.navAdvancedMap)
         put("navShowChargers", s.navShowChargers)
         put("navPlaceCategories", s.navPlaceCategories)
-        put("navPlacesHintShown", s.navPlacesHintShown)
         put("navAvoidHighways", s.navAvoidHighways)
         put("navAvoidTolls", s.navAvoidTolls)
         put("navAvoidFerries", s.navAvoidFerries)
@@ -412,6 +408,17 @@ object SettingsJson {
             put("showTelemetry", s.watchMap.showTelemetry)
         })
         put("hudServerEnabled", s.hudServerEnabled)
+        put("engoHud", JSONObject().apply {
+            put("enabled", s.engoHud.enabled)
+            put("autoConnect", s.engoHud.autoConnect)
+            put("pairedAddress", s.engoHud.pairedAddress)
+            put("pairedName", s.engoHud.pairedName)
+            put("layout", s.engoHud.layout)
+            put("elements", org.json.JSONArray().apply { s.engoHud.elements.forEach { put(engoElementJson(it)) } })
+            put("font", s.engoHud.font)
+            put("digitalGhost", s.engoHud.digitalGhost)
+            put("navTakeover", s.engoHud.navTakeover)
+        })
         put("keepAppAlive", s.keepAppAlive)
         put("notificationActionsEnabled", s.notificationActionsEnabled)
         put("notificationActions", s.notificationActions)
@@ -434,9 +441,10 @@ object SettingsJson {
         put("pipMode", s.pipMode)
         put("hudScreensEnabled", s.hudScreensEnabled)
         put("hudScreensOrder", s.hudScreensOrder)
-        put("hudMapStyle", s.hudMapStyle)
-        put("hudMapContrastPct", s.hudMapContrastPct)
-        put("hudMapBrightnessPct", s.hudMapBrightnessPct)
+        put("hudMapStyle", s.hudDisplay.mapStyle)
+        put("hudMapContrastPct", s.hudDisplay.mapContrastPct)
+        put("hudMapBrightnessPct", s.hudDisplay.mapBrightnessPct)
+        put("hudAutoStart", s.hudDisplay.autoStart)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
@@ -603,8 +611,6 @@ object SettingsJson {
                 requireExternalOutput = m.optBoolean(
                     "requireExternalOutput", base.mediaControl.requireExternalOutput
                 ),
-                rateApplyWhen = m.optString("rateApplyWhen", base.mediaControl.rateApplyWhen),
-                rateCurve = m.optString("rateCurve", base.mediaControl.rateCurve),
             )
         } ?: base.mediaControl,
         share = j.optJSONObject("share")?.let { m -> base.share.copy(
@@ -746,6 +752,7 @@ object SettingsJson {
         unitSpeed = j.optString("unitSpeed", base.unitSpeed),
         unitDistance = j.optString("unitDistance", base.unitDistance),
         unitTemp = j.optString("unitTemp", base.unitTemp),
+        unitAltitude = j.optString("unitAltitude", base.unitAltitude),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
         phoneShowOverLockScreen = j.optBoolean("phoneShowOverLockScreen", base.phoneShowOverLockScreen),
         rotateDashboard = j.optBoolean("rotateDashboard", base.rotateDashboard),
@@ -820,8 +827,8 @@ object SettingsJson {
         watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction),
         watchUpdateRate = when {
             j.has("watchUpdateRate") -> j.optString("watchUpdateRate", base.watchUpdateRate)
-            // Migrate the legacy boolean: ON used the 150 ms fast poll, OFF the
-            // 250 ms default. The new 500 ms "CONSERVATIVE" tier is opt-in only.
+            // Migrate the legacy boolean: ON was the 150 ms fast poll, OFF the
+            // 250 ms default. CONSERVATIVE (750 ms) is opt-in only.
             j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
             else -> base.watchUpdateRate
         },
@@ -877,7 +884,6 @@ object SettingsJson {
         navAdvancedMap = j.optBoolean("navAdvancedMap", base.navAdvancedMap),
         navShowChargers = j.optBoolean("navShowChargers", base.navShowChargers),
         navPlaceCategories = j.optString("navPlaceCategories", base.navPlaceCategories),
-        navPlacesHintShown = j.optBoolean("navPlacesHintShown", base.navPlacesHintShown),
         navAvoidHighways = j.optBoolean("navAvoidHighways", base.navAvoidHighways),
         navAvoidTolls = j.optBoolean("navAvoidTolls", base.navAvoidTolls),
         navAvoidFerries = j.optBoolean("navAvoidFerries", base.navAvoidFerries),
@@ -895,6 +901,23 @@ object SettingsJson {
             )
         } ?: base.watchMap,
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        engoHud = j.optJSONObject("engoHud")?.let { e ->
+            base.engoHud.copy(
+                enabled = e.optBoolean("enabled", base.engoHud.enabled),
+                autoConnect = e.optBoolean("autoConnect", base.engoHud.autoConnect),
+                pairedAddress = e.optStringOrNull("pairedAddress", base.engoHud.pairedAddress),
+                pairedName = e.optStringOrNull("pairedName", base.engoHud.pairedName),
+                layout = e.optString("layout", base.engoHud.layout),
+                elements = e.optJSONArray("elements")?.let { arr ->
+                    base.engoHud.elements.indices.map { i ->
+                        arr.optJSONObject(i)?.let { engoElementOf(it) } ?: base.engoHud.elements[i]
+                    }
+                } ?: base.engoHud.elements,
+                font = e.optString("font", base.engoHud.font),
+                digitalGhost = e.optBoolean("digitalGhost", base.engoHud.digitalGhost),
+                navTakeover = e.optBoolean("navTakeover", base.engoHud.navTakeover),
+            )
+        } ?: base.engoHud,
         keepAppAlive = j.optBoolean("keepAppAlive", base.keepAppAlive),
         notificationActionsEnabled = j.optBoolean("notificationActionsEnabled", base.notificationActionsEnabled),
         notificationActions = j.optString("notificationActions", base.notificationActions),
@@ -924,9 +947,12 @@ object SettingsJson {
         pipMode = j.optString("pipMode", base.pipMode),
         hudScreensEnabled = j.optString("hudScreensEnabled", base.hudScreensEnabled),
         hudScreensOrder = j.optString("hudScreensOrder", base.hudScreensOrder),
-        hudMapStyle = j.optString("hudMapStyle", base.hudMapStyle),
-        hudMapContrastPct = j.optInt("hudMapContrastPct", base.hudMapContrastPct),
-        hudMapBrightnessPct = j.optInt("hudMapBrightnessPct", base.hudMapBrightnessPct),
+        hudDisplay = HudDisplaySettings(
+            mapStyle = j.optString("hudMapStyle", base.hudDisplay.mapStyle),
+            mapContrastPct = j.optInt("hudMapContrastPct", base.hudDisplay.mapContrastPct),
+            mapBrightnessPct = j.optInt("hudMapBrightnessPct", base.hudDisplay.mapBrightnessPct),
+            autoStart = j.optBoolean("hudAutoStart", base.hudDisplay.autoStart),
+        ),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
         studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),
@@ -999,6 +1025,11 @@ object SettingsJson {
                 pairedAddress = current.tpms.pairedAddress,
                 pairedAddresses = current.tpms.pairedAddresses,
             ),
+            engoHud = parsed.engoHud.copy(
+                enabled = current.engoHud.enabled,
+                pairedAddress = current.engoHud.pairedAddress,
+                pairedName = current.engoHud.pairedName,
+            ),
             lastDeviceAddress = current.lastDeviceAddress,
             lastDeviceName = current.lastDeviceName,
             flic1Address = current.flic1Address,
@@ -1026,6 +1057,30 @@ object SettingsJson {
           )
         }
 
+    /**
+     * Factory defaults merged onto [current]: every preference reverts, while
+     * the rider's pairings, sync folder, backup history, live Dropbox link and
+     * share identity stay. Most bindings survive because a null leaves no key
+     * in the factory JSON, so [fromJson] falls back to [current]. The ones the
+     * JSON does carry (blank tokens, an empty sensor list) are copied back
+     * here. Pure; SyncManager does the IO.
+     */
+    fun factoryReset(current: AppSettings): AppSettings {
+        val parsed = fromJson(toJson(stripDeviceBindings(AppSettings())), current)
+        return parsed.copy(
+            dropboxAccessToken = current.dropboxAccessToken,
+            dropboxRefreshToken = current.dropboxRefreshToken,
+            dropboxAccessTokenExpiresAt = current.dropboxAccessTokenExpiresAt,
+            dropboxAccountLabel = current.dropboxAccountLabel,
+            dropboxLastSyncAt = current.dropboxLastSyncAt,
+            share = parsed.share.copy(deviceSecret = current.share.deviceSecret),
+            tpms = parsed.tpms.copy(
+                pairedAddress = current.tpms.pairedAddress,
+                pairedAddresses = current.tpms.pairedAddresses,
+            ),
+        )
+    }
+
     /** `optString` returns `""` for null and absent keys, which we cannot
      *  distinguish from a legitimate empty-string value. This helper keeps
      *  null vs explicit value vs absent semantics intact for nullable fields. */
@@ -1034,4 +1089,20 @@ object SettingsJson {
         isNull(key) -> null
         else -> optString(key, fallback ?: "")
     }
+
+    private fun engoElementJson(el: com.eried.eucplanet.data.model.EngoElement) = JSONObject().apply {
+        put("key", el.key)
+        put("stat", el.stat)
+        put("style", el.style)
+        put("windowDiv", el.windowDiv)
+    }
+
+    private fun engoElementOf(j: JSONObject) = com.eried.eucplanet.data.model.EngoElement(
+        key = j.optString("key", ""),
+        stat = j.optString("stat", "CURRENT"),
+        style = j.optString("style", "BLOCKS"),
+        // Only the shares the picker offers, so a stray value cannot ask for a graph nobody can set.
+        // The old "window" in seconds is left behind: such a graph starts at the whole length.
+        windowDiv = j.optInt("windowDiv", 1).takeIf { it in com.eried.eucplanet.data.model.ENGO_WINDOW_DIVS } ?: 1,
+    )
 }

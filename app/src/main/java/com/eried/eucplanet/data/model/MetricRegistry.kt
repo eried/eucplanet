@@ -110,9 +110,6 @@ data class MetricDef(
     /** The raw field read. Null when the metric has no [WheelData] field. */
     val raw: ((WheelData) -> Float?)? = null,
 ) {
-    /** True when the value can be read from a [WheelData] frame at all. */
-    val onWheelData: Boolean get() = raw != null
-
     /** The field as held, sentinels included, or null when it is structurally missing. */
     fun readRaw(data: WheelData): Float? = raw?.invoke(data)
 
@@ -301,7 +298,6 @@ object MetricRegistry {
 
         // ---- Not on WheelData: trip recorder, graphs, radar ----
 
-        MetricDef("HEADROOM", unit = MetricUnitKind.SPEED, source = MetricSource.DERIVED),
         MetricDef("TRIP_TIME", unit = MetricUnitKind.TIME, source = MetricSource.DERIVED),
         MetricDef("TRIP_MAX_SPEED", unit = MetricUnitKind.SPEED, source = MetricSource.DERIVED),
         MetricDef("AVG_TRIP_SPEED", unit = MetricUnitKind.SPEED, source = MetricSource.DERIVED),

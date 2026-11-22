@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Mở EUC Planet\ntrên điện thoại</string>
-    <string name="watch_waiting_wheel">Kết nối xe\ntrong EUC Planet</string>
     <string name="watch_disconnected">Đã ngắt kết nối</string>
-    <string name="watch_horn">Còi</string>
-    <string name="watch_light">Đèn</string>
     <string name="watch_speed_unit">km/h</string>
     <string name="watch_speed_unit_mph">mph</string>
-    <string name="watch_battery_label">Pin</string>
     <string name="watch_voltage_label">Điện áp</string>
     <string name="watch_current_label">Dòng điện</string>
     <string name="watch_pwm_label">PWM</string>
@@ -17,10 +12,6 @@
     <string name="watch_temp_label">Nhiệt độ</string>
     <string name="watch_trip_label">Quãng đường</string>
     <string name="watch_torque_label">Mô-men</string>
-    <string name="watch_action_failed">Không kết nối được điện thoại</string>
-    <string name="watch_gps_label">Tốc độ GPS</string>
-    <string name="watch_gps_permission">Chạm để cho phép GPS</string>
-    <string name="watch_gps_waiting">Đang chờ định vị…</string>
     <string name="watch_action_horn">Còi</string>
     <string name="watch_action_light">Đèn</string>
     <string name="watch_action_lock">Khóa xe</string>

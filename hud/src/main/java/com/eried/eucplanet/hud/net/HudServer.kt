@@ -8,7 +8,9 @@ import android.net.NetworkRequest
 import android.net.wifi.SupplicantState
 import android.net.wifi.WifiManager
 import android.util.Log
+import com.eried.eucplanet.hud.protocol.HudAppPush
 import com.eried.eucplanet.hud.protocol.HudCommand
+import com.eried.eucplanet.hud.update.HudAppUpdate
 import com.eried.eucplanet.hud.protocol.HudDebug
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
@@ -20,6 +22,11 @@ import com.eried.eucplanet.hud.protocol.StaleLink
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.call
+import io.ktor.server.request.receiveChannel
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.webSocket
@@ -36,9 +43,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -154,6 +159,16 @@ class HudServer(private val context: Context) {
     private val _localIp = MutableStateFlow<String?>(null)
     val localIp: StateFlow<String?> = _localIp.asStateFlow()
 
+    /** The linked phone by address, not by name: the name of one and the
+     *  same phone can read differently from one request to the next. */
+    @Volatile private var peerAddress: String? = null
+
+    /** [host] as a numeric address. The server hands back a name for a
+     *  socket it has already looked up and digits for one it has not, so the
+     *  linked phone read "localhost" on its state socket and "127.0.0.1" on
+     *  its next request. */
+    private fun numeric(host: String): String =
+        runCatching { java.net.InetAddress.getByName(host).hostAddress }.getOrNull() ?: host
     /** Address of the phone currently connected to us, e.g. "192.168.43.5".
      *  Null when no client is attached. */
     private val _peer = MutableStateFlow<String?>(null)
@@ -166,8 +181,7 @@ class HudServer(private val context: Context) {
 
     /** Commands the UI wants to send back to the phone. Buffered so a button
      *  press during a disconnect window isn't silently dropped -- the phone
-     *  will see it when it reconnects. Replay = 0 because we don't want to
-     *  re-fire commands on every new connection, only deliver pending ones. */
+     *  will see it when it reconnects. Each command is delivered once. */
     private val outboundCommands = Channel<HudCommand>(capacity = Channel.UNLIMITED)
 
     private var server: io.ktor.server.engine.ApplicationEngine? = null
@@ -189,15 +203,10 @@ class HudServer(private val context: Context) {
      *  it" failure. A high-perf / low-latency WiFi lock keeps the radio awake. */
     private var wifiLock: WifiManager.WifiLock? = null
 
-    // --- Diagnostics (surfaced on the HUD stats card + logcat) so the next
-    // "link died, had to reboot" report carries the cause, not just the
-    // symptom. ---
+    // --- Diagnostics (logcat) so the next "link died, had to reboot" report
+    // carries the cause, not just the symptom. ---
     /** How many times the watchdog has force-restarted the server this run. */
     @Volatile var watchdogRestarts: Int = 0; private set
-    /** Why the last phone connection ended (clean close / timeout / exception). */
-    @Volatile var lastEndReason: String = ""; private set
-    /** Wall-clock of the last disconnect, 0 if still on the first connection. */
-    @Volatile var lastDisconnectMs: Long = 0L; private set
     /** Self-heal watchdog. Polls the local listener and the current IPv4 every
      *  [WATCHDOG_INTERVAL_MS] so a hotspot IP-renew or a silently-dead Ktor
      *  socket gets fixed without the rider having to reboot the HUD. */
@@ -228,8 +237,8 @@ class HudServer(private val context: Context) {
     @Volatile private var rcRestart: Int = 0
     @Volatile private var rcReassoc: Int = 0
     @Volatile private var rcToggle: Int = 0
-    /** Number of off-air episodes we've auto-recovered from this run -- surfaced
-     *  on the stats card so a "had to reboot" report can instead read "recovered
+    /** Number of off-air episodes we've auto-recovered from this run -- put in
+     *  the recovery note so a "had to reboot" report can instead read "recovered
      *  N times on its own". */
     @Volatile var offAirRecoveries: Int = 0; private set
     /** Set once the HUD has been HEALTHY with a usable IP at least once this
@@ -247,6 +256,9 @@ class HudServer(private val context: Context) {
      *  the moment we learn it cannot possibly still be good. Cleared by the
      *  handler's own finally, guarded by [connSeq] like the status is. */
     @Volatile private var liveSession: io.ktor.server.websocket.DefaultWebSocketServerSession? = null
+
+    /** When the linked phone last sent a frame, on the uptime clock. */
+    @Volatile private var lastFrameAtMs: Long = 0L
     // Always-on UDP broadcast beacon so the phone can find us on networks
     // where mDNS multicast is blocked (most phone hotspots, every carrier
     // mobile hotspot). Runs in parallel with the mDNS advertise -- whichever
@@ -291,8 +303,61 @@ class HudServer(private val context: Context) {
                 timeoutMillis = 12_000L
             }
             routing {
+                // The phone sending this app's next version, or asking for it
+                // to be removed. Only the phone on the state socket may: on a
+                // shared network anyone can reach this port, and neither
+                // should be something a stranger can put on the rider's HUD.
+                post(HudAppPush.PATH_UPDATE) {
+                    if (numeric(call.request.local.remoteAddress) != peerAddress) {
+                        call.respondText("not the linked phone", status = HttpStatusCode.Forbidden)
+                        return@post
+                    }
+                    // Read the body as it arrives. The blocking stream view of
+                    // it stalled on a real file (a 2.5 MB post never finished).
+                    val answer = runCatching {
+                        val ctx = this@HudServer.context
+                        val body = call.receiveChannel()
+                        val file = HudAppUpdate.incomingFile(ctx)
+                        var total = 0L
+                        file.outputStream().use { out ->
+                            val buf = ByteArray(64 * 1024)
+                            while (total <= HudAppPush.MAX_BYTES) {
+                                val n = body.readAvailable(buf, 0, buf.size)
+                                if (n < 0) break
+                                out.write(buf, 0, n)
+                                total += n
+                            }
+                        }
+                        HudAppUpdate.received(ctx, file, total)
+                    }.getOrElse {
+                        HudDiag.log("update", "receive failed: ${it.message}")
+                        HudAppPush.ANSWER_NOT_AN_APP
+                    }
+                    call.respondText(
+                        answer,
+                        status = if (answer == HudAppPush.ANSWER_READY) HttpStatusCode.OK
+                            else HttpStatusCode.UnprocessableEntity
+                    )
+                }
+                post(HudAppPush.PATH_REMOVE) {
+                    if (numeric(call.request.local.remoteAddress) != peerAddress) {
+                        call.respondText("not the linked phone", status = HttpStatusCode.Forbidden)
+                        return@post
+                    }
+                    HudAppUpdate.askRemove()
+                    call.respondText("ok")
+                }
                 webSocket(HudDiscovery.PATH_STATE) {
                     val remote = call.request.local.remoteHost
+                    // One phone at a time: a second one dialing in while the
+                    // first is still talking is turned away, or their frames
+                    // take turns on the screen.
+                    val sinceFrame = android.os.SystemClock.elapsedRealtime() - lastFrameAtMs
+                    if (!HudLinkGuard.admits(peerAddress, sinceFrame, numeric(remote))) {
+                        HudDiag.log("pair", "turned away $remote, linked to $peerAddress")
+                        close(CloseReason(CloseReason.Codes.TRY_AGAIN_LATER, "linked to another phone"))
+                        return@webSocket
+                    }
                     // Token for THIS connection. With fast heartbeats a phone
                     // can redial while a previous handler is still unwinding its
                     // timeout; we must not let the stale handler's finally clear
@@ -300,12 +365,9 @@ class HudServer(private val context: Context) {
                     val myConn = connSeq.incrementAndGet()
                     Log.i(TAG, "phone connected: $remote (#$myConn)")
                     _peer.value = remote
+                    peerAddress = numeric(remote)
                     _status.value = Status.CONNECTED
                     liveSession = this
-                    // Diagnostic: remember the phone IP across reconnects
-                    // so the HUD-side stats card can show "last phone: X"
-                    // even after the link drops.
-                    phoneFinder.notePhone(remote)
 
                     // Greet the phone with our version. The phone uses
                     // this to decide whether to show "update HUD" or
@@ -334,6 +396,8 @@ class HudServer(private val context: Context) {
                                 hudVersion = com.eried.eucplanet.hud.BuildConfig.VERSION_NAME,
                                 hudProtocolMajor = sendMajor,
                                 hudProtocolMinor = sendMinor,
+                                hudVersionCode = com.eried.eucplanet.hud.BuildConfig.VERSION_CODE,
+                                hudBuild = com.eried.eucplanet.hud.BuildConfig.BUILD_ID,
                                 recoveryNote = recoveryNote
                             )
                         ))
@@ -367,6 +431,10 @@ class HudServer(private val context: Context) {
                         for (frame in incoming) {
                             if (frame is Frame.Text) {
                                 try {
+                                    // A connection that a newer one replaced
+                                    // no longer speaks for the phone.
+                                    if (connSeq.get() != myConn) continue
+                                    lastFrameAtMs = android.os.SystemClock.elapsedRealtime()
                                     val s = json.decodeFromString<HudState>(frame.readText())
                                     // Major MUST be <= ours: a higher
                                     // major may include fields we can't
@@ -377,8 +445,15 @@ class HudServer(private val context: Context) {
                                     val compat = com.eried.eucplanet.hud.protocol.VersionCompat
                                         .classify(s.protocolMajor, s.protocolMinor)
                                     _versionCompat.value = compat
+                                    HudTileCache.phoneMinor = s.protocolMinor
                                     if (!compat.isBlocking) {
                                         _state.value = s
+                                        com.eried.eucplanet.hud.update.HudAutoStart
+                                            .remember(context, s.autoStart)
+                                        if (s.protocolMinor >= 27) {
+                                            com.eried.eucplanet.hud.update.HudAutoStart
+                                                .drainNotes().forEach { sendCommand(HudCommand.Note(it)) }
+                                        }
                                     }
                                 } catch (t: Throwable) {
                                     Log.w(TAG, "decode failed: ${t.message}")
@@ -390,14 +465,13 @@ class HudServer(private val context: Context) {
                     } finally {
                         sender.cancel()
                         Log.i(TAG, "phone disconnected: $remote (#$myConn, $endReason)")
-                        lastEndReason = endReason
-                        lastDisconnectMs = System.currentTimeMillis()
                         // Only surrender the connection state if no newer
                         // connection has taken over since we opened. Otherwise
                         // a slow-timing-out stale handler would wrongly flip the
                         // HUD back to LISTENING while a fresh phone is connected.
                         if (connSeq.get() == myConn) {
                             _peer.value = null
+                            peerAddress = null
                             _status.value = Status.LISTENING
                             liveSession = null
                         }
@@ -407,7 +481,7 @@ class HudServer(private val context: Context) {
         }.start(wait = false)
         server = s
         startMdnsAdvertise()
-        // Beacon re-resolves its own IPv4 each tick now, so we can fire it
+        // Beacon re-resolves its own IPv4 each tick, so we can fire it
         // immediately even when the local IP isn't ready yet -- the first
         // few ticks may be no-ops while DHCP completes and the beacon will
         // pick up the address as soon as it's assigned.
@@ -478,6 +552,7 @@ class HudServer(private val context: Context) {
         try { server?.stop(1_000L, 2_000L) } catch (_: Throwable) {}
         server = null
         _peer.value = null
+        peerAddress = null
         _status.value = Status.LISTENING
         releaseWakeLock()
         releaseWifiLock()
@@ -545,8 +620,9 @@ class HudServer(private val context: Context) {
      * had to reboot the Motoeye (diagnosed from the 2026-06-29 tester log: the
      * HUD's UDP beacon vanished at 07:18:52 and never returned).
      *
-     * Now each tick gathers real radio signals (WiFi association + a probe to
-     * the phone we last talked to) and feeds them to [LinkWatchdog.assess]:
+     * Now each tick gathers the HUD's own radio state (WiFi association and
+     * local IP) plus a loopback probe of the server, and feeds them to
+     * [LinkWatchdog.assess]:
      *   - HEALTHY        -> reset streaks, refresh IP/mDNS, relax cadence.
      *   - SERVER_WEDGED  -> radio fine but listener dead: restart the server
      *                       (the old behaviour, now correctly scoped to the
@@ -684,8 +760,8 @@ class HudServer(private val context: Context) {
     private fun wifiManager(): WifiManager? =
         context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
 
-    /** Keep the on-screen IP + mDNS advertise fresh. Lifted out of the old
-     *  watchdog loop so both the healthy and server-wedged paths share it. */
+    /** Keep the on-screen IP + mDNS advertise fresh. Shared by the healthy
+     *  and server-wedged paths. */
     private fun refreshIpAndMdns() {
         val current = pickLocalIp()
         val prior = _localIp.value

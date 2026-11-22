@@ -64,7 +64,7 @@ fun RadarSection(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (pairedAddress == null) {
-            HintText(stringResource(R.string.radar_caption), small = true)
+            HintText(stringResource(R.string.radar_caption))
             UnpairedRadarCard(
                 scanning = scanning,
                 results = scanResults,
@@ -109,7 +109,14 @@ fun RadarSection(
                     com.eried.eucplanet.ui.common.SearchableText(stringResource(R.string.radar_unpair))
                 }
             }
+        }
 
+        // The overlay settings are the app's, not one radar's, so they can be
+        // set before a radar is paired. Collapsed, so the scan card stays first.
+        AdvancedCollapsable(
+            titleRes = R.string.radar_customize,
+            stateKey = "radar_customize"
+        ) {
             RadarOverlaySettings(viewModel)
         }
     }
@@ -121,7 +128,6 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
     val settings by settingsViewModel.settings.collectAsState()
     val s = settings ?: return
 
-    Spacer(Modifier.height(4.dp))
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -137,7 +143,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
             colors = themedSwitchColors(),
         )
     }
-    HintText(stringResource(R.string.radar_show_overlay_desc), small = true)
+    HintText(stringResource(R.string.radar_show_overlay_desc))
 
     if (s.radarShowOverlay) {
         val sideOptions = listOf(
@@ -264,13 +270,14 @@ private fun PairedRadarCard(
                         color = MaterialTheme.appColors.statusGood
                     )
                 } else {
-                    // Debug-friendly per-target dump so the user can confirm
-                    // the parser works against their actual hardware before
-                    // we commit to the overlay UI. Fixed-height scroll area
+                    // Per-target list so the rider can see what the radar
+                    // reports. Fixed-height scroll area
                     // so the card stays a constant size while threat count
                     // bounces around in demo / busy-road mode.
                     Text(
-                        stringResource(R.string.radar_threats_count, frame.threats.size),
+                        androidx.compose.ui.res.pluralStringResource(
+                            R.plurals.radar_threats_count, frame.threats.size, frame.threats.size
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )

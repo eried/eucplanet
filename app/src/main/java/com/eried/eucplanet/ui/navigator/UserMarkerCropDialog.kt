@@ -59,8 +59,8 @@ import kotlin.math.max
  * "the round head of the marker stays put in the centre of the screen, the
  * rider drags / pinches the photo behind it until the part they want is
  * inside the circle". A dimmed overlay with a transparent hole shows the
- * crop region, and `Apply` renders the visible disk to a 64×64 PNG which
- * the caller saves to settings.
+ * crop region, and `Apply` renders the visible disk to a square bitmap of
+ * `outputSize` px which the caller saves.
  *
  * Constraints we enforce while the user pans / pinches:
  *   * The image must always cover the crop circle, we never let the rider
@@ -82,8 +82,7 @@ fun UserMarkerCropDialog(
      *  larger value so its preview isn't an upscaled, pixelated 64px image. */
     outputSize: Int = 64,
 ) {
-    // Circle diameter on screen, in px, derived from the dialog box width
-    // captured below so the math doesn't fight different screen sizes.
+    // Crop circle radius on screen: fixed 120 dp.
     val density = LocalDensity.current
     val circleRadiusDp = 120.dp
     val circleRadiusPx = with(density) { circleRadiusDp.toPx() }
@@ -233,7 +232,7 @@ fun UserMarkerCropDialog(
                     onClick = {
                         val out = renderCircleCrop(
                             source, scale, offsetX, offsetY,
-                            displayBaseW, displayBaseH, circleRadiusPx, outputSize
+                            displayBaseW, circleRadiusPx, outputSize
                         )
                         onApply(out)
                     },
@@ -251,7 +250,7 @@ fun UserMarkerCropDialog(
 }
 
 /**
- * Renders a 64×64 PNG-ready Bitmap of the circular region the rider chose,
+ * Renders a PNG-ready Bitmap ([outputSize] px square) of the circular region the rider chose,
  * with the alpha mask already burned in so the marker JS can drop the image
  * straight into a CSS background without further compositing.
  *
@@ -270,7 +269,6 @@ private fun renderCircleCrop(
     offsetX: Float,
     offsetY: Float,
     displayBaseW: Float,
-    displayBaseH: Float,
     circleRadiusPx: Float,
     outputSize: Int = 64
 ): Bitmap {
@@ -288,7 +286,7 @@ private fun renderCircleCrop(
     val output = Bitmap.createBitmap(outSize, outSize, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(output)
 
-    // Draw the photo region into the 64×64 output and apply a circular
+    // Draw the photo region into the output and apply a circular
     // alpha mask via DstIn so the result is a proper round avatar.
     val srcRect = Rect(
         (srcCx - srcR).toInt().coerceAtLeast(0),
@@ -307,9 +305,8 @@ private fun renderCircleCrop(
     val maskPath = Path().apply {
         addCircle(outSize / 2f, outSize / 2f, outSize / 2f, Path.Direction.CW)
     }
-    // Easier than building a separate mask bitmap: clipPath does the same
-    // visually for our case (anti-aliased edges), and DST_IN ensures we
-    // really only keep the circular area in the alpha channel.
+    // A circle drawn into an ALPHA_8 mask, applied with DST_IN, keeps only
+    // the round area, with anti-aliased edges.
     val maskBitmap = Bitmap.createBitmap(outSize, outSize, Bitmap.Config.ALPHA_8)
     Canvas(maskBitmap).drawPath(maskPath, Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = android.graphics.Color.BLACK

@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 /**
- * Forecast providers the rider can choose from. Both are keyless: Open-Meteo
+ * Forecast providers the rider can choose from. All are keyless: Open-Meteo
  * needs nothing at all, MET Norway asks only for an identifying User-Agent.
  * Adding a provider is one entry here plus its parser in [WeatherRepository];
  * the settings dropdown and the drift guard read this registry.

@@ -69,8 +69,9 @@ import com.eried.eucplanet.ui.theme.themedSliderColors
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * The "Navigator" settings section: voice guidance, the default travel mode,
- * arrival / off-route thresholds and the (advanced) routing endpoints.
+ * The "Navigator" settings section: route solving, arrival / off-route
+ * thresholds, map and routing endpoints, offline areas, avoidances, the
+ * navigator tiles and weather.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,7 +118,7 @@ fun NavigatorSettingsContent(
                 colors = themedSwitchColors(),
             )
         }
-        HintText(stringResource(R.string.nav_setting_full_path_desc), small = true)
+        HintText(stringResource(R.string.nav_setting_full_path_desc))
 
         // --- Arrival radius + off-route tolerance (half-and-half on one row) ---
         Row(
@@ -150,8 +151,7 @@ fun NavigatorSettingsContent(
         // Both field hints combined on one line.
         HintText(
             stringResource(R.string.nav_setting_arrival_radius_desc) + "  •  " +
-                stringResource(R.string.nav_setting_offroute_desc),
-            small = true
+                stringResource(R.string.nav_setting_offroute_desc)
         )
 
         // --- Advanced map features (on-map charger / places overlays + their
@@ -168,7 +168,7 @@ fun NavigatorSettingsContent(
         // and community fields only matter when the overlays are on, so hide
         // them all when advanced map is off.
         if (endpointsEnabled) {
-            HintText(stringResource(R.string.nav_setting_advanced_map_desc), small = true)
+            HintText(stringResource(R.string.nav_setting_advanced_map_desc))
             EndpointField(
                 label = stringResource(R.string.nav_setting_overpass_url),
                 value = settings.navOverpassUrl,
@@ -218,7 +218,7 @@ fun NavigatorSettingsContent(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
-        HintText(stringResource(R.string.nav_setting_endpoints_hint), small = true)
+        HintText(stringResource(R.string.nav_setting_endpoints_hint))
         EndpointField(
             label = stringResource(R.string.nav_setting_geocoder_url),
             value = settings.navGeocoderUrl,
@@ -317,7 +317,7 @@ fun NavigatorSettingsContent(
             )
         }
         if (avoidExpanded) {
-            HintText(stringResource(R.string.nav_setting_avoid_hint), small = true)
+            HintText(stringResource(R.string.nav_setting_avoid_hint))
             SwitchRow(
                 label = stringResource(R.string.nav_setting_avoid_highways),
                 checked = settings.navAvoidHighways,
@@ -350,7 +350,7 @@ fun NavigatorSettingsContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             SectionHeader(stringResource(R.string.nav_view_tiles))
-            HintText(stringResource(R.string.nav_view_tiles_desc), small = true)
+            HintText(stringResource(R.string.nav_view_tiles_desc))
             tileKeys.indices.chunked(2).forEach { pair ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pair.forEach { i ->
@@ -396,7 +396,7 @@ fun NavigatorSettingsContent(
                 colors = themedSwitchColors(),
             )
         }
-        HintText(stringResource(R.string.weather_enable_desc), small = true)
+        HintText(stringResource(R.string.weather_enable_desc))
         if (settings.weather.enabled) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -416,7 +416,7 @@ fun NavigatorSettingsContent(
             // The source line sits ABOVE its selector, so the block reads as
             // one thought: here is where the numbers come from, here is the
             // picker, here is how far ahead to look.
-            HintText(stringResource(R.string.weather_source_credit), small = true)
+            HintText(stringResource(R.string.weather_source_credit))
             val sources = com.eried.eucplanet.weather.WeatherSource.entries
             var sourceExpanded by remember { mutableStateOf(false) }
             androidx.compose.material3.ExposedDropdownMenuBox(
@@ -470,10 +470,9 @@ fun NavigatorSettingsContent(
                 Spacer(Modifier.weight(1f))
             }
 
-            // Riding preferences: a triple selector per condition, in the same
-            // full-width segmented style as the window selector above. The
-            // comfort thresholds behind them live in Advanced settings under
-            // Weather score. Rain, snow and wind ship disliked.
+            // Riding preferences: a full-width triple segmented selector per
+            // condition. The comfort thresholds behind them live in Advanced
+            // settings under Weather score. Rain, snow and wind ship disliked.
             // In-section subtitle, same style as the nav section's Charger
             // community block: this is part of WEATHER, not a sibling section.
             Text(
@@ -481,7 +480,7 @@ fun NavigatorSettingsContent(
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.appColors.primary,
             )
-            HintText(stringResource(R.string.weather_pref_desc), small = true)
+            HintText(stringResource(R.string.weather_pref_desc))
             val prefOptions = listOf(
                 "DISLIKE" to stringResource(R.string.weather_pref_dislike),
                 "NEUTRAL" to stringResource(R.string.weather_pref_neutral),
@@ -523,14 +522,15 @@ fun NavigatorSettingsContent(
     }
 }
 
-/** Known public Overpass instances; the default first. Same protocol, so they
- *  are interchangeable for the chargers & places query. */
+/** Servers the offline areas can be downloaded from; the default first. */
 private val OFFLINE_SERVER_PRESETS = listOf(
     "EUC Planet mirror (default)" to com.eried.eucplanet.data.model.OfflineRoutingSettings.MIRROR_URL,
     "EUC Planet mirror, GitHub" to com.eried.eucplanet.data.model.OfflineRoutingSettings.GITHUB_MIRROR_URL,
     "brouter.de" to com.eried.eucplanet.data.model.OfflineRoutingSettings.BROUTER_URL,
 )
 
+/** Known public Overpass instances; the default first. Same protocol, so they
+ *  are interchangeable for the chargers & places query. */
 private val OVERPASS_PRESETS = listOf(
     "OpenStreetMap (default)" to "https://overpass-api.de/api/interpreter",
     "OpenStreetMap France" to "https://overpass.openstreetmap.fr/api/interpreter",
@@ -638,33 +638,3 @@ private fun SwitchRow(
     }
 }
 
-@Composable
-private fun SliderRow(
-    label: String,
-    valueText: String,
-    value: Float,
-    range: ClosedFloatingPointRange<Float>,
-    steps: Int,
-    onChange: (Float) -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                valueText,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-        Slider(
-            value = value,
-            onValueChange = onChange,
-            valueRange = range,
-            steps = steps,
-            colors = themedSliderColors(),
-        )
-    }
-}

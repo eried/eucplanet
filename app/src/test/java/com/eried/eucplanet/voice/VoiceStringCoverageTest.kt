@@ -136,6 +136,8 @@ class VoiceStringCoverageTest {
         val copied = mutableListOf<String>()
         for (dir in localeDirs()) {
             if (dir.name == "values") continue
+            // British English is English: the same sentence is the point.
+            if (dir.name == "values-en-rGB") continue
             val strings = stringsIn(dir)
             for (key in sentences) {
                 if (strings[key] == english[key]) copied += "${dir.name}/$key"

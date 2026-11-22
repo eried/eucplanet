@@ -79,6 +79,8 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.MetricRegistry
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.MetricSample
+import com.eried.eucplanet.data.repository.hasAnyData
+import com.eried.eucplanet.data.repository.hasDataFor
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
@@ -166,6 +168,7 @@ fun MetricDetailScreen(
     val tempUnit by viewModel.tempUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
     val pressureUnit by viewModel.pressureUnit.collectAsState()
+    val altitudeUnit by viewModel.altitudeUnit.collectAsState()
 
     // Long-press Reset → confirmation dialog → wipe ALL history buffers.
     var showResetAllConfirm by remember { mutableStateOf(false) }
@@ -239,16 +242,22 @@ fun MetricDetailScreen(
                     tempUnit = tempUnit,
                     distanceUnit = distanceUnit,
                     pressureUnit = pressureUnit,
+                    altitudeUnit = altitudeUnit,
                 )
 
                 Spacer(Modifier.height(16.dp))
 
                 // Reset footer. Tap = reset active tab's metric history;
                 // long-press = open confirm dialog, then wipe ALL buffers.
-                // The old "Reset all" button is gone, collapsed into a
-                // long-press gesture so the toolbar reads cleaner and the
-                // destructive action is harder to fire accidentally.
+                // A long-press keeps the toolbar clean and makes the
+                // destructive action harder to fire accidentally.
+                // Greyed out when the active tab has nothing recorded. The long
+                // press still reaches Reset all while any other metric has data.
+                val canResetActive = remember(fullHistory, activeKey) { fullHistory.hasDataFor(activeKey) }
+                val canResetAll = remember(fullHistory) { fullHistory.hasAnyData() }
                 ResetWithLongPressConfirm(
+                    canResetActive = canResetActive,
+                    canResetAll = canResetAll,
                     onResetActive = { viewModel.resetHistory(activeKey) },
                     onRequestResetAll = { showResetAllConfirm = true }
                 )
@@ -284,9 +293,15 @@ fun MetricDetailScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ResetWithLongPressConfirm(
+    canResetActive: Boolean,
+    canResetAll: Boolean,
     onResetActive: () -> Unit,
     onRequestResetAll: () -> Unit
 ) {
+    // Drawn disabled when the tap has nothing to clear. The gesture stays live
+    // (tap a no-op) while the long press can still clear another metric.
+    val colors = MaterialTheme.appColors
+    val tint = if (canResetActive) colors.primary else colors.textDisabled
     // Wrap so the button sits on the left edge instead of stretching.
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -295,10 +310,11 @@ private fun ResetWithLongPressConfirm(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                .background(tint.copy(alpha = 0.12f))
                 .combinedClickable(
-                    onClick = onResetActive,
-                    onLongClick = onRequestResetAll
+                    enabled = canResetActive || canResetAll,
+                    onClick = { if (canResetActive) onResetActive() },
+                    onLongClick = { if (canResetAll) onRequestResetAll() }
                 )
                 .padding(horizontal = 14.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -307,12 +323,12 @@ private fun ResetWithLongPressConfirm(
                 Icons.Filled.Restore,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.primary
+                tint = tint
             )
             Spacer(Modifier.width(6.dp))
             Text(
                 stringResource(R.string.metric_detail_reset),
-                color = MaterialTheme.colorScheme.primary,
+                color = tint,
                 fontWeight = FontWeight.Medium,
                 fontSize = 13.sp
             )
@@ -329,6 +345,7 @@ private fun MetricDetailBody(
     tempUnit: String,
     distanceUnit: String,
     pressureUnit: String,
+    altitudeUnit: String,
 ) {
     val legacyType: MetricType? = runCatching { MetricType.valueOf(key) }.getOrNull()
     val catalogSpec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key)
@@ -380,7 +397,7 @@ private fun MetricDetailBody(
             // Floored to match the wheel's own display (pressurePsiFloored).
             com.eried.eucplanet.util.Units.pressurePsiFloored(v)
             else com.eried.eucplanet.util.Units.pressure(v, pressureUnit)
-        isAltitudeMetric -> if (distanceUnit == "mi") v * 3.28084f else v
+        isAltitudeMetric -> com.eried.eucplanet.hud.protocol.AltitudeUnit.value(v, altitudeUnit)
         else -> v
     }
 
@@ -397,7 +414,7 @@ private fun MetricDetailBody(
         )
         isDistanceMetric -> com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
         isPressureMetric -> com.eried.eucplanet.util.Units.pressureUnit(pressureUnit)
-        isAltitudeMetric -> if (distanceUnit == "mi") "ft" else "m"
+        isAltitudeMetric -> altitudeUnit
         legacyType == null -> ""
         else -> legacyType.unit
     }
@@ -828,9 +845,8 @@ internal fun MetricGraph(
      */
     showMainLine: Boolean = true,
     /**
-     * Shaded / dotted bands on the left axis, drawn behind the lines on the
-     * shared left-axis bounds. See [GraphBandSpec]. The Packs chart passes one
-     * filled band per pack plus a dotted pack-average envelope.
+     * Shaded bands on the left axis, drawn behind the lines on the shared
+     * left-axis bounds. See [GraphBandSpec].
      */
     bands: List<GraphBandSpec> = emptyList(),
     /**
@@ -1169,10 +1185,10 @@ internal fun MetricGraph(
                 }
             }
 
-            // Prediction line: a dashed straight segment from the last recorded
-            // point to the predicted 100% target. The rider can scrub along it
-            // and read the projected % at any future minute -- a plain linear
-            // extrapolation, drawn under the marker dots so they sit on top.
+            // Prediction path: dashed legs from the last recorded point through
+            // each predicted point. The rider can scrub along it and read the
+            // projected % at any future minute. Drawn under the marker dots so
+            // they sit on top.
             if (predictionPath.isNotEmpty()) {
                 val lastS = samples.last()
                 var prevX = w * (lastS.timestampMs - xMinMs).toFloat() / xSpanMs
@@ -1226,9 +1242,8 @@ internal fun MetricGraph(
                 val tTargetExtended = xMinMs + (frac * xSpanMs.toDouble()).toLong()
                 val inHistory = tTargetExtended <= tN
                 // Value at the cursor time. In the recorded region we interpolate
-                // the samples; past "now" we follow the straight prediction line
-                // to the target (100%); past the target it is null so nothing is
-                // drawn (no more pinning the last recorded % across the future).
+                // the samples; past "now" we follow the prediction legs; past
+                // the last point it is null so nothing is drawn.
                 val value: Float? = when {
                     inHistory -> {
                         val li = samples.indexOfLast { it.timestampMs <= tTargetExtended }.coerceIn(0, samples.size - 1)

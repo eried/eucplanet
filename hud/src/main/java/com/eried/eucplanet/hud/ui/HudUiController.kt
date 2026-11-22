@@ -7,33 +7,26 @@ import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.protocol.HudCommand
 
 /**
- * UI navigation state for the HUD's four-screen carousel.
+ * UI navigation state for the HUD's screen carousel.
  *
  * Held by the Activity (not a ViewModel) because the HUD app never undergoes
  * configuration change, screen is locked landscape, there's no rotation, no
  * dark/light mode toggle, no font-scale toggle from the OS. Keeping it here
  * keeps the screen carousel deterministic between key events.
- *
- * Per-screen "up/down" semantics live on the screen objects themselves
- * (see `Screen.onUp/onDown`) so adding a fifth screen later is one entry in
- * the [screens] list, not a switch statement here.
  */
 class HudUiController {
 
-    /** Stable identity of the screens. The first seven are the
-     *  "default" carousel that ships enabled on every HUD; the rest
-     *  are opt-in via the phone-side Personalize list. */
+    /** Stable identity of the screens. Which ones are enabled, and in
+     *  what order, comes from the phone. */
     enum class Screen {
-        // Default-on
-        Dashboard, Camera, Telemetry, Custom, CustomCam, MapNav,
-        // Opt-in (default OFF, rider enables on the phone)
+        Dashboard, Camera, Telemetry, Custom, CustomCam, CustomMap, MapNav,
         Map, Nav, Power, TripStats, Compass, Safety, BigClock
     }
 
     /** Active carousel, kept observable so when [applyEnabledScreens] swaps
      *  it from a wire frame the N/M counter on the toast updates too.
      *  Starts EMPTY: until the phone ships a real list, the HUD renders a
-     *  "waiting for phone data" splash rather than the compiled default 7.
+     *  "waiting for phone data" splash rather than a compiled default.
      *  This keeps the rider from briefly seeing screens they may have
      *  disabled on the phone every time the HUD reboots. */
     var screens: List<Screen> by mutableStateOf(emptyList())
@@ -46,7 +39,7 @@ class HudUiController {
 
     /** Update the visible screen carousel from a list of stable string
      *  ids (matching enum names). The phone always ships a non-empty list
-     *  (the default 7 if the rider hasn't customised), so an empty list
+     *  (its default set if the rider hasn't customised), so an empty list
      *  here means "no wire frame yet" -- we keep [screens] empty and
      *  [hasReceivedCarousel] false so the splash stays up.
      *
@@ -77,21 +70,6 @@ class HudUiController {
             }
             currentState = value
         }
-
-    /** Monotonic counter bumped by the Activity on every d-pad press so the
-     *  button-action guide overlay can re-show itself even when the screen
-     *  hasn't changed. The overlay keys its show/auto-hide effect on this in
-     *  addition to [current]: a press on a screen the rider is already on
-     *  flashes the guide so they can recall their bound actions without
-     *  switching screens first. */
-    var guidePulse: Int by mutableStateOf(0)
-        private set
-
-    /** Called by the Activity on any d-pad key-down to flash the button-action
-     *  guide overlay (see [guidePulse]). */
-    fun pulseGuide() {
-        guidePulse++
-    }
 
     /** Sub-mode of the dashboard: false = EUC view, true = GPS view. Mirrors
      *  the up/down toggle the competitor's main screen uses. */
@@ -312,7 +290,8 @@ class HudUiController {
     fun upAction() {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = false
-            Screen.Map, Screen.MapNav -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
+            Screen.Map, Screen.MapNav, Screen.CustomMap ->
+                mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
             Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
                 cameraHandedOff = false
                 cameraTakeBack = true
@@ -327,7 +306,8 @@ class HudUiController {
     fun downAction() {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = true
-            Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
+            Screen.Map, Screen.MapNav, Screen.CustomMap ->
+                mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
             Screen.Camera, Screen.CustomCam -> if (cameraHandedOff) {
                 cameraHandedOff = false
                 cameraTakeBack = true
@@ -364,7 +344,7 @@ class HudUiController {
         val left = if (idx > 0) "Prev screen" else null
         val right = if (idx in 0 until screens.size - 1) "Next screen" else null
         val (up, down) = when (current) {
-            Screen.Map, Screen.MapNav -> "Zoom in" to "Zoom out"
+            Screen.Map, Screen.MapNav, Screen.CustomMap -> "Zoom in" to "Zoom out"
             Screen.Dashboard -> "Speed view" to "GPS view"
             Screen.Camera, Screen.CustomCam ->
                 if (cameraHandedOff) "Show camera" to "Show camera" else "Next camera" to "Rotate"
@@ -374,7 +354,7 @@ class HudUiController {
     }
 
     /** Optional sink wired up by HudActivity so the controller can forward
-     *  commands back to the phone over the SSE peer connection. */
+     *  commands back to the phone over the WebSocket. */
     var onCommand: ((HudCommand) -> Unit)? = null
 
     /** Hook for the OK button. Behaviour is screen-dependent:

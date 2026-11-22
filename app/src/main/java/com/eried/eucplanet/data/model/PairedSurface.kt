@@ -31,4 +31,25 @@ data class PairedSurface(
     val updateRateHz: Double = 0.0
 ) {
     enum class Kind { WEAR_OS, GARMIN, AMAZFIT }
+
+    companion object {
+        /**
+         * How long after the last Garmin ALIVE the surface still reads Live.
+         * The watch beats every 1.5 s but skips beats while one of its
+         * transmits is outstanding: 2 to 3 s on a congested link, and up to
+         * 8 s before it gives a lost transmit up. The window has to outlast
+         * that worst gap, or the badge flips to Idle between two beats.
+         */
+        const val GARMIN_LIVE_WINDOW_MS = 10_000L
+
+        /** Same for Amazfit, which polls the phone at most 1 s apart. */
+        const val AMAZFIT_LIVE_WINDOW_MS = 3_000L
+
+        /**
+         * True when the bridge last heard from the watch less than [windowMs]
+         * before [nowMs]. [lastSuccessAtMs] is 0 until the first contact.
+         */
+        fun isLive(lastSuccessAtMs: Long, nowMs: Long, windowMs: Long): Boolean =
+            lastSuccessAtMs > 0L && (nowMs - lastSuccessAtMs) < windowMs
+    }
 }

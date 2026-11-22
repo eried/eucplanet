@@ -12,18 +12,12 @@ import kotlin.math.sin
  *
  * The real P6 BLE protocol differs from V14: every query is wrapped in
  * extended `02 21 [sub]` routing and responses come back as `21 02 [sub|0x80]
- * [data]`. We have BLE captures of a real P6 session locally, but the parser
- * for that format hasn't been written yet (planned for Phase 4 of the
- * multi-wheel work).
+ * [data]`.
  *
- * Until then this simulator pretends the P6 speaks the V14-flavour V2
- * protocol (same wire format the existing parser handles) so the dashboard
- * can show meaningful values on a virtual P6 connection. Speed cap is 25 km/h
- * (the P6's hardware limit) and battery voltage sits around 60 V (its 60 V
- * pack) so the numbers feel right even though the framing is synthetic.
- *
- * When a real P6 parser lands, this simulator gets rewritten to emit the
- * captured extended-routing bytes and exercise that parser end-to-end.
+ * This simulator predates the extended-routing parser and still emits
+ * V14-shaped frames under the P6 model id, so it exercises the V14 path,
+ * not the real P6 dialect. Speed is capped at 25 km/h and the voltage sits
+ * around 60 V; the framing and the numbers are synthetic.
  */
 class P6VirtualWheel : VirtualWheel {
 
@@ -157,9 +151,6 @@ class P6VirtualWheel : VirtualWheel {
         d[63] = 206.toByte() // 30°C
         d[74] = if (locked) 0x00 else 0x01
         d[76] = if (lightOn) 0x02 else 0x00
-        // TPMS tire pressure: u16le kPa at body[78] (high byte 0), ~2.0 bar /
-        // 29 psi with a slow wobble so the metric visibly moves.
-        putInt16LE(d, 78, (200 + 10 * sin(elapsed / 1000.0 * 2 * PI / 30)).toInt())
 
         return InMotionV2Protocol.buildPacket(0x14, Command.REAL_TIME_INFO, d)
     }

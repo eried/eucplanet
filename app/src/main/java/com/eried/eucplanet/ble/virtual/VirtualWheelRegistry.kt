@@ -1,8 +1,8 @@
 package com.eried.eucplanet.ble.virtual
 
 /**
- * Registry of available virtual wheels: the two InMotion generations plus a
- * Begode; S18 and Lynx follow as their simulators land. The pseudo-address
+ * Registry of the virtual wheels (InMotion V14, P6, V6, V8S, Begode Master,
+ * KingSong 18XL). The pseudo-address
  * "VIRTUAL:<id>" is what BleConnectionManager.connect() recognises to route
  * to the simulator instead of real GATT.
  */

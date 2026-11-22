@@ -3,7 +3,7 @@ package com.eried.eucplanet.hud.protocol
 /**
  * The map layers the app can draw, in one place.
  *
- * The same seven were spelled out four times over - the navigator's Leaflet
+ * The same layers were spelled out four times over - the navigator's Leaflet
  * table, trip details' Leaflet table, the Studio's tile fetcher and the HUD's
  * tile cache - which is how a layer ends up on one screen and not another, or
  * credited on one and not another. Everything about a layer now lives on its

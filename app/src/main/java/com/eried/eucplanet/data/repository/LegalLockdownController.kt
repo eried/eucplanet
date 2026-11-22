@@ -75,8 +75,6 @@ class LegalLockdownController(
      */
     fun isEngaged(): Boolean = _engaged.value
 
-    fun isArmed(): Boolean = _armed.value
-
     /**
      * Called by [WheelRepository] every time legal mode turns on.
      *

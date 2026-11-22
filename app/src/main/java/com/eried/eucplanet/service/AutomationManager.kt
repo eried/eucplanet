@@ -2,12 +2,10 @@ package com.eried.eucplanet.service
 
 import android.content.Context
 import android.media.AudioManager
-import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
 import com.eried.eucplanet.audio.AudioOutput
 import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -32,9 +30,6 @@ class AutomationManager(
         /** Walking pace, the headlight's own default for the same idea. */
         const val BEEP_STOPPED_BELOW_KMH = 5f
         private const val TAG = "AutomationManager"
-        // Below this multiplier we treat manual volume changes as direct baseline edits
-        // (avoids divide-by-near-zero amplification when standing still).
-        private const val MIN_REBASE_MULTIPLIER = 0.05f
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -51,14 +46,9 @@ class AutomationManager(
     // evaluateVolume so restoreBaselineVolume() can put it back without suspending.
     @Volatile private var cachedBaselinePercent: Int = -1
 
-    // Media control state. mediaAutoPaused = this feature paused playback and may
-    // resume it; we never resume media the rider paused themselves. The candidate
-    // timestamps implement the "hold past the line" debounce (0 = the condition is
-    // not currently met).
-    @Volatile private var mediaAutoPaused: Boolean = false
-    // The rules themselves live in MediaControlPolicy, where they are tested.
+    // Media control state. The rules themselves live in MediaControlPolicy,
+    // where they are tested.
     private var mediaState = MediaControlPolicy.State()
-    private var rateState = PlaybackRatePolicy.State()
     private var lightSlowState = HeadlightSlowPolicy.State()
 
     /** True once the rider has actually ridden since connecting. Keeps the
@@ -218,10 +208,6 @@ class AutomationManager(
         evaluateBeepVolume(settings)
         val mc = settings.mediaControl
         if (!lockedDown && (mc.pauseEnabled || mc.resumeEnabled)) evaluateMediaControl(settings)
-        // Media speed control is parked: it needs notification access the app
-        // no longer asks for, and most players ignored the rate anyway. The
-        // evaluation below is left intact for whoever revives it.
-        // if (!lockedDown) evaluatePlaybackRate(settings)
         // lockEnabled is the whole feature's switch; unlockEnabled is a
         // sub-option of it, and the settings screen only draws the unlock
         // switch while this one is on. Gating on either used to keep the
@@ -345,13 +331,7 @@ class AutomationManager(
         // Manual change detection: if the system volume isn't what we last wrote, the user moved
         // the slider since our previous tick. Rebase the baseline.
         if (lastWrittenSystemVol != -1 && systemVol != lastWrittenSystemVol) {
-            val newBaseline = if (multiplier >= MIN_REBASE_MULTIPLIER) {
-                (systemPercent / multiplier).roundToInt().coerceIn(0, 100)
-            } else {
-                // Near-zero multiplier (typically standstill): treat manual change as a direct
-                // baseline edit. Dividing by ~0 would explode.
-                systemPercent.roundToInt().coerceIn(0, 100)
-            }
+            val newBaseline = (systemPercent / multiplier).roundToInt().coerceIn(0, 100)
             if (newBaseline != baseline) {
                 Log.i(TAG, "Auto-volume baseline rebased: $baseline% -> $newBaseline% " +
                     "(manual=${systemPercent.roundToInt()}%, multiplier=${"%.2f".format(multiplier)})")
@@ -384,7 +364,7 @@ class AutomationManager(
      * dead-band that prevents rapid flipping; on top of that the speed must hold past
      * the line for [MediaControlPolicy.HOLD_MS] before we act, so a brief GPS / speed blip
      * is ignored. Resume only ever restarts playback THIS feature paused
-     * ([mediaAutoPaused]), so speeding up never starts music the rider deliberately
+     * ([MediaControlPolicy.State.autoPaused]), so speeding up never starts music the rider deliberately
      * stopped.
      */
     @Synchronized
@@ -411,7 +391,6 @@ class AutomationManager(
             connected = true,
         )
         mediaState = step.state
-        mediaAutoPaused = step.state.autoPaused
         when (step.action) {
             MediaControlPolicy.Action.PAUSE -> {
                 sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
@@ -425,21 +404,6 @@ class AutomationManager(
         }
     }
 
-    /**
-     * Dispatch a media-button key (down+up) to whatever app owns the active media
-     * session - the same mechanism the Flic / notification action buttons use.
-     */
-    /**
-     * Playback rate follows speed, for players that accept one.
-     *
-     * Two things can silently make this a no-op and neither is our doing: the
-     * rider may not have granted notification access (without it the session
-     * list is empty), and the player may not implement a rate at all. Spotify
-     * does not; most Media3 apps do. A session that does advertises
-     * ACTION_SET_PLAYBACK_SPEED, so only those are touched, and only while
-     * they are actually playing - setting a rate on a paused session changes
-     * nothing the rider can hear and wakes its UI for no reason.
-     */
     /** The shared gate, reading this manager's live wheel state. The decision
      *  itself lives in [ApplyWhenGate] so it can be tested without a wheel. */
     private fun applyWhenAllows(mode: String): Boolean = ApplyWhenGate.allows(
@@ -448,72 +412,21 @@ class AutomationManager(
         speedKmh = wheelRepository.wheelData.value.speed.absoluteValue,
     )
 
-    private fun evaluatePlaybackRate(settings: AppSettings) {
-        if (!applyWhenAllows(settings.mediaControl.rateApplyWhen)) return
-        val curve = parseVolumeCurve(settings.mediaControl.rateCurve)
-        if (curve.isEmpty()) return
-        val speed = wheelRepository.wheelData.value.speed.absoluteValue
-        val target = pchipInterpolate(curve, speed)
-        val step = PlaybackRatePolicy.step(rateState, target, System.currentTimeMillis())
-        val rate = step.rate ?: return
-        rateState = step.state
-        applyPlaybackRate(rate)
-    }
-
-    /** Sends [rate] to every playing session that accepts one; returns how many. */
-    private fun applyPlaybackRate(rate: Float): Int {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
-        val mgr = runCatching {
-            context.getSystemService(android.media.session.MediaSessionManager::class.java)
-        }.getOrNull() ?: return 0
-        val listener = android.content.ComponentName(
-            context, com.eried.eucplanet.service.MediaAccessService::class.java
-        )
-        // Throws SecurityException when notification access is not granted,
-        // which is the normal state until the rider grants it.
-        val sessions = runCatching { mgr.getActiveSessions(listener) }.getOrNull() ?: return 0
-        var sent = 0
-        for (c in sessions) {
-            val st = c.playbackState ?: continue
-            if (st.state != android.media.session.PlaybackState.STATE_PLAYING) continue
-            // Advertising ACTION_SET_PLAYBACK_SPEED is a manual step the app
-            // has to remember, and some that implement the callback never do
-            // it. Sending anyway costs nothing - a session that does not
-            // handle it simply ignores the call - so the flag is used to
-            // explain what happened, not to decide whether to try.
-            val advertises = (st.actions and
-                android.media.session.PlaybackState.ACTION_SET_PLAYBACK_SPEED) != 0L
-            runCatching { c.transportControls.setPlaybackSpeed(rate) }
-                .onSuccess {
-                    sent++
-                    Log.i(
-                        TAG,
-                        "Media speed: sent ${"%.2f".format(java.util.Locale.US, rate)}x to " +
-                            "${c.packageName} (advertised=$advertises, reported=${st.playbackSpeed})",
-                    )
-                }
-                .onFailure { Log.w(TAG, "setPlaybackSpeed failed for ${c.packageName}", it) }
-        }
-        if (sessions.isNotEmpty() && sent == 0) {
-            Log.i(TAG, "Media speed: nothing playing among ${sessions.map { it.packageName }}")
-        }
-        return sent
-    }
+    // Speed-linked playback rate was tried here and removed, because it never
+    // worked reliably. The only route to another app's rate is
+    // MediaController.TransportControls.setPlaybackSpeed, reached through
+    // MediaSessionManager.getActiveSessions(), and that call refuses any app
+    // that is not an enabled notification listener. So it needed a
+    // NotificationListenerService in the manifest and the rider granting
+    // notification access in system settings. Even with that granted most
+    // players ignore the call: YouTube Music and Spotify never implemented
+    // onSetPlaybackSpeed. Pause and resume work because a media key goes
+    // through AudioManager with no permission at all; there is no key for rate.
 
     /**
-     * Back to normal speed, once.
-     *
-     * Without this a rider who ends a ride at 1.3x keeps listening at 1.3x
-     * for the rest of the day and has to hunt for the control in their
-     * player. Called wherever media state is reset.
+     * Dispatch a media-button key (down+up) to whatever app owns the active media
+     * session - the same mechanism the Flic / notification action buttons use.
      */
-    fun resetPlaybackRate() {
-        if (rateState.lastSent > 0f && rateState.lastSent != PlaybackRatePolicy.NORMAL) {
-            applyPlaybackRate(PlaybackRatePolicy.NORMAL)
-        }
-        rateState = PlaybackRatePolicy.State()
-    }
-
     private fun sendMediaKey(keyCode: Int) {
         runCatching {
             audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
@@ -528,9 +441,7 @@ class AutomationManager(
      */
     @Synchronized
     fun resetMediaControl() {
-        mediaAutoPaused = false
         mediaState = MediaControlPolicy.State()
-        resetPlaybackRate()
     }
 
     /**

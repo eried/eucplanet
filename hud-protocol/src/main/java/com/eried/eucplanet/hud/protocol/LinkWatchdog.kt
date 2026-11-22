@@ -91,11 +91,11 @@ data class LinkHealth(
 
 /** What [LinkWatchdog.assess] decided about the link this tick. */
 enum class LinkVerdict {
-    /** Associated, has an IP, and (if known) the peer answers. Reset streaks. */
+    /** Associated, has an IP, and the server answers. Reset streaks. */
     HEALTHY,
     /** Radio is fine but the Ktor listener is wedged: restart the server only. */
     SERVER_WEDGED,
-    /** Off the air -- no IP, no association, or the peer is unreachable. The
+    /** Off the air -- no IP or no association. The
      *  radio must be reassociated; a server restart would not help. */
     OFF_AIR,
 }

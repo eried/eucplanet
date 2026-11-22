@@ -326,6 +326,7 @@ jobs:
               -o "$OUT" \
               -y /tmp/ciq/dev_key.der \
               -d "$d" \
+              -r \
               -w
           done
           (cd /tmp/prgs && zip -q "/tmp/out/garmin-${{ needs.meta.outputs.version }}-prgs.zip" *.prg)

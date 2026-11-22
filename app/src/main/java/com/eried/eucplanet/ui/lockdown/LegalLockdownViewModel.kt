@@ -85,6 +85,6 @@ class LegalLockdownViewModel(
      */
     fun onLightToggle() = wheelRepository.toggleLight()
 
-    /** True on a correct code. The screen shows the error and starts the cooldown on false. */
+    /** True on a correct code. The dialog closes either way, a wrong code shows nothing. */
     suspend fun tryUnlock(pin: String): Boolean = lockdown.tryDisarm(pin)
 }

@@ -23,8 +23,9 @@ import kotlin.math.abs
  * Car-odometer-style running trip meter, independent of the recording feature.
  *
  * Counts distance while a wheel is CONNECTED (not just while recording),
- * persists across app restarts / wheel power-downs, and is cleared only by a
- * manual [reset] or by Stop All (which also calls [reset]). Reuses the recorder's
+ * persists across app restarts / wheel power-downs, and is cleared only by the
+ * detail screen's [reset], or by Stop All and Reset metrics through
+ * [resetAndPersist]. Reuses the recorder's
  * per-tick distance approach (GPS-primary, wheel-odometer fallback) but never
  * touches the recorder's state, so counting keeps running with no trip active.
  *

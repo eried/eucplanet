@@ -24,7 +24,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.eried.eucplanet.data.model.ApplyWhenIds
 import com.eried.eucplanet.data.model.ActionUi
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.dispatchAction
@@ -162,13 +161,6 @@ class MainActivity : AppCompatActivity() {
         appHealthRepository.refreshPermissionWarnings(
             pipRequested = pipWanted,
             phoneHudRequested = hudWanted,
-            // Same shape: the rider asked for a feature whose permission is
-            // granted outside the app. Unlike PIP and the overlay this one is
-            // NOT switched back off, because notification access is a trip to
-            // system settings the rider may well be making right now.
-            mediaRateRequested =
-                s?.mediaControl?.rateApplyWhen.orEmpty()
-                    .let { it.isNotEmpty() && it != ApplyWhenIds.NEVER },
         )
         if (pipBlocked || hudBlocked) {
             lifecycleScope.launch {
@@ -211,20 +203,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Pinging both watch bridges on every resume rather than only at process
-     * start makes auto-launch reliable: opening the phone app brings the watch
-     * app to the foreground each time, even if the watch service was killed for
-     * memory after the previous session. On Garmin this now fires Connect IQ's
-     * openApplication() (a one-time "Always" consent on the watch, then
-     * automatic), so the Garmin path below is a real launch, not a no-op.
-     */
-    /**
-     * Shrink into picture-in-picture as the rider leaves, the way a video app
-     * does. Off unless asked for, and from any screen but the Overlay Studio:
-     * PIP swaps in its own face, so where the rider happened to be does not
-     * change what the little window shows.
-     */
-    /**
      * What the PIP window shows. Two faces, picked by the rider: four large
      * readings, or the gauge beside their own dashboard metrics.
      */
@@ -261,6 +239,13 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
+    /**
+     * Shrink into picture-in-picture as the rider leaves, the way a video app
+     * does. Off unless asked for, and from any screen but the Overlay Studio:
+     * PIP swaps in its own face, so where the rider happened to be does not
+     * change what the little window shows.
+     */
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         // Every branch below says why it did nothing. PIP failing looks
@@ -318,6 +303,12 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread { micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) }
         }
         ensureWatchMapService(_settings.value)
+        // Pinging both watch bridges on every resume rather than only at process
+        // start makes auto-launch reliable: opening the phone app brings the watch
+        // app to the foreground each time, even if the watch service was killed for
+        // memory after the previous session. On Garmin this fires Connect IQ's
+        // openApplication() (a one-time "Always" consent on the watch, then
+        // automatic), so the Garmin call is a real launch, not a no-op.
         wearBridge.pingWatchToWake()
         garminBridge.pingWatchToWake()
         // Catch permission flips done in Settings while the app was in the
@@ -420,10 +411,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // The launchMode is "standard"; a second SEND will start a new
-        // task. This onNewIntent handles the case where Android delivers
-        // the intent to an already-running instance instead (singleTop
-        // semantics, which we get when the rider just shared again).
+        // MainActivity is singleTask, so a share or link that arrives while
+        // it is running lands here instead of in onCreate.
         consumeShareIntent(intent)
         consumeWeatherIntent(intent)
         consumeChargingIntent(intent)
@@ -484,8 +473,13 @@ class MainActivity : AppCompatActivity() {
         // composed, so the dialog always lands on top of a real UI.
 
         lifecycleScope.launch {
+            // True for the first settings emission this activity sees. Counted
+            // here, not read off _settings being null: the synchronous seed
+            // below usually fills _settings before the first emission lands.
+            var firstEmission = true
             settingsRepository.settings.collect {
-                val first = _settings.value == null
+                val first = firstEmission
+                firstEmission = false
                 // Session-only theme widget: on the first load of a fresh process,
                 // clear any persisted "on" (and mask this emission so it never
                 // flashes on). In-session toggles after this pass through normally.
@@ -513,12 +507,10 @@ class MainActivity : AppCompatActivity() {
                 setShowWhenLocked(it.phoneShowOverLockScreen)
                 // Detect a default app language as soon as we see a blank
                 // `settings.language`, not only on the very first settings
-                // emission. The synchronous seed above sets _settings.value
-                // before this collect runs, so `first` is already false here
-                // and the original gate never fired -- on a clean install the
-                // app would end up with language="" and an empty picker. The
-                // process-level languageReconciled flag stops this re-firing
-                // every time settings update.
+                // emission, so a language that turns up blank later (a reset,
+                // a restored file) is filled in too and the picker is never
+                // empty. The process-level languageReconciled flag stops this
+                // re-firing every time settings update.
                 if (it.language.isBlank() && !languageReconciled) {
                     languageReconciled = true
                     val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
@@ -544,8 +536,7 @@ class MainActivity : AppCompatActivity() {
                     // Reconcile to whatever AppCompatDelegate actually has
                     // applied so the in-app language picker shows the truth,
                     // not a stale column. The blank-language path is handled
-                    // separately above so on a clean install the picker is
-                    // populated regardless of whether `first` ever fires.
+                    // separately above.
                     if (it.language.isNotBlank()) {
                         val applied = com.eried.eucplanet.util.LocaleHelper.current()
                         if (applied.isNotBlank()) {
@@ -566,16 +557,10 @@ class MainActivity : AppCompatActivity() {
                 )
                 // Deliberately outside the `first` gate above.
                 //
-                // `first` is always false here: the synchronous seed below sets
-                // _settings.value before this collector ever runs, which is the
-                // same trap the language reconciliation had to be lifted out of.
-                // Left inside, the service was only ever started from the
-                // permission-request callback, so on every launch after the one
-                // where the rider granted permissions there was no service - and
-                // therefore no Phone HUD, no HUD companion server, no keep-alive
-                // and no always-on voice, until something else happened to start
-                // it. Out here it is also re-evaluated when the rider switches
-                // one of those on mid-session, instead of at the next launch.
+                // The service carries the Phone HUD, the HUD companion server,
+                // keep-alive and always-on voice. Evaluated on every emission so
+                // it starts on each launch and also when the rider switches one
+                // of those on mid-session, instead of at the next launch.
                 //
                 // Gated on permission because Android 14+ crashes startForeground
                 // with location/connectedDevice types if neither perm is granted.
@@ -660,11 +645,6 @@ class MainActivity : AppCompatActivity() {
                     // action hooks (toggle units, mute, reset trip), nav actions
                     // run synchronously on the click thread and don't need it.
                     val overlayScope = androidx.compose.runtime.rememberCoroutineScope()
-                    // When a Share-to-app intent dropped a pending stop into
-                    // the repository (see consumeShareIntent), jump straight
-                    // to the route builder. The Builder's own LaunchedEffect
-                    // then consumes the request and either drops the pin or
-                    // surfaces a snackbar.
                     // A charge alert was tapped before the graph existed;
                     // now it does, so honour it.
                     val pendingCharge by com.eried.eucplanet.ui.charging
@@ -694,6 +674,11 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    // When a Share-to-app intent dropped a pending stop into
+                    // the repository (see consumeShareIntent), jump straight
+                    // to the route builder. The Builder's own LaunchedEffect
+                    // then consumes the request and either drops the pin or
+                    // surfaces a snackbar.
                     val pendingShare by incomingShareRepository.pending
                         .collectAsState()
                     androidx.compose.runtime.LaunchedEffect(pendingShare) {
@@ -899,9 +884,6 @@ class MainActivity : AppCompatActivity() {
                                                 }
                                             }
                                             override fun resetMetrics() {
-                                                // Was sending only the wheel command and
-                                                // dropping the answer, so on a family without
-                                                // one this button did nothing and said nothing.
                                                 overlayScope.launch { metricsReset.resetAll() }
                                             }
                                         },
@@ -922,13 +904,6 @@ class MainActivity : AppCompatActivity() {
                         if (s?.themeEditorEnabled == true) {
                             com.eried.eucplanet.ui.theme.ThemeEditorWidget()
                         }
-                        // Radar mini lane lives inside DashboardScreen now,
-                        // mounted directly in the dial Box. Keeping the radar
-                        // visible only while the rider is on the dashboard
-                        // matches where their eyes already are and avoids
-                        // fighting other screens (navigator, studio, settings)
-                        // for the screen-edge gutter.
-
                         // Root-level snackbar host for app-global transient
                         // messages posted from background code (services,
                         // repositories, the OAuth intent handler) via
@@ -1130,7 +1105,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     append(':').append(s?.hudServerPort ?: 28080).append('\n')
                     append("screens:  ").append(s?.hudScreensEnabled?.ifBlank { "(default)" } ?: "(default)").append('\n')
-                    append("map:      ").append(s?.hudMapStyle?.ifBlank { "(default)" } ?: "(default)")
+                    append("map:      ").append(s?.hudDisplay?.mapStyle?.ifBlank { "(default)" } ?: "(default)")
                 }
             )
         )

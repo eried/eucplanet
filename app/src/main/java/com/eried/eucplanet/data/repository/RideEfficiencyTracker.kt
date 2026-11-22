@@ -68,7 +68,7 @@ class RideEfficiencyTracker {
 
     companion object {
         /** A single 1 Hz step larger than this is a counter reset or a garbled
-         *  odometer frame, not 3.6 km/s of riding. */
+         *  odometer frame, not 3600 km/h of riding. */
         const val MAX_STEP_KM = 1f
 
         /** Longest a standing wheel holds its last window before the tiles go

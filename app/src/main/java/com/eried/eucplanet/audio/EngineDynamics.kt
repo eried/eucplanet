@@ -7,7 +7,7 @@ import kotlin.math.sqrt
 
 /**
  * The virtual engine's motion: turns the wheel's (speed, pwm) ticks into the
- * smoothed [EngineParams] the synth and the sampled players render. Pure
+ * smoothed [EngineParams] that [EngineSynth] renders. Pure
  * Kotlin with no Android in it, so the same model runs on the phone inside
  * [EngineSoundEngine] and offline in the ride renderer that writes WAVs for
  * listening tests.
@@ -197,13 +197,6 @@ class EngineDynamics {
         }
         val rpmRange = profile.maxRpm - profile.idleRpm
         return profile.idleRpm + rpmRange * (0.65f * baseFrac + 0.35f * load)
-    }
-
-    /** Where the sampled players sit in the rev band right now, 0..1. */
-    fun rpmNorm(nowMs: Long): Float {
-        val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
-        val effRpm = smoothedRpm + revDetector.currentBump(nowMs)
-        return ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
     }
 
     private fun snapshot(nowMs: Long): EngineParams {

@@ -71,9 +71,9 @@ class AlarmEvaluator {
      * rules to fire this tick. [onNoReading] controls what a null reading does.
      *
      * Two firing modes:
-     *  - [metricPriority] EMPTY (legacy / radar): every metric fires its own
-     *    most-severe fireable rule independently -- multiple metrics can sound at
-     *    once. Exactly the previous behaviour.
+     *  - [metricPriority] EMPTY (radar, external GPS, phone GPS): every metric
+     *    fires its own most-severe fireable rule independently, so several
+     *    metrics can sound at once.
      *  - [metricPriority] NON-EMPTY (wheel alarms): the metric groups are a
      *    priority list (highest first). At most ONE rule fires per tick -- the
      *    most-severe fireable rule of the highest-priority group that's ready.
@@ -198,11 +198,5 @@ class AlarmEvaluator {
     fun prune(activeRuleIds: Set<Long>, activeMetrics: Set<String>) {
         ruleState.keys.removeAll { it !in activeRuleIds }
         sampleBuffers.keys.removeAll { it !in activeMetrics }
-    }
-
-    /** Clear all state (e.g. on disconnect). Test hook too. */
-    fun reset() {
-        ruleState.clear()
-        sampleBuffers.clear()
     }
 }

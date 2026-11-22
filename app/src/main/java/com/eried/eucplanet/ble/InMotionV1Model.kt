@@ -3,7 +3,7 @@ package com.eried.eucplanet.ble
 /**
  * Models in the InMotion V1 protocol family: the older V8 / V10 / V5 / L6
  * generation that pre-dates the V14-era V2 wire format. The wheel reports its
- * model code as two ASCII digits at offsets 104 and 107 of the slow-info reply
+ * model code as two bytes at offsets 104 and 107 of the slow-info reply
  * (see docs/protocols/inmotion_v1.md section 5.1); the two bytes are
  * concatenated as `[byte107 if > 0][byte104]` and looked up here.
  *
@@ -48,11 +48,8 @@ enum class InMotionV1Model(
     /** V8 / V8F / V8S / Glide 3 share the V8-class (84 V) battery curve. */
     val isV8Family: Boolean get() = modelId in setOf(80, 85, 86, 87)
 
-    /** L6 mileage at offset 44 is u64 in centimetres; everything else is u32 in metres. */
+    /** L6 mileage at offset 44 is in units of 100 m; everything else is u32 in metres. */
     val isL6: Boolean get() = modelId == 60
-
-    /** R0 mileage at offset 44 is u64 in metres. */
-    val isR0: Boolean get() = modelId == 30
 
     /**
      * V8F / V8S / V10 family say they are charging in the work mode: high
@@ -74,18 +71,9 @@ enum class InMotionV1Model(
 
     companion object {
         /**
-         * Decode the wheel's model code from the two ASCII bytes returned at
-         * offsets 104 and 107 of the slow-info reply. Per spec 5.1 the value
-         * is `[byte107 if > 0][byte104]` parsed as a decimal integer; bytes
-         * are ASCII digits, so we mask to 0..9 and pack high*10 + low.
-         *
-         * NOTE: with two ASCII digits we can only express ids 0..99. The V10
-         * family (ids 100, 101, 140-143) is documented in spec 5.1 but
-         * unreachable here because the spec offsets only specify two bytes.
-         * V10/V10F/V10S/V10T/V10FT wheels are still identified at connect
-         * time via [fromReportedName] from the BLE-advertised name, so the
-         * dashboard does the right thing in practice. Lift this if a labelled
-         * capture clarifies whether a third digit lives at another offset.
+         * Decode the wheel's model code from slow-info bytes 104 ([low]) and
+         * 107 ([high]). They are raw decimal numbers: id = high * 100 + low,
+         * so 143 arrives as high 1, low 43.
          */
         fun fromCarType(low: Int, high: Int): InMotionV1Model? {
             // The bytes are raw decimal numbers, not packed BCD. For id

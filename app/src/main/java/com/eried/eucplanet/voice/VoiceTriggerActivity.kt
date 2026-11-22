@@ -3,8 +3,6 @@ package com.eried.eucplanet.voice
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
-import com.eried.eucplanet.R
-import com.eried.eucplanet.util.AppNotifier
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 
@@ -30,8 +28,6 @@ class VoiceTriggerActivity : ComponentActivity() {
 
     val voiceCommands: VoiceCommandController = get()
 
-    val appNotifier: AppNotifier = get()
-
     val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository = get()
 
     val actions: com.eried.eucplanet.flic.FlicManager = get()
@@ -55,10 +51,5 @@ class VoiceTriggerActivity : ComponentActivity() {
             }
         }
         finish()
-    }
-
-    companion object {
-        /** For the diagnostics log, so a headset press is distinguishable. */
-        const val SOURCE = "headset"
     }
 }

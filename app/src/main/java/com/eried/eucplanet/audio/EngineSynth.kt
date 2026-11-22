@@ -88,7 +88,6 @@ class EngineSynth(
     private val tick = Resonator()
     private val crackleBand = Resonator()
     private var brakePhase: Double = 0.0
-    private var gearPhase: Double = 0.0
 
     // --- SYNTH state ---
     private var oscPhase: Double = 0.0
@@ -166,13 +165,6 @@ class EngineSynth(
     fun preload(profile: EngineProfile) {
         val asset = profile.grainAsset ?: return
         if (!banks.containsKey(asset)) banks[asset] = grainLoader?.invoke(asset)
-    }
-
-    /** True when the profile is a recorded engine whose bank is available. */
-    fun hasBank(profile: EngineProfile): Boolean {
-        val asset = profile.grainAsset ?: return false
-        preload(profile)
-        return banks[asset] != null
     }
 
     private fun renderGrains(
@@ -464,7 +456,7 @@ class EngineSynth(
                     crackEnv += amp
                 }
             }
-            // Each bank's pulse: pressure minus its front (so it rises in a third of a
+            // Each bank's pulse: pressure minus its front (so it rises in a fifth of a
             // millisecond however fast the engine fires), minus the undershoot that follows.
             var exciteSum = 0f
             for (b in 0..1) {
@@ -747,7 +739,7 @@ class EngineSynth(
         pendLeft.fill(0)
         combustion = 0f
         oscPhase = 0.0; osc2Phase = 0.0; subPhase = 0.0; lfoPhase = 0.0; lfo2Phase = 0.0
-        brakePhase = 0.0; gearPhase = 0.0
+        brakePhase = 0.0
         spooledNorm = -1f
         whinePhases.fill(0.0)
         lpf1 = 0f; lpf2 = 0f

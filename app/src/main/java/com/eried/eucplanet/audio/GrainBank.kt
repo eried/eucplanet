@@ -38,7 +38,6 @@ class GrainBank(
     )
 
     val lowestHz: Float get() = bands.first().hz
-    val highestHz: Float get() = bands.last().hz
 
     companion object {
         private const val MAGIC = 0x45554347   // "EUCG"

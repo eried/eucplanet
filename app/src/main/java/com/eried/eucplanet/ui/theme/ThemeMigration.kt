@@ -1,8 +1,7 @@
 package com.eried.eucplanet.ui.theme
 
 /**
- * Resolved active theme: the tokens to render plus the bookkeeping the combo
- * needs (display name, whether it's an unsaved working draft).
+ * What [ThemeMigration.migrate] returns. The caller reads only [name].
  */
 data class ResolvedTheme(
     val colors: AppThemeColors,

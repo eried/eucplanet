@@ -17,29 +17,9 @@ import java.net.InterfaceAddress
 import java.net.NetworkInterface
 
 /**
- * Symmetric discovery counterpart to [HudUdpBeacon]: the HUD itself listens
- * for "phone here" UDP broadcasts AND sends an explicit "phone, please
- * connect" beacon back. This converts discovery from one-way (HUD shouts,
- * phone listens) to two-way -- if the HUD's broadcast is filtered on the
- * phone's wifi driver but the phone's own broadcast goes through, the
- * phone learns the HUD's IP from the *source address* of the inbound
- * "ping me" packet.
- *
- * The HUD also walks every reachable subnet and TCP-pokes each host on the
- * Ktor port; first responder is the phone (or whatever device happens to
- * listen there -- harmless either way, the WebSocket handshake will reject
- * a non-EUCPlanet peer). The TCP probe wakes up phones whose firewall
- * filters inbound UDP broadcast but accepts incoming TCP from a known LAN
- * source.
- *
- * Failure mode this addresses: rider on a hotspot whose AP blocks
- * client-to-client broadcast outright. Phone won't see HUD's UDP beacon.
- * But the HUD's TCP probe to phone's own listening socket can still
- * complete (most APs allow client-to-client UNICAST even when they block
- * broadcast).
- *
- * Diagnostic counters surface on the HUD screen so the rider can verify
- * which channel is active.
+ * Broadcasts a `role=hud-probe` packet every interval, next to the
+ * [HudUdpBeacon] announce, so the phone can learn the HUD's address from
+ * the packet source.
  */
 class HudPhoneFinder(
     private val intervalMs: Long = HudDiscovery.BEACON_INTERVAL_MS,
@@ -47,17 +27,7 @@ class HudPhoneFinder(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
 
-    /** Diagnostic snapshot. */
-    @Volatile var lastSeenPhoneIp: String = ""; private set
-    @Volatile var lastSeenPhoneAtMs: Long = 0L; private set
-    @Volatile var udpProbesSent: Long = 0L; private set
-
-    /**
-     * Continuously broadcasts a small "looking for phone" packet and keeps
-     * scanning the local /24 so that, even on a hostile network where the
-     * phone's UDP listener is shadowed, the HUD has a fighting chance of
-     * making the rider's link work.
-     */
+    /** Continuously broadcasts a small "looking for phone" packet. */
     fun start() {
         stop()
         job = scope.launch {
@@ -82,7 +52,6 @@ class HudPhoneFinder(
                                 DatagramPacket(payload, payload.size, target,
                                     HudDiscovery.BEACON_UDP_PORT)
                             )
-                            udpProbesSent++
                         }.onFailure {
                             Log.v(TAG, "probe to $target failed: ${it.message}")
                         }
@@ -98,16 +67,6 @@ class HudPhoneFinder(
     fun stop() {
         job?.cancel()
         job = null
-    }
-
-    /**
-     * Called when a real WebSocket pair is established -- lets diagnostics
-     * remember the last successful phone IP across reconnects.
-     */
-    fun notePhone(ip: String) {
-        if (ip.isBlank()) return
-        lastSeenPhoneIp = ip
-        lastSeenPhoneAtMs = System.currentTimeMillis()
     }
 
     private fun broadcastTargets(): List<InetAddress> {

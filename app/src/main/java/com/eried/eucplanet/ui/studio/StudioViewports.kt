@@ -77,13 +77,11 @@ private const val MIN_PANE = 0.12f
 /**
  * Pane rectangles for [layout] given current [dividers] (clamped, ordered).
  * The layout is fixed; it does not transpose with device orientation, so the
- * geometry the rider picked is exactly what records. ([landscape] is kept for
- * call-site compatibility but no longer changes the result.)
+ * geometry the rider picked is exactly what records.
  */
 fun paneRects(
     layout: ViewportLayout,
-    dividers: List<Float>,
-    landscape: Boolean = false
+    dividers: List<Float>
 ): List<PaneRect> {
     fun d(i: Int, fallback: Float) = dividers.getOrNull(i)?.coerceIn(MIN_PANE, 1f - MIN_PANE)
         ?: fallback
@@ -135,8 +133,9 @@ fun paneRects(
  * Draws the viewport panes, the divider lines, and, when [editable], the
  * per-pane source button and the divider handles. In live mode each pane
  * shows its camera/solid/gradient/image source; in [replayMode] it shows the
- * pane's replay face instead (transparent/solid/gradient/image/video, video
- * decoded from [videoHub] at [replayCursorMs]).
+ * pane's replay face instead (transparent/solid/gradient/image/video; video
+ * plays through [ReplayVideoPlayer] at [replayCursorMs], [videoHub] only
+ * supplies the clip length).
  */
 @Composable
 fun StudioViewportLayer(
@@ -151,13 +150,20 @@ fun StudioViewportLayer(
     replaySpeed: Float = 1f,
     /**
      * Offscreen export shim: when non-null, a VIDEO replay face draws
-     * `prebuiltVideoFrame(paneIndex)` instead of decoding from [videoHub].
+     * `prebuiltVideoFrame(paneIndex)` instead of running a player.
      * The export loop resolves every pane's frame on the producing side (for
      * that export frame's cursor position) so the offscreen frame clock never
-     * calls into the retriever. Null (the live/on-screen default) keeps the
-     * existing hub-decode behavior.
+     * calls into the retriever. Null (the live/on-screen default) plays the
+     * clip through [ReplayVideoPlayer].
      */
     prebuiltVideoFrame: ((Int) -> ImageBitmap?)? = null,
+    /**
+     * Offscreen export only, beside [prebuiltVideoFrame]: what the pane's VIDEO
+     * face shows on this export frame (the clip, black, or the No-media
+     * placeholder), resolved on the producing side so the export matches the
+     * on-screen replay. Null for a pane that has no VIDEO face.
+     */
+    prebuiltVideoFill: (Int) -> ReplayVideoFill? = { null },
     onDividerChange: (List<Float>) -> Unit,
     onConfigViewport: (Int) -> Unit,
     onConfigDivider: () -> Unit,
@@ -182,8 +188,7 @@ fun StudioViewportLayer(
         val h = maxHeight
         val widthPx = constraints.maxWidth.toFloat().coerceAtLeast(1f)
         val heightPx = constraints.maxHeight.toFloat().coerceAtLeast(1f)
-        val landscape = LocalStudioRotation.current.let { it == 90 || it == 270 }
-        val rects = paneRects(preset.layout, preset.dividers, landscape)
+        val rects = paneRects(preset.layout, preset.dividers)
 
         rects.forEachIndexed { index, r ->
             val config = preset.viewports.getOrNull(index)
@@ -205,7 +210,7 @@ fun StudioViewportLayer(
                 if (replayMode) {
                     ReplayFacePane(
                         config?.replay, videoHub, replayCursorMs, index,
-                        prebuiltVideoFrame, replayPlaying, replaySpeed
+                        prebuiltVideoFrame, prebuiltVideoFill, replayPlaying, replaySpeed
                     )
                 } else {
                     when (config?.source) {
@@ -235,7 +240,6 @@ fun StudioViewportLayer(
             preset = preset,
             widthPx = widthPx,
             heightPx = heightPx,
-            landscape = landscape,
             editable = paneEditable,
             onDividerChange = onDividerChange,
             onConfigDivider = onConfigDivider
@@ -247,7 +251,7 @@ fun StudioViewportLayer(
  * Renders one pane's REPLAY face: transparent (nothing, the editor checkerboard
  * shows through), a static solid/gradient/image (the same renderers the live
  * face uses, colour-grade/zoom neutral since replay faces don't carry them), or
- * a video frame decoded from [videoHub] at the current [cursorMs]. `null`
+ * the video face at the current [cursorMs] (see [ReplayVideoPane]). `null`
  * (no replay face configured yet) reads as transparent, matching the default
  * on old presets.
  */
@@ -258,6 +262,7 @@ private fun ReplayFacePane(
     cursorMs: Long,
     paneIndex: Int,
     prebuiltVideoFrame: ((Int) -> ImageBitmap?)?,
+    prebuiltVideoFill: (Int) -> ReplayVideoFill?,
     replayPlaying: Boolean,
     replaySpeed: Float
 ) {
@@ -279,7 +284,7 @@ private fun ReplayFacePane(
         ReplaySourceType.VIDEO ->
             ReplayVideoPane(
                 face, videoHub, cursorMs, paneIndex,
-                prebuiltVideoFrame, replayPlaying, replaySpeed
+                prebuiltVideoFrame, prebuiltVideoFill, replayPlaying, replaySpeed
             )
     }
 }
@@ -290,14 +295,17 @@ private fun ReplayFacePane(
  * - Offscreen export ([prebuiltVideoFrame] non-null): the frame for [paneIndex]
  *   was already resolved on the producing side (via [StudioVideoHub.frameAt], a
  *   frame-accurate offline decode) for this export frame's cursor, so it is drawn
- *   as-is. null = nothing (out of range / no clip). This path never touches a
+ *   as-is, and so was the pane's [ReplayVideoFill] ([prebuiltVideoFill]). A null
+ *   frame draws nothing unless the fill says black. This path never touches a
  *   player and keeps export deterministic.
  * - Interactive preview (on-screen): a real [ReplayVideoPlayer] (ExoPlayer into a
  *   TextureView) that plays with the replay clock and seeks while scrubbing. The
  *   retriever is only consulted for [StudioVideoHub.durationMs] to compute the
  *   clip window; the edge behavior (freeze/loop/black) is resolved here.
  *
- * A missing/unbound/invalid clip shows the No-media placeholder in both paths.
+ * Both paths take the same [replayVideoFill] decision, so they agree: a pane
+ * with no clip bound, or one that cannot be read, shows the No-media placeholder
+ * on screen and in every exported frame, and a Black edge is black in both.
  */
 @Composable
 private fun ReplayVideoPane(
@@ -306,34 +314,37 @@ private fun ReplayVideoPane(
     cursorMs: Long,
     paneIndex: Int,
     prebuiltVideoFrame: ((Int) -> ImageBitmap?)?,
+    prebuiltVideoFill: (Int) -> ReplayVideoFill?,
     replayPlaying: Boolean,
     replaySpeed: Float
 ) {
     if (prebuiltVideoFrame != null) {
         val frame = prebuiltVideoFrame(paneIndex)
-        if (frame != null) {
-            Image(
+        val fill = prebuiltVideoFill(paneIndex)
+        when {
+            fill == ReplayVideoFill.NO_MEDIA -> ReplayNoMediaPane()
+            frame != null -> Image(
                 bitmap = frame,
                 contentDescription = null,
                 contentScale = contentScaleOf(face.videoFit),
                 modifier = Modifier.fillMaxSize()
             )
-        } else {
-            Box(Modifier.fillMaxSize())
+            fill == ReplayVideoFill.BLACK -> Box(Modifier.fillMaxSize().background(Color.Black))
+            else -> Box(Modifier.fillMaxSize())
         }
         return
     }
     val uri = face.videoUri
-    if (uri == null || videoHub == null || videoHub.isInvalid(uri)) {
-        Box(Modifier.fillMaxSize().background(MaterialTheme.appColors.surface), Alignment.Center) {
-            PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_video_no_media))
-        }
+    val usable = uri != null && videoHub != null && !videoHub.isInvalid(uri)
+    val duration = if (usable && uri != null && videoHub != null) videoHub.durationMs(uri) else 0L
+    val fill = replayVideoFill(usable, cursorMs, face.videoOffsetMs, duration, face.videoEdge)
+    if (uri == null || fill == ReplayVideoFill.NO_MEDIA) {
+        ReplayNoMediaPane()
         return
     }
     // Resolve the clip window + the video time to show. The player stays mounted
     // even out of range (avoids re-preparing on every boundary crossing): FREEZE
     // clamps to the nearest frame, LOOP wraps, BLACK clamps too but gets a scrim.
-    val duration = videoHub.durationMs(uri)
     val into = cursorMs - face.videoOffsetMs
     val inWindow = duration > 0L && into in 0L..duration
     val loop = face.videoEdge == "LOOP"
@@ -355,9 +366,21 @@ private fun ReplayVideoPane(
             fit = face.videoFit,
             modifier = Modifier.fillMaxSize()
         )
-        if (!inWindow && face.videoEdge == "BLACK") {
+        if (fill == ReplayVideoFill.BLACK) {
             Box(Modifier.fillMaxSize().background(Color.Black))
         }
+    }
+}
+
+/**
+ * The "No media" placeholder of a VIDEO replay face with no usable clip. One
+ * composable for the on-screen replay and the offscreen export, so the exported
+ * frames carry exactly what the rider saw.
+ */
+@Composable
+private fun ReplayNoMediaPane() {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.appColors.surface), Alignment.Center) {
+        PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_video_no_media))
     }
 }
 
@@ -670,7 +693,8 @@ private fun PaneButton(icon: ImageVector, modifier: Modifier, onClick: () -> Uni
         Icon(
             icon,
             contentDescription = null,
-            // Themed chip: light surface in light theme, primary-tinted icon, // consistent with the selected-element config wrench.
+            // Themed chip: light surface in light theme, primary-tinted icon,
+            // consistent with the selected-element config wrench.
             tint = MaterialTheme.appColors.primary,
             modifier = Modifier
                 .size(18.dp)
@@ -688,7 +712,6 @@ private fun BoxWithConstraintsScope.DividerLayer(
     preset: OverlayPreset,
     widthPx: Float,
     heightPx: Float,
-    landscape: Boolean,
     editable: Boolean,
     onDividerChange: (List<Float>) -> Unit,
     onConfigDivider: () -> Unit

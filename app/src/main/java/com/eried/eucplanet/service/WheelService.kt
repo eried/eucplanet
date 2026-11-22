@@ -156,6 +156,8 @@ class WheelService : LifecycleService() {
     private var tempUnitCached: String = "C"
     @Volatile
     private var pressureUnitCached: String = "bar"
+    @Volatile
+    private var altitudeUnitCached: String = "m"
     // Widget layout, mirrored so the painter can run off a telemetry frame
     // without suspending.
     @Volatile
@@ -169,18 +171,16 @@ class WheelService : LifecycleService() {
     @Volatile
     private var widgetStandaloneCached: String =
         com.eried.eucplanet.data.model.WidgetActionType.DEFAULT_KEYS
-    @Volatile
-    private var phoneBatteryCached: Int = 0
     // Last paired wheel's name, mirrored from settings so the notification can
     // show it (Tesla-style) without suspending - used when no wheel is actively
     // connected (e.g. while "Connecting" or after a drop).
     @Volatile
     private var lastDeviceNameCached: String? = null
-    // Notification quick-action config, mirrored from settings so the
-    // notification builder can read it without suspending.
     // Mirrored so the widget painter can read it without suspending.
     @Volatile
     private var voicePeriodicCached: Boolean = false
+    // Notification quick-action config, mirrored from settings so the
+    // notification builder can read it without suspending.
     @Volatile
     private var notifActionsEnabledCached: Boolean = true
     @Volatile
@@ -201,6 +201,7 @@ class WheelService : LifecycleService() {
         com.eried.eucplanet.data.repository.ExternalGpsRepository = get()
     val navigationEngine: com.eried.eucplanet.nav.NavigationEngine = get()
     val hudServer: com.eried.eucplanet.service.hud.HudServer = get()
+    val engoHudRenderer: com.eried.eucplanet.service.hud.engo.EngoHudRenderer = get()
     val radarRepository: com.eried.eucplanet.data.repository.RadarRepository = get()
     val phoneHudWindow: com.eried.eucplanet.service.overlay.PhoneHudWindow = get()
     val legalLockdown: com.eried.eucplanet.data.repository.LegalLockdownController = get()
@@ -327,7 +328,8 @@ class WheelService : LifecycleService() {
 
         voiceService.initialize()
 
-        // Update notification + check alarms + automations on telemetry updates.
+        // Update the notification, widget, Phone HUD and automations on telemetry
+        // updates. Alarms are evaluated in WheelRepository.
         // Off the main thread: a frame builds a notification, paints the widget
         // and copies the Phone HUD history, none of which needs the UI thread,
         // and at BLE rate it was competing with Compose for it. wheelData is a
@@ -359,6 +361,7 @@ class WheelService : LifecycleService() {
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             var hudWasOn = false
+            var engoLinkedTo: String? = null
             var watchMapWasEnabled: Boolean? = null
             settingsRepository.settings.collect { s ->
                 // Notification builder reads the speed unit without suspending;
@@ -367,6 +370,7 @@ class WheelService : LifecycleService() {
                 distanceUnitCached = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s)
                 tempUnitCached = com.eried.eucplanet.util.Units.effectiveTempUnit(s)
                 pressureUnitCached = com.eried.eucplanet.util.Units.effectivePressureUnit(s)
+                altitudeUnitCached = com.eried.eucplanet.util.Units.effectiveAltitudeUnit(s)
                 widgetMetricsCached = s.widget.metrics
                 widgetActionsCached = s.widget.actions
                 widgetStandaloneCached = s.widget.standaloneActions
@@ -422,6 +426,15 @@ class WheelService : LifecycleService() {
                 if (effective != hudWasOn) {
                     if (effective) hudServer.start() else hudServer.stop()
                     hudWasOn = effective
+                }
+                // ENGO glasses HUD: independent BLE output, started on its own toggle.
+                // Linked to the paired glasses while the link is on; a new
+                // pair, Disconnect or Forget device ends the old link first.
+                val engoTarget = s.engoHud.pairedAddress?.takeIf { s.engoHud.enabled }
+                if (engoTarget != engoLinkedTo) {
+                    if (engoLinkedTo != null) engoHudRenderer.stop()
+                    if (engoTarget != null) engoHudRenderer.start(engoTarget)
+                    engoLinkedTo = engoTarget
                 }
                 val previousWatchMapEnabled = watchMapWasEnabled
                 if (s.watchMap.enabled != previousWatchMapEnabled) {
@@ -754,12 +767,7 @@ class WheelService : LifecycleService() {
                 // Gate notify() BEFORE removing the notification, so a telemetry /
                 // nav emission racing this teardown can't re-post it afterwards.
                 shuttingDown = true
-                @Suppress("DEPRECATION")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                } else {
-                    stopForeground(true)
-                }
+                stopForeground(STOP_FOREGROUND_REMOVE)
                 // Belt-and-braces: explicitly cancel by id in case an update
                 // slipped in just before shuttingDown latched.
                 getSystemService(NotificationManager::class.java)
@@ -826,6 +834,7 @@ class WheelService : LifecycleService() {
         try { phoneHudWindow.hide() } catch (_: Exception) {}
         synchronized(phoneHudHistory) { phoneHudHistory.clear() }
         try { hudServer.stop() } catch (_: Exception) {}
+        try { engoHudRenderer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
         // Restore the rider's media volume if speed-based auto-volume scaled it
@@ -1256,15 +1265,6 @@ class WheelService : LifecycleService() {
     private var widgetPlaced = false
     private var widgetPlacedCheckedMs = 0L
 
-    /** Paints the widget in the rider's own units, one entry per configured
-     *  slot. [data] null paints the disconnected state. */
-    /**
-     * Repaint the widget from whatever is true right now.
-     *
-     * For the state changes that are not telemetry: with no wheel connected no
-     * frame is coming, so a caller that changes recording or lock state has to
-     * ask for the repaint itself.
-     */
     /**
      * Put the Phone HUD window up or take it down to match the settings.
      *
@@ -1317,14 +1317,6 @@ class WheelService : LifecycleService() {
     }
 
     /**
-     * Feed the Phone HUD, throttled well below the telemetry rate.
-     *
-     * A window-manager view recomposing at BLE frame rate for a whole ride is
-     * real battery for no visible gain, and the HUD renderer has already been
-     * pushed into ANR territory by exactly that. The live G-force trail is left
-     * out for the same reason: it is a 1100-sample buffer at IMU rate.
-     */
-    /**
      * While Service Mode is recording, log the GPS fix as its own observation.
      *
      * The log is worth reading because every line is something that actually
@@ -1353,6 +1345,14 @@ class WheelService : LifecycleService() {
         DiagnosticsLogger.note("gps %s: %.2f km/h%s".format(source, speed, accuracy))
     }
 
+    /**
+     * Feed the Phone HUD, throttled well below the telemetry rate.
+     *
+     * A window-manager view recomposing at BLE frame rate for a whole ride is
+     * real battery for no visible gain, and the HUD renderer has already been
+     * pushed into ANR territory by exactly that. The live G-force trail is left
+     * out for the same reason: it is a 1100-sample buffer at IMU rate.
+     */
     private fun pushPhoneHud(rawData: WheelData) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the overlay updates
         if (!phoneHudWindow.isShowing) return
@@ -1419,11 +1419,19 @@ class WheelService : LifecycleService() {
                 distanceUnit = distanceUnitCached,
                 tempUnit = tempUnitCached,
                 pressureUnit = pressureUnitCached,
+                altitudeUnit = altitudeUnitCached,
                 clockTimeMs = now,
             )
         )
     }
 
+    /**
+     * Repaint the widget from whatever is true right now.
+     *
+     * For the state changes that are not telemetry: with no wheel connected no
+     * frame is coming, so a caller that changes recording or lock state has to
+     * ask for the repaint itself.
+     */
     private fun renderWidgetFromCurrentState() {
         renderWidget(
             wheelRepository.wheelData.value.takeIf {
@@ -1432,6 +1440,8 @@ class WheelService : LifecycleService() {
         )
     }
 
+    /** Paints the widget in the rider's own units, one entry per configured
+     *  slot. [data] null paints the disconnected state. */
     private fun renderWidget(data: WheelData?, placedKnown: Boolean = false) {
         if (legalLockdown.isEngaged()) return  // lockdown stops the widgets
         if (!placedKnown && !com.eried.eucplanet.widget.EucWidget.isPlaced(this)) return
@@ -1447,6 +1457,13 @@ class WheelService : LifecycleService() {
         val captions = ArrayList<String>(metricKeys.size)
         fun unitFor(type: com.eried.eucplanet.data.model.WidgetMetricType): String =
             com.eried.eucplanet.widget.WidgetMetricFormat.unit(this, type, speedUnit, distUnit, tempUnit)
+        // The phone's own charge, read once per repaint (at most 1 Hz) and only
+        // when a slot shows it. An in-memory system read, no sticky broadcast.
+        val phoneBattery by lazy(LazyThreadSafetyMode.NONE) {
+            (getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager)
+                ?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
+                ?.coerceIn(0, 100) ?: 0
+        }
 
         metricKeys.forEach { key ->
             val type = com.eried.eucplanet.data.model.WidgetMetricType.byKey(key)
@@ -1463,7 +1480,7 @@ class WheelService : LifecycleService() {
                 return@forEach
             }
             val v = com.eried.eucplanet.widget.WidgetMetricFormat.value(
-                type, data, speedUnit, distUnit, tempUnit, phoneBatteryCached
+                type, data, speedUnit, distUnit, tempUnit, phoneBattery
             )
             values.add(v)
             captions.add(getString(type.pickerLabel) + if (unit.isBlank()) "" else " ($unit)")

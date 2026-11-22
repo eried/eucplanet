@@ -125,4 +125,47 @@ class SettingsShortcutsTest {
             }.map { it.name }
         assertTrue("locales missing conflict strings: $missing", missing.isEmpty())
     }
+
+    @Test fun `the HUD app card and its resend question show both versions`() {
+        val screen = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
+        val card = screen.substringAfter("private fun HudAppCard(").substringBefore("if (confirmRemove)")
+        assertTrue("the phone's own version only shows for an older HUD",
+            !card.contains("if (older) {"))
+        val dialog = card.substringAfter("if (confirmResend)")
+        assertTrue("the resend question does not show the two versions",
+            dialog.contains("HudAppVersions("))
+        // One column of names, one of versions, so the versions line up.
+        val rows = screen.substringAfter("private fun HudAppVersions(").substringBefore("private fun HudAppCard(")
+        assertTrue("the two versions are not in a column of their own",
+            rows.contains("R.string.hud_app_installed") && rows.contains("R.string.hud_app_available") &&
+                Regex("Column").findAll(rows).count() == 2)
+    }
+
+    @Test fun `with a HUD linked its app card slides in and the find-the-HUD setup folds away`() {
+        val screen = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
+        val section = screen.substringAfter("private fun HudIntegrationSection(").substringBefore("R.string.hud_server_enabled")
+        assertTrue("the HUD app card pops in instead of sliding",
+            Regex("""AnimatedVisibility\(visible = pairedHudVersion != null && hudTakesApp\) \{\s*HudAppCard\(viewModel\)""")
+                .containsMatchIn(section))
+        val setup = section.substringAfter("AnimatedVisibility(visible = pairedHudVersion == null)", "")
+        assertTrue("discovery mode and the address stay on screen while a HUD is linked",
+            setup.contains("R.string.hud_discovery_mode") && setup.contains("R.string.hud_ip_label"))
+        // The switch that drops the link must never fold away with them.
+        assertTrue("the link switch went into the folded part",
+            screen.substringAfter("// end AnimatedVisibility for the find-the-HUD setup").take(900)
+                .contains("R.string.hud_server_enabled"))
+    }
+
+    @Test fun `the HUD app card says where the HUD was reached and how`() {
+        val screen = File("src/main/java/com/eried/eucplanet/ui/settings/SettingsScreen.kt").readText()
+        val card = screen.substringAfter("private fun HudAppCard(").substringBefore("if (confirmResend)")
+        assertTrue("the card no longer shows the HUD address",
+            card.contains("viewModel.hudPeer") && card.contains("connected = connected"))
+        // Every way of finding it by itself reads Auto, the typed address Fixed.
+        assertTrue("how the HUD was found is not told in the Discovery mode words",
+            card.contains("R.string.hud_discovery_auto") && card.contains("R.string.hud_discovery_fixed"))
+        val server = File("src/main/java/com/eried/eucplanet/service/hud/HudServer.kt").readText()
+        assertTrue("the address shown is not the one the link uses",
+            server.contains("set(value) { _peer.value = value }"))
+    }
 }

@@ -128,19 +128,20 @@ import java.util.Locale
  * Everything behind the navigator's Share button.
  *
  * Not in a ride yet, the button opens a short list of what it can mean
- * ([ShareMenuDialog], built like the trip tools dialog): three of the four
- * things a rider wants from that icon are one tap of work (scan a friend's QR,
- * send a Maps pin, copy the coordinates) and only the fourth opens a group. A
- * dialog that asked "how do you want to appear?" before the rider had said
- * what they were doing put the identity question in front of all four.
+ * ([ShareMenuDialog], built like the trip tools dialog): four of the five
+ * things a rider wants from that icon are one tap of work (scan a code, show
+ * the route as a QR, send a Maps pin, copy the coordinates) and only one opens
+ * a group. A dialog that asked "how do you want to appear?" before the rider
+ * had said what they were doing put the identity question in front of all five.
  *
  * That list leads to [ShareScannerDialog] (the camera), then to
  * [ShareIdentityDialog] (how the group sees this rider), which is also where
  * "start a group ride" goes directly. Once in a ride the button opens
  * [ShareGroupDialog]: the QR to hand out on one tab, who is in on the other.
  *
- * Every dialog here keeps dismissOnClickOutside off, so a stray tap on the map
- * behind cannot drop a half-typed name or a room link the rider is reading.
+ * The scanner, identity and group dialogs keep dismissOnClickOutside off, so a
+ * stray tap on the map behind cannot drop a half-typed name or a room link the
+ * rider is reading.
  *
  * Controls are the app's canonical ones, not local copies: the identity picker
  * is [SegmentedChoice] (the 56 dp row with the notched label every settings
@@ -418,6 +419,11 @@ internal fun ShareDialogCard(
      *  surface. The tab row is part of the card's chrome rather than a second
      *  strip stacked on it, so the two read as one block with one bottom edge. */
     header: (@Composable () -> Unit)? = null,
+    /** Puts an X at the end of the title row. For a card whose body has no
+     *  Cancel or Close of its own in every state, like the crew pass scanner:
+     *  without it the only way out was the system back, which an iPhone does
+     *  not have. */
+    onClose: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
@@ -454,7 +460,14 @@ internal fun ShareDialogCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        // The X brings its own 48dp touch target, so the row
+                        // gives back the vertical padding it would double.
+                        .padding(
+                            start = 16.dp,
+                            end = if (onClose != null) 4.dp else 16.dp,
+                            top = if (onClose != null) 0.dp else 12.dp,
+                            bottom = if (onClose != null) 0.dp else 12.dp,
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
@@ -468,7 +481,11 @@ internal fun ShareDialogCard(
                         title,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.appColors.textPrimary,
+                        modifier = Modifier.weight(1f),
                     )
+                    if (onClose != null) {
+                        com.eried.eucplanet.ui.common.CloseIconButton(onClick = onClose)
+                    }
                 }
                 header?.invoke()
             }
@@ -490,7 +507,7 @@ internal fun ShareDialogCard(
 }
 
 /**
- * The Share button's window when the rider is not in a ride: four things the
+ * The Share button's window when the rider is not in a ride: five things the
  * icon can mean, each said in one line with the detail under it.
  *
  * Built exactly like the trip tools dialog (same [ToolRow] rows, same 12 dp
@@ -606,15 +623,6 @@ fun ShareMenuDialog(
     )
 }
 
-/**
- * The camera, as its own window.
- *
- * It used to be a tab of the start dialog, which meant the camera came up
- * whenever the rider was only trying to start a ride of their own. Behind its
- * own menu item it is opened by a rider who is holding a phone up at a
- * friend's screen and nothing else, so it is the whole window: a live square
- * and one way out.
- */
 /** What the one scanner can find. */
 sealed class ScannedCode {
     data class Join(val link: ShareLink) : ScannedCode()
@@ -625,6 +633,10 @@ internal fun parseScannedCode(raw: String): ScannedCode? =
     com.eried.eucplanet.nav.RouteLinks.parse(raw.trim())?.let { ScannedCode.Route(it) }
         ?: parseShareText(raw)?.let { ScannedCode.Join(it) }
 
+/**
+ * The camera, as its own window: a live square and one way out. It reads a
+ * group ride to join or a route to open.
+ */
 @Composable
 fun ShareScannerDialog(
     onLink: (ShareLink) -> Unit,
@@ -644,7 +656,10 @@ fun ShareScannerDialog(
             // landscape the body has to be able to scroll to reach Cancel.
             scrollable = true,
         ) {
-            val crewPass = stringResource(R.string.share_scan_is_crewpass)
+            // Names the tab by its own title, as share_profile_missing does, so the
+            // sentence follows a rename of the tab instead of naming one that is gone.
+            val crewPass = stringResource(
+                R.string.share_scan_is_crewpass, stringResource(R.string.tab_cloud))
             QrScannerArea(
                 parse = { parseScannedCode(it) },
                 onFound = { code ->
@@ -1071,9 +1086,8 @@ enum class GroupTab { QR, CONNECTED }
  *
  * They were one long column, which meant the riders sat under a full-width QR
  * and were reached by scrolling past it every single time. Tabs put the two
- * jobs side by side, and the selected one is remembered only while the dialog
- * is open: reopening lands on the QR again, because a rider who reopens this
- * mid-ride is usually showing it to someone.
+ * jobs side by side, and the selected one is kept for the app run (see
+ * [initialTab]).
  */
 @Composable
 fun ShareGroupDialog(

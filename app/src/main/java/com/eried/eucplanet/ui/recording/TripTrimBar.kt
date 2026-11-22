@@ -37,6 +37,7 @@ import com.eried.eucplanet.ui.studio.formatReplayClock
 import com.eried.eucplanet.ui.studio.handlePentagon
 import com.eried.eucplanet.ui.theme.appColors
 import kotlin.math.abs
+import com.eried.eucplanet.ui.theme.themedTextButtonColors
 
 /** Matches the half width [handlePentagon] draws, so the track can inset by it. */
 private const val HANDLE_HALF_WIDTH_PX = 16f
@@ -240,14 +241,20 @@ fun TripTrimBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            TextButton(onClick = onReset, shape = RoundedCornerShape(12.dp)) {
+            val trimmed = startMs > 0L || endMs < dur
+            // Greyed while the whole ride is already shown, nothing to reset.
+            TextButton(
+                onClick = onReset,
+                enabled = trimmed,
+                colors = themedTextButtonColors(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
                 Text(stringResource(R.string.studio_replay_trim_reset))
             }
             // The span is the button that opens the exact-times editor, styled
             // exactly as Overlay Studio styles its own: parenthesised and in the
             // accent colour, which is what makes it read as tappable rather than
             // as a plain readout. Untrimmed it says "(full trip)", same as there.
-            val trimmed = startMs > 0L || endMs < dur
             Text(
                 if (trimmed)
                     "( ${formatReplayClock(startMs)}  -  ${formatReplayClock(endMs)} )"

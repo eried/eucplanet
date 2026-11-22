@@ -57,6 +57,10 @@ public final class NodesCache {
 
   private boolean directWeaving = !Boolean.getBoolean("disableDirectWeaving");
 
+  // EUC Planet: RoutingEngine.terminate() sets this, so a stopped run also
+  // ends while it reads segments (matching its stops), not only in its search.
+  public volatile boolean terminated;
+
   public String formatStatus() {
     return "collecting=" + garbageCollectionEnabled + " noGhosts=" + ghostCleaningDone + " cacheSum=" + cacheSum + " cacheSumClean=" + cacheSumClean + " ghostSum=" + ghostSum + " ghostWakeup=" + ghostWakeup;
   }
@@ -155,6 +159,7 @@ public final class NodesCache {
   }
 
   public MicroCache getSegmentFor(int ilon, int ilat) {
+    if (terminated) throw new IllegalArgumentException("operation killed while reading segments");
     try {
       int lonDegree = ilon / 1000000;
       int latDegree = ilat / 1000000;

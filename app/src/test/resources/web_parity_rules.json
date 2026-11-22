@@ -1,0 +1,266 @@
+{
+ "_about": "What eucstats, the EUC Planet app and the Trip Viewer agree on for languages and units. tests/test_parity.py holds the site to it. Change this file only together with the other two projects.",
+ "languages": {
+  "bg": "Български",
+  "cs": "Čeština",
+  "da": "Dansk",
+  "de": "Deutsch",
+  "el": "Ελληνικά",
+  "en": "English (US)",
+  "en-GB": "English (UK)",
+  "es": "Español (ES)",
+  "es-419": "Español (LA)",
+  "fi": "Suomi",
+  "fr": "Français",
+  "hu": "Magyar",
+  "id": "Bahasa Indonesia",
+  "it": "Italiano",
+  "ja": "日本語",
+  "ko": "한국어",
+  "nl": "Nederlands",
+  "no": "Norsk",
+  "pl": "Polski",
+  "pt-BR": "Português (BR)",
+  "pt-PT": "Português (PT)",
+  "ro": "Română",
+  "ru": "Русский",
+  "sk": "Slovenčina",
+  "sv": "Svenska",
+  "th": "ไทย",
+  "tr": "Türkçe",
+  "uk": "Українська",
+  "vi": "Tiếng Việt",
+  "zh": "中文 (简体)",
+  "zh-TW": "中文 (繁體)"
+ },
+ "language_mapping": [
+  [
+   "en",
+   "en"
+  ],
+  [
+   "en-US",
+   "en"
+  ],
+  [
+   "en-CA",
+   "en"
+  ],
+  [
+   "en-GB",
+   "en-GB"
+  ],
+  [
+   "en-UK",
+   "en-GB"
+  ],
+  [
+   "en-IE",
+   "en-GB"
+  ],
+  [
+   "en-AU",
+   "en-GB"
+  ],
+  [
+   "en-NZ",
+   "en-GB"
+  ],
+  [
+   "en-ZA",
+   "en-GB"
+  ],
+  [
+   "en-IN",
+   "en-GB"
+  ],
+  [
+   "es",
+   "es"
+  ],
+  [
+   "es-ES",
+   "es"
+  ],
+  [
+   "es-419",
+   "es-419"
+  ],
+  [
+   "es-MX",
+   "es-419"
+  ],
+  [
+   "es-AR",
+   "es-419"
+  ],
+  [
+   "es-CL",
+   "es-419"
+  ],
+  [
+   "es-US",
+   "es-419"
+  ],
+  [
+   "es-PR",
+   "es-419"
+  ],
+  [
+   "pt",
+   "pt-BR"
+  ],
+  [
+   "pt-BR",
+   "pt-BR"
+  ],
+  [
+   "pt-PT",
+   "pt-PT"
+  ],
+  [
+   "pt-AO",
+   "pt-PT"
+  ],
+  [
+   "pt-MZ",
+   "pt-PT"
+  ],
+  [
+   "zh",
+   "zh"
+  ],
+  [
+   "zh-CN",
+   "zh"
+  ],
+  [
+   "zh-TW",
+   "zh-TW"
+  ],
+  [
+   "zh-Hant",
+   "zh-TW"
+  ],
+  [
+   "zh-HK",
+   "zh-TW"
+  ],
+  [
+   "zh-MO",
+   "zh-TW"
+  ],
+  [
+   "nb",
+   "no"
+  ],
+  [
+   "nn",
+   "no"
+  ],
+  [
+   "no",
+   "no"
+  ],
+  [
+   "nb-NO",
+   "no"
+  ],
+  [
+   "in",
+   "id"
+  ],
+  [
+   "id",
+   "id"
+  ],
+  [
+   "id-ID",
+   "id"
+  ],
+  [
+   "de-AT",
+   "de"
+  ],
+  [
+   "fr-CA",
+   "fr"
+  ],
+  [
+   "ja-JP",
+   "ja"
+  ],
+  [
+   "zh-Hant-TW",
+   "zh-TW"
+  ],
+  [
+   "zh-Hant-HK",
+   "zh-TW"
+  ],
+  [
+   "zh-Hans-CN",
+   "zh"
+  ],
+  [
+   "zh-SG",
+   "zh"
+  ]
+ ],
+ "units": {
+  "cookie": "euc_units",
+  "format": "<distance>-<temperature>-<altitude>",
+  "codes": [
+   "km-c-m",
+   "km-c-ft",
+   "km-f-m",
+   "km-f-ft",
+   "mi-c-m",
+   "mi-c-ft",
+   "mi-f-m",
+   "mi-f-ft"
+  ],
+  "default": "km-c-m",
+  "default_by_timezone": {
+   "America/New_York": "mi-f-ft",
+   "America/Los_Angeles": "mi-f-ft",
+   "Pacific/Honolulu": "mi-f-ft",
+   "America/Puerto_Rico": "mi-f-ft",
+   "Pacific/Guam": "mi-f-ft",
+   "Africa/Monrovia": "mi-f-ft",
+   "Europe/London": "mi-c-m",
+   "Europe/Belfast": "mi-c-m",
+   "Europe/Jersey": "mi-c-m",
+   "Europe/Guernsey": "mi-c-m",
+   "Europe/Isle_of_Man": "mi-c-m",
+   "Asia/Yangon": "mi-c-m",
+   "Europe/Oslo": "km-c-m",
+   "Europe/Dublin": "km-c-m",
+   "America/Toronto": "km-c-m",
+   "America/Mexico_City": "km-c-m",
+   "Australia/Sydney": "km-c-m",
+   "Asia/Tokyo": "km-c-m",
+   "Nowhere/Unknown": "km-c-m"
+  },
+  "older_values_still_read": {
+   "km-c": "km-c-m",
+   "mi-c": "mi-c-m",
+   "mi-f": "mi-f-ft",
+   "km-f": "km-f-ft",
+   "metric": "km-c-m",
+   "imperial": "mi-f-ft",
+   "road": "mi-c-m"
+  }
+ },
+ "language_cookie": "euc_lang",
+ "cookie_domain": "ried.no",
+ "names_kept_in_english": [
+  "EUC Planet",
+  "Trip Viewer",
+  "GitHub",
+  "Dropbox",
+  "DarknessBot",
+  "euc.world",
+  "PWM"
+ ]
+}

@@ -17,10 +17,10 @@ import java.net.InetSocketAddress
 import java.net.Socket
 
 /**
- * Last-resort discovery: when neither the UDP beacon nor mDNS has produced
- * a usable address within a few seconds, probe every host on each local /24
- * subnet on the HUD WebSocket port and return the first one that accepts a
- * TCP connection.
+ * Slowest discovery channel: probes every host on each local /24 subnet on
+ * the HUD WebSocket port and returns the first one that accepts a TCP
+ * connection. Runs alongside the UDP beacon and mDNS; a win on either
+ * cancels it.
  *
  * Connect attempts run with a bounded fan-out ([MAX_CONCURRENT] at a time),
  * each with a 250 ms timeout, so even a multi-subnet sweep finishes in about
@@ -128,12 +128,11 @@ class HudSubnetProbe(
     }
 
     /**
-     * Expand a /24 CIDR (or wider, clamped to /24) into the list of host
-     * addresses excluding the network address, the broadcast address, and
-     * the phone's own address. Subnets larger than /24 are clamped to /24
-     * around the phone's own host octet -- a /16 has 65 534 hosts and
-     * probing all of them is both slow and rude to anything else on the
-     * LAN. Smaller-than-/24 subnets are honoured as-is.
+     * Expand a CIDR into the host addresses of the /24 around the phone's
+     * address (1 to 254, minus the phone's own). Subnets larger than /24
+     * are clamped to that /24: a /16 has 65 534 hosts and probing all of
+     * them is both slow and rude to anything else on the LAN. Smaller
+     * subnets are swept as the same /24. /31 and /32 return nothing.
      */
     private fun expandSubnetIpv4(cidr: String): List<String>? {
         val (ipStr, prefixStr) = cidr.split("/").let { it.getOrNull(0) to it.getOrNull(1) }
@@ -151,28 +150,18 @@ class HudSubnetProbe(
             .map { "$a.$b.$c.$it" }
     }
 
+    /**
+     * Plain blocking connect with the socket's own timeout. Not kotlinx's
+     * `withTimeoutOrNull`: Socket.connect does not honour coroutine
+     * cancellation and an interrupted one leaks a file descriptor.
+     */
     private fun tryTcp(host: String, port: Int, timeoutMs: Int): Boolean {
         return runCatching {
             Socket().use { sock ->
-                val ok = withTimeoutOrNullSync(timeoutMs.toLong()) {
-                    sock.connect(InetSocketAddress(host, port), timeoutMs)
-                    true
-                } ?: false
-                ok
+                sock.connect(InetSocketAddress(host, port), timeoutMs)
+                true
             }
         }.getOrElse { false }
-    }
-
-    /**
-     * Tiny synchronous timeout wrapper. We can't use kotlinx's
-     * `withTimeoutOrNull` here because the Socket.connect call must NOT
-     * be interruptible from a coroutine -- the underlying NIO channel
-     * doesn't honour the cancellation and the resulting socket leaks a
-     * file descriptor. Socket's own SO_TIMEOUT param handles the wait;
-     * this wrapper just keeps the call shape clean.
-     */
-    private inline fun <T> withTimeoutOrNullSync(timeoutMs: Long, block: () -> T): T? {
-        return try { block() } catch (_: Throwable) { null }
     }
 
     companion object {

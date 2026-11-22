@@ -6,9 +6,8 @@ import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.nav.NavigationEngine
 
 /**
- * No-op stub used when the Connect IQ Mobile SDK .aar isn't available at build
- * time. See `app/libs/README.md` for how to drop the .aar in, or build with
- * `-PgarminEnabled=false` to keep this stub on a machine that has the .aar.
+ * No-op stub compiled in place of the real bridge when the build runs with
+ * `-PgarminEnabled=false`.
  *
  * Keep the public surface 1:1 with `src/garminEnabled/kotlin/.../GarminBridge.kt`
  * so EucPlanetApp.kt doesn't have to know which variant it's calling.

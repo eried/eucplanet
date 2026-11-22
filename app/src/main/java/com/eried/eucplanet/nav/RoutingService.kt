@@ -54,15 +54,16 @@ data class RouteAvoidances(
 }
 
 /**
- * The Navigator's only network code. Talks to free, key-less OpenStreetMap
- * services, Nominatim for address search / reverse lookup, and the FOSSGIS
- * OSRM service (routing.openstreetmap.de, the very router that powers
- * openstreetmap.org's own directions) for turn-by-turn routing, over plain
- * [HttpURLConnection] (no Retrofit/OkHttp dependency added).
+ * Geocoding and routing for the Navigator. Talks to free, key-less
+ * OpenStreetMap services: Nominatim for address search / reverse lookup, and
+ * the FOSSGIS OSRM and Valhalla services for turn-by-turn routing, over plain
+ * [HttpURLConnection] (no Retrofit/OkHttp dependency added). Legs covered by
+ * downloaded tiles can also route on the phone.
  *
  * It is only ever called while the rider is actively building a route or while
- * the engine re-routes mid-navigation; nothing here runs in the background and
- * no telemetry is sent. Endpoints are caller-supplied so they stay configurable.
+ * the engine re-routes mid-navigation; the one thing that runs in the
+ * background is [warmUpOffline], on the phone with no network, and no
+ * telemetry is sent. Endpoints are caller-supplied so they stay configurable.
  */
 class RoutingService(
     private val context: android.content.Context,
@@ -162,8 +163,8 @@ class RoutingService(
         }
 
         /**
-         * Resolves the configured router URL. A blank value, or a stale URL
-         * left over from the retired Valhalla backend, falls back to
+         * Resolves the configured router URL. A blank value, or a Valhalla
+         * URL saved in the OSRM field by an older version, falls back to
          * [DEFAULT_ROUTER] so existing installs migrate transparently.
          */
         fun effectiveRouterUrl(stored: String): String =
@@ -410,6 +411,19 @@ class RoutingService(
     }
 
     /**
+     * Gets the on-phone router ready near [near] for [mode] (the rider's
+     * default when null, the wheel profile when that has none) and the
+     * rider's avoids, so their first offline route after a start gets its
+     * whole time for the search. Does nothing without a downloaded square.
+     */
+    suspend fun warmUpOffline(near: GeoPoint? = null, mode: TravelMode? = null) {
+        val s = settingsRepository.currentOrLoad()
+        val m = (mode ?: TravelMode.fromName(s.navDefaultTravelMode))
+            .takeIf { com.eried.eucplanet.nav.offline.BrouterMapping.profileFor(it) != null } ?: TravelMode.CYCLING
+        offlineRouter.warmUp(tileStore, near, m, RouteAvoidances.from(s))
+    }
+
+    /**
      * Resolves an ordered list of waypoints into a navigable route with
      * geometry and turn-by-turn maneuvers. Online it is Valhalla or OSRM (see
      * [prefersValhalla]); legs covered by downloaded tiles can also route on
@@ -471,7 +485,7 @@ class RoutingService(
         null
     }
 
-    /** Valhalla or OSRM, as before offline routing. */
+    /** The online routers: Valhalla first when [prefersValhalla], then OSRM. */
     private suspend fun routeOnline(
         name: String,
         waypoints: List<Waypoint>,

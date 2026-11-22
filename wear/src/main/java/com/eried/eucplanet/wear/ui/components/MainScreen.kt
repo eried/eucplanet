@@ -24,9 +24,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ElectricScooter
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.runtime.Composable
@@ -160,8 +160,28 @@ private fun MainScreenContent(
         // Min clamps are the size users actually see on every Wear OS device:
         // sw is ~160-225 dp across the device range, so the scale-factor side
         // of these formulas never wins. Mins have to be readable on their own.
-        val batteryFontSp = (sw * 0.034f).coerceIn(11f, 14f).sp
-        val batteryIconDp = (sw * 0.038f).coerceIn(12f, 15f).dp
+        // Fewer batteries shown leaves room in the row, so the ones left grow
+        // (rider feedback: 11 sp is hard to read without glasses).
+        val batteryCount = listOf(
+            state.showWheelBattery,
+            state.showPhoneBattery,
+            state.showWatchBattery
+        ).count { it }
+        // Speed, PWM and battery sizes were tuned on a 192 dp watch in a
+        // layout editor; k scales them to the actual screen.
+        val k = (sw / 192f).coerceIn(0.85f, 1.2f)
+        // (number sp, icon dp, nudge dp) per battery count.
+        val (batterySp, batteryIcon, batteryNudge) = when (batteryCount) {
+            1 -> Triple(36f, 37f, 3.5f)
+            2 -> Triple(23f, 22.5f, 1.5f)
+            else -> Triple(15.4f, 16.5f, 0f)
+        }
+        val batteryFontSp = (batterySp * k).sp
+        val batteryIconDp = (batteryIcon * k).dp
+        val batteryNudgeDp = (batteryNudge * k).dp
+        // Fixed slot, so a row of any size sits centred in the same place
+        // instead of dropping toward the buttons.
+        val batterySlotDp = (37.5f * k).dp
         val batterySpacingDp = (sw * 0.018f).coerceIn(5f, 9f).dp
         val buttonDp = (sw * 0.127f).coerceIn(40f, 56f).dp
         val buttonIconDp = (sw * 0.060f).coerceIn(20f, 26f).dp
@@ -169,14 +189,13 @@ private fun MainScreenContent(
         // by ~35% and PWM (bar + number) grows by ~60% so cutout-margin becomes
         // the dominant glance signal.
         val prioritizePwm = state.prioritizePwm
-        val speedFontSp = (sw * if (prioritizePwm) 0.16f else 0.245f).coerceIn(40f, 92f).sp
+        val speedFontSp = ((if (prioritizePwm) 43f else 53f) * k).sp
         val maxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
-        val loadBarWidth = (sw * if (prioritizePwm) 0.55f else 0.30f).coerceIn(82f, 240f).dp
-        // In Prioritize PWM mode the bar becomes the dominant glance, go thicker
-        // than the previous 0.030f (10-14 dp) and ride the new 5-22 dp band so it
-        // reads as the focal indicator even on smaller round faces.
-        val loadBarHeight = (sw * if (prioritizePwm) 0.060f else 0.018f).coerceIn(5f, 22f).dp
-        val centerOffsetY = -(sw * 0.06f).coerceIn(18f, 28f).dp
+        // Bar + number shows the bar at 66% of this width (barWidthShrink).
+        val loadBarWidth = ((if (prioritizePwm) 74.5f else 105.5f) / 0.66f * k).dp
+        // In Prioritize PWM mode the bar becomes the dominant glance.
+        val loadBarHeight = ((if (prioritizePwm) 9.5f else 6f) * k).dp
+        val centerOffsetY = -(36f * k).dp
         val watchPercent = watchBatteryPercent
 
 
@@ -229,9 +248,9 @@ private fun MainScreenContent(
         // so the speed glyph stays visually centred; the row is symmetric
         // around the speed even when the unit is shown.
         val unitSp = (sw * 0.030f).coerceIn(11f, 14f).sp
-        // Prioritize PWM blows up the number; was 0.075f / 28sp cap, now 0.11f / 40sp cap
+        // Prioritize PWM blows up the number (0.11f, 40sp cap)
         // so on a round 454-px Wear face the PWM glyph reads as the dial's headline.
-        val pwmNumberSp = (sw * if (prioritizePwm) 0.110f else 0.038f).coerceIn(12f, 40f).sp
+        val pwmNumberSp = ((if (prioritizePwm) 25.5f else 12f) * k).sp
         val showBar = state.pwmDisplay == "BAR" || state.pwmDisplay == "BOTH"
         val showPwmNumber = state.pwmDisplay == "NUMBERS" || state.pwmDisplay == "BOTH"
         // In "BOTH" mode the bar shares a row with the percent number, so we shrink the
@@ -377,24 +396,32 @@ private fun MainScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy((sw * 0.018f).coerceIn(5f, 9f).dp)
         ) {
-            // phoneAlive is computed at the top of MainScreen so the whole
+            // phoneAlive is computed at the top of MainScreenContent so the whole
             // dashboard shares one freshness check. Wheel battery and phone
             // battery both go stale when phone is silent for >3 s.
-            BatteryRow(
-                wheelPercent = state.batteryPercent.takeIf {
-                    state.showWheelBattery && state.connected && phoneAlive
-                },
-                phonePercent = if (state.showPhoneBattery && phoneAlive)
-                    state.phoneBatteryPercent else null,
-                watchPercent = watchPercent.takeIf { state.showWatchBattery },
-                showWheelChip = state.showWheelBattery,
-                showPhoneChip = state.showPhoneBattery,
-                accent = accent,
-                useAccentTint = state.accentKey != "default",
-                fontSize = batteryFontSp,
-                iconSize = batteryIconDp,
-                spacing = batterySpacingDp
-            )
+            Box(
+                modifier = Modifier.height(batterySlotDp).offset(y = batteryNudgeDp),
+                contentAlignment = Alignment.Center
+            ) {
+                // One big battery is taller than the slot; let it overflow evenly.
+                Box(Modifier.wrapContentHeight(unbounded = true)) {
+                    BatteryRow(
+                        wheelPercent = state.batteryPercent.takeIf {
+                            state.showWheelBattery && state.connected && phoneAlive
+                        },
+                        phonePercent = if (state.showPhoneBattery && phoneAlive)
+                            state.phoneBatteryPercent else null,
+                        watchPercent = watchPercent.takeIf { state.showWatchBattery },
+                        showWheelChip = state.showWheelBattery,
+                        showPhoneChip = state.showPhoneBattery,
+                        accent = accent,
+                        useAccentTint = state.accentKey != "default",
+                        fontSize = batteryFontSp,
+                        iconSize = batteryIconDp,
+                        spacing = batterySpacingDp
+                    )
+                }
+            }
             ActionRow(
                 state = state,
                 accent = accent,
@@ -473,7 +500,7 @@ private fun BatteryRow(
         // becomes null + dash whenever its source isn't live, so the layout
         // doesn't reflow when a wheel disconnects or the phone hasn't pushed.
         if (showWheelChip) {
-            BatteryChip(Icons.Filled.ElectricScooter, wheelPercent, accent, useAccentTint, fontSize, iconSize)
+            BatteryChip(WheelIcon, wheelPercent, accent, useAccentTint, fontSize, iconSize)
         }
         if (showPhoneChip) {
             BatteryChip(Icons.Filled.PhoneAndroid, phonePercent, accent, useAccentTint, fontSize, iconSize)
@@ -508,7 +535,11 @@ private fun BatteryChip(
             imageVector = icon,
             contentDescription = null,
             tint = tint,
-            modifier = Modifier.size(iconSize)
+            // The wheel glyph spans y 5.6-22 of its 24 box (centre 13.8, not 12),
+            // so it reads low next to the digits. Lift it by that 1.8/24.
+            modifier = Modifier
+                .size(iconSize)
+                .offset(y = if (icon === WheelIcon) -iconSize * (1.8f / 24f) else 0.dp)
         )
         Spacer(Modifier.width(2.dp))
         Text(
@@ -592,8 +623,8 @@ private fun ConfigurableActionButton(
         ?: iconForAction(holdAction)
         ?: return
 
-    // Stateful tinting for actions whose UI usually reflects on/off: light,
-    // lock, recording. Other actions render with the neutral palette.
+    // Stateful tinting: the light button shows on/off. Other actions
+    // render with the neutral palette.
     val colors = LocalWatchColors.current
     val isLightOn = clickAction == "LIGHT_TOGGLE" && state.lightOn
     val disabledBg = colors.surface
@@ -658,13 +689,6 @@ private fun ConfigurableActionButton(
     }
 }
 /**
- * Dispatches a button-bound action to the phone via `/euc/control`. Horn and
- * light keep their dedicated control strings (back-compat with prior watch
- * builds and the phone's PhoneWearListenerService quick path). Everything else
- * uses the `action:<FlicAction>` prefix that the phone routes through
- * FlicManager.dispatchActionByName.
- */
-/**
  * Input-event report for the phone's Service Mode Wearables tab. No-op
  * unless the phone flagged diag recording in the state frames, so a normal
  * ride sends nothing extra over the Data Layer.
@@ -681,6 +705,13 @@ private fun sendDebugEvent(context: Context, msg: String) {
     )
 }
 
+/**
+ * Dispatches a button-bound action to the phone via `/euc/control`. Horn and
+ * light keep their dedicated control strings (back-compat with prior watch
+ * builds and the phone's PhoneWearListenerService quick path). Everything else
+ * uses the `action:<FlicAction>` prefix that the phone routes through
+ * FlicManager.dispatchActionByName.
+ */
 private fun fireAction(
     context: Context,
     state: WatchState,

@@ -1,7 +1,6 @@
 package com.eried.eucplanet.hud.ui
 
 import com.eried.eucplanet.hud.protocol.HudState
-import kotlin.math.round
 
 /**
  * Pure-HUD unit conversion helpers.
@@ -88,8 +87,4 @@ object HudUnits {
         "mpa" -> 3
         else -> 0
     }
-
-    /** Round to N decimals as a Float (rendering uses %.Nf, this is only for
-     *  intermediate comparison / threshold checks). */
-    fun round1(v: Float): Float = round(v * 10f) / 10f
 }

@@ -37,10 +37,6 @@ class DataSourcesViewModel(
 ) : ViewModel() {
 
     companion object {
-        // Trail length picked so a typical 50 Hz IMU sample stream gives ~1.5 s
-        // of history before old samples fade off the bottom of the alpha curve.
-        // Visually this maps to "a smooth tail behind the dot" rather than a
-        // full path replay.
         // Trail length on the X/Z g-force crosshair. RaceBox streams at ~25 Hz
         // and the phone IMU at ~50 Hz; 120 samples spans ~5 s of RaceBox or
         // ~2.5 s of phone, enough to follow a sustained corner without the
@@ -103,31 +99,16 @@ class DataSourcesViewModel(
      * so Compose subscribers only recompose when the specific series they're
      * watching changes.
      */
-    data class TimedSeries(val points: List<Pair<Long, Float>> = emptyList())
+    data class TimedSeries(val points: List<Pair<Long, Float>> = emptyList()) {
+        /** False when empty or all zero, so Reset average has nothing to clear. */
+        val hasNonZeroPoint: Boolean get() = points.any { it.second != 0f && !it.second.isNaN() }
+    }
 
     private val _speedSeries = DataSource.values().associateWith {
         MutableStateFlow(TimedSeries())
     }
     val speedSeries: Map<DataSource, StateFlow<TimedSeries>> =
         _speedSeries.mapValues { it.value.asStateFlow() }
-
-    private val _gMagnitudeSeries = DataSource.values().associateWith {
-        MutableStateFlow(TimedSeries())
-    }
-    val gMagnitudeSeries: Map<DataSource, StateFlow<TimedSeries>> =
-        _gMagnitudeSeries.mapValues { it.value.asStateFlow() }
-
-    private val _headingSeries = DataSource.values().associateWith {
-        MutableStateFlow(TimedSeries())
-    }
-    val headingSeries: Map<DataSource, StateFlow<TimedSeries>> =
-        _headingSeries.mapValues { it.value.asStateFlow() }
-
-    private val _vertSpeedSeries = DataSource.values().associateWith {
-        MutableStateFlow(TimedSeries())
-    }
-    val vertSpeedSeries: Map<DataSource, StateFlow<TimedSeries>> =
-        _vertSpeedSeries.mapValues { it.value.asStateFlow() }
 
     init {
         // Wire the sensor stream into the trail buffer. New samples land at
@@ -271,9 +252,6 @@ class DataSourcesViewModel(
                         snap.speedKmh / curMul
                     else snap.speedKmh
                     appendSeries(_speedSeries[src], now, speedForBuffer)
-                    appendSeries(_gMagnitudeSeries[src], now, snap.horizGMagnitude)
-                    appendSeries(_headingSeries[src], now, snap.headingDeg)
-                    appendSeries(_vertSpeedSeries[src], now, snap.verticalSpeedMps)
                 }
             }
         }

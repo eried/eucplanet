@@ -61,8 +61,8 @@ import kotlinx.coroutines.delay
  * speed readout pinned bottom-right.
  *
  * The HUD's rear camera is exposed through the standard camera2 HAL on every
- * E6-class device we've seen, so we use CameraX which picks the rear lens
- * automatically. If the device doesn't expose a camera (e.g. an emulator
+ * E6-class device we've seen, so we use CameraX; the rider steps through
+ * the cameras with UP. If the device doesn't expose a camera (e.g. an emulator
  * during development), we show a static "unavailable" placeholder rather
  * than crash, the rider can switch screens with LEFT/RIGHT regardless.
  */
@@ -78,16 +78,6 @@ fun CameraScreen(
     onCameraTaken: () -> Unit = {},
     onOtherAppCamera: (Boolean) -> Unit = {},
 ) {
-    val ctx = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    // Re-evaluate every recomposition, not just once: the rider may grant
-    // the permission via the launch-time dialog AFTER this screen first
-    // composed (cold start: dashboard first, camera screen entered later).
-    val hasPermission = ContextCompat.checkSelfPermission(
-        ctx, Manifest.permission.CAMERA
-    ) == PackageManager.PERMISSION_GRANTED
-    var cameraReady by remember { mutableStateOf(false) }
-    var cameraFailed by remember { mutableStateOf(false) }
     val accent = parseHexColor(hud.accentArgb)
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
@@ -119,13 +109,6 @@ fun CameraScreen(
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-
-    LaunchedEffect(hasPermission) {
-        // No-op; the AndroidView update lambda is the bind point. This
-        // LaunchedEffect just makes hasPermission a key the composer tracks
-        // when the rider grants the permission mid-session (rare on HUDs
-        // since they sideload, but harmless to handle.)
     }
 }
 
@@ -572,7 +555,7 @@ private class CameraBinding {
 }
 
 /** Chrome-matched "starting camera" indicator shown over an empty
- *  PreviewView until the first frame arrives. Same fill, border, and
+ *  PreviewView until the first frame arrives. Same fill and
  *  type as the disconnect badge in HudApp so the HUD feels consistent
  *  across status surfaces. */
 @Composable

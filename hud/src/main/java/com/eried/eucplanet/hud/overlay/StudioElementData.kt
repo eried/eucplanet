@@ -23,12 +23,17 @@ data class StudioElementData(
     val tempUnit: String,
     /** The rider's pressure unit; blank follows the distance unit. */
     val pressureUnit: String = "",
+    /** The rider's unit for heights, m or ft; blank follows the distance unit. */
+    val altitudeUnit: String = "",
     val clockTimeMs: Long = System.currentTimeMillis(),
     val stopwatchMs: Long = 0L,
     val liveGForceTrail: List<Offset> = emptyList(),
     /** GPS lat/lng for the MAP element. Doubles, 0 = no fix. */
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
+    /** The route line around the rider, as the phone sends it (see
+     *  RouteWindow). Empty when no route runs. Drawn by the MAP element. */
+    val navRoute: String = "",
     /** Heading degrees (0 = north, +clockwise). NaN when no bearing. */
     val gpsHeadingDeg: Float = Float.NaN,
     /** Rider's accent colour as ARGB. */
@@ -79,6 +84,10 @@ data class StudioElementData(
                     hud.gpsSource == "PHONE" -> hud.gpsSpeedKmh
                     else -> -1f
                 },
+                gpsAltitudeM = hud.gpsAltitudeM,
+                whConsumed = hud.whConsumed,
+                whPerKmRecent = hud.whPerKm,
+                rangeKmEstimate = hud.rangeKm,
                 tripMeterKm = hud.tripMeterKm,
                 tirePressureKpa = hud.tirePressureKpa,
                 lightOn = hud.lightOn,
@@ -92,8 +101,10 @@ data class StudioElementData(
                 distanceUnit = hud.unitDistance,
                 tempUnit = hud.unitTemp,
                 pressureUnit = hud.unitPressure,
+                altitudeUnit = hud.unitAltitude,
                 latitude = hud.latitude,
                 longitude = hud.longitude,
+                navRoute = hud.navRoute,
                 gpsHeadingDeg = hud.gpsHeadingDeg,
                 accentArgb = parseArgbStringToLong(hud.accentArgb),
                 radarConnected = hud.radarConnected,

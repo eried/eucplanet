@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-import kotlin.math.abs
 
 /**
  * Helpers for the user-image overlay element. Picked images are downscaled and
@@ -101,10 +100,4 @@ object StudioImages {
             true
         )
     }
-
-    /** True when two colours are visually close, used to dedupe key picks. */
-    fun colorsClose(a: Color, b: Color): Boolean =
-        abs(a.red - b.red) < 0.02f &&
-            abs(a.green - b.green) < 0.02f &&
-            abs(a.blue - b.blue) < 0.02f
 }

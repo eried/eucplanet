@@ -11,9 +11,9 @@ package com.eried.eucplanet.tpms
  * was far too loose - one thirty second sweep of a single room turned up three
  * unrelated devices doing exactly that, and one of them got added as a rider's
  * tyre sensor. Requiring a decoded pressure instead was too tight in the other
- * direction: with the decoder switched off after its reading was disproved,
- * nothing could be added at all, and a rider whose sensor was ten centimetres
- * away watched the scan find nothing.
+ * direction: whenever the decoder rejects a reading nothing can be added at
+ * all, and a rider whose sensor is ten centimetres away watches the scan find
+ * nothing.
  *
  * What actually pins this family down is all three at once: the company id,
  * the exact payload length, and the MAC repeated backwards in the last six
@@ -32,9 +32,9 @@ object TpmsSignature {
      * True when this advertisement is a sensor of the known family.
      *
      * This is what may add a sensor. It deliberately says nothing about
-     * pressure: a device can be positively identified while its reading is
-     * still unreadable, and pairing it with no number beats both a wrong
-     * number and a scan that finds nothing.
+     * pressure: a device can be positively identified when a reading does
+     * not decode, and pairing it with no number beats both a wrong number
+     * and a scan that finds nothing.
      */
     fun isSensor(companyId: Int, payload: ByteArray, address: String?): Boolean =
         // The documented family identifies itself by decoding, which is the
@@ -42,8 +42,8 @@ object TpmsSignature {
         // temperature, a battery level and a wheel number, and all four have
         // to land somewhere believable at once.
         ZeepinTpmsDecoder.pressureKpa(companyId, payload) != null ||
-            // The rider's own, which is recognised by shape because its
-            // reading cannot be read yet.
+            // The LY / Wicarlink family, recognised by shape so it is found
+            // even when a reading is rejected.
             (companyId == COMPANY_ID &&
                 payload.size == PAYLOAD_LEN &&
                 endsWithOwnMac(payload, address))

@@ -20,7 +20,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -30,8 +29,6 @@ import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.HudUnits
 import com.eried.eucplanet.hud.ui.parseHexColor
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.min
 
 /**
@@ -47,9 +44,7 @@ import kotlin.math.min
  *
  * The dial colour band tracks the wheel's PWM headroom, same logic the phone
  * dashboard uses -- orange at [HudState.gaugeOrangeThresholdPct] PWM, red at
- * [HudState.gaugeRedThresholdPct]. We don't draw a needle when the wheel is
- * disconnected; instead the dial sits empty so the rider can see at a glance
- * the link is dead.
+ * [HudState.gaugeRedThresholdPct].
  */
 @Composable
 fun DashboardScreen(hud: HudState, gpsView: Boolean) {
@@ -62,8 +57,6 @@ fun DashboardScreen(hud: HudState, gpsView: Boolean) {
         // breathes on tiny panels but doesn't dominate on the wide dev one.
         val outerPad = (min(maxWidth.value, maxHeight.value) * 0.04f).dp
 
-        // Clock now lives in HudApp so it overlays every screen, not just
-        // the dashboard. See [WallClockBadge].
         // Speed digit: ~28% of the available height. Matches the 800×480
         // dev sizing (134sp ≈ original 120sp) and shrinks proportionally
         // on the Motoeye where the panel is closer to 320×240.
@@ -158,16 +151,11 @@ private fun Tile(
     // height. Sizes derived from the tile's `maxHeight` via dp.toSp() so
     // the rider's system font-scale (some HUD firmwares ship with 1.15+
     // by default) doesn't blow the text past the tile boundary.
-    //
-    // Budget: label 16 % + value 36 % + subtitle 16 % + spacing/padding
-    // = ~88 % of tile height, leaving ~12 % breathing room so a heavier
-    // typeface still fits on cramped Motoeye panels. Earlier 50 % value
-    // overflowed reports from real-device testers.
     BoxWithConstraints(modifier = modifier) {
         val density = androidx.compose.ui.platform.LocalDensity.current
         val h = maxHeight.value
-        // Tighter budget after a tester reported the subtitle line clipped
-        // on a real Motoeye E6 panel. New share: label 13 % / value 30 % /
+        // Tight budget: a looser one clipped the subtitle line
+        // on a real Motoeye E6 panel. Share: label 13 % / value 30 % /
         // subtitle 13 % = 56 % for glyphs. Setting lineHeight = font size
         // strips Compose's default ~1.2× line padding, so the visible row
         // height tracks the font size 1:1. Padding shrunk to 4 %/side. Net
@@ -176,7 +164,6 @@ private fun Tile(
         val labelSize = with(density) { (h * 0.13f).dp.toSp() }
         val valueSize = with(density) { (h * 0.30f).dp.toSp() }
         val subSize = with(density) { (h * 0.13f).dp.toSp() }
-        val cornerR = (h * 0.13f).coerceAtMost(16f).dp
         val padH = (maxWidth.value * 0.05f).dp
         val padV = (h * 0.04f).dp
         val strokeW = (h * 0.012f).coerceAtLeast(1f).dp
@@ -304,19 +291,6 @@ private fun SpeedDial(
             topLeft = topLeft,
             size = arcSize
         )
-
-        // Needle: a short radial line at the end of the sweep so the position
-        // is unambiguous even when the dial sweep is dim against the band.
-        rotate(degrees = startAngle + sweep, pivot = center) {
-            val r = diameter / 2f - 2.dp.toPx()
-            drawLine(
-                color = Color.White,
-                start = Offset(center.x + r * cos(0.0).toFloat() - 0.dp.toPx(),
-                               center.y + r * sin(0.0).toFloat()),
-                end = Offset(center.x + r, center.y),
-                strokeWidth = (stroke * 0.3f).coerceAtLeast(2.dp.toPx())
-            )
-        }
     }
 }
 

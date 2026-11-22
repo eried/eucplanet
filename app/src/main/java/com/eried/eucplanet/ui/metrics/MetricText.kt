@@ -17,6 +17,8 @@ data class MetricTextInputs(
     val distanceUnit: String,
     val tempUnit: String,
     val pressureUnit: String,
+    /** The rider's unit for heights, m or ft; blank follows the distance unit. */
+    val altitudeUnit: String = "",
     val currentAsWatts: Boolean,
     val tripMeterKm: Float,
     val phoneBatteryPct: Int,
@@ -65,6 +67,7 @@ object MetricText {
         val distanceUnit = i.distanceUnit
         val tempUnit = i.tempUnit
         val pressureUnit = i.pressureUnit
+        val altitudeUnit = com.eried.eucplanet.hud.protocol.AltitudeUnit.resolve(i.altitudeUnit, distanceUnit)
         val speedUnitLabel = speedUnitLabel(speedUnit)
         val tempUnitLabel = Units.tempUnit(tempUnit)
         val distUnit = Units.distanceUnit(distanceUnit)
@@ -161,9 +164,8 @@ object MetricText {
             "PHONE_BATTERY" -> if (i.phoneBatteryPct in 0..100) "${i.phoneBatteryPct}%" else placeholder
             "EXTERNAL_GPS_BATTERY" -> i.externalGpsBatteryPct?.let { "$it%" } ?: placeholder
             "GPS_ALTITUDE" -> i.gpsAltitudeM?.let { alt ->
-                // Imperial users see feet; everyone else meters.
-                if (distanceUnit == "mi") "%.0fft".format(alt.toFloat() * 3.28084f)
-                else "%.0fm".format(alt.toFloat())
+                // Metres or feet, as the rider set heights to read.
+                "%.0f".format(com.eried.eucplanet.hud.protocol.AltitudeUnit.value(alt.toFloat(), altitudeUnit)) + altitudeUnit
             } ?: placeholder
             // Same conversion path as every other speed tile: store
             // km/h, convert to the rider's unit at render time.
@@ -172,14 +174,13 @@ object MetricText {
             } ?: placeholder
             "GPS_HEADING" -> i.gpsBearingDeg?.let { "%.0f°".format(it) } ?: placeholder
             "GPS_ACCURACY" -> i.gpsAccuracyM?.let { acc ->
-                if (distanceUnit == "mi") "%.0fft".format(acc * 3.28084f)
-                else "%.0fm".format(acc)
+                "%.0f".format(com.eried.eucplanet.hud.protocol.AltitudeUnit.value(acc, altitudeUnit)) + altitudeUnit
             } ?: placeholder
             // Link RSSI from the GATT layer (0 = not yet read).
             "BT_RSSI" -> if (wheelData.rssiDbm != 0) "${wheelData.rssiDbm} dBm" else placeholder
             // Ride energy since connect (the Battery screen's running
-            // integral). Wh/km divides by trip distance once there's a
-            // little of it, so a tiny denominator can't spike the number.
+            // integral). Wh/km is the rolling-window rate, NaN until the
+            // window holds enough distance.
             "WH_CONSUMED" -> if (wheelData.whConsumed > 0f) "%.0f Wh".format(wheelData.whConsumed) else placeholder
             "REGEN_WH" -> if (wheelData.whRegen > 0f) "%.0f Wh".format(wheelData.whRegen) else placeholder
             "WH_PER_KM" -> whPerDistance(wheelData.whPerKmRecent, distanceUnit)

@@ -50,8 +50,7 @@ object CrashHandler {
         val dm = context.resources.displayMetrics
         val cfg = context.resources.configuration
         val locale = try {
-            if (android.os.Build.VERSION.SDK_INT >= 24) cfg.locales[0].toLanguageTag()
-            else @Suppress("DEPRECATION") cfg.locale.toLanguageTag()
+            cfg.locales[0].toLanguageTag()
         } catch (_: Throwable) { "?" }
         val rt = Runtime.getRuntime()
         val memMb = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024)
