@@ -269,6 +269,19 @@ class WheelService : LifecycleService() {
     @Volatile
     private var shuttingDown: Boolean = false
 
+    // True while the service holds foreground status. Android demands a
+    // startForeground() for EVERY startForegroundService() call, not just the
+    // one that created the service: a start that lands on a running instance
+    // which already dropped foreground (keep-alive no longer needed) only gets
+    // onStartCommand, and without a promotion there the app is killed with
+    // ForegroundServiceDidNotStartInTimeException. Play reported that from
+    // the dashboard's reconnect to the last wheel.
+    private var inForeground: Boolean = false
+
+    // The newest start id, so the keep-alive stop cannot swallow a start that
+    // arrived after it decided to stop.
+    private var lastStartId: Int = 0
+
     private fun hasPermission(perm: String) =
         ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
 
@@ -290,6 +303,7 @@ class WheelService : LifecycleService() {
         }
         return try {
             startForeground(NOTIFICATION_ID, buildNotification(null), foregroundTypes)
+            inForeground = true
             lastNotificationShown = ""
             locationForegroundReady =
                 canUseLocation &&
@@ -626,7 +640,8 @@ class WheelService : LifecycleService() {
                 (s.voiceEnabled && s.voiceAnnounceWhen == "ALWAYS")
         if (!s.keepAppAlive && !stillNeeded) {
             stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
+            inForeground = false
+            stopSelfResult(lastStartId)
         }
     }
 
@@ -653,6 +668,11 @@ class WheelService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        lastStartId = startId
+        if (!inForeground && !shuttingDown && !promoteWithAvailableTypes()) {
+            stopWithoutBreakingTheForegroundPromise()
+            return START_NOT_STICKY
+        }
 
         when (intent?.action) {
             ACTION_CONNECT -> {
@@ -768,6 +788,7 @@ class WheelService : LifecycleService() {
                 // nav emission racing this teardown can't re-post it afterwards.
                 shuttingDown = true
                 stopForeground(STOP_FOREGROUND_REMOVE)
+                inForeground = false
                 // Belt-and-braces: explicitly cancel by id in case an update
                 // slipped in just before shuttingDown latched.
                 getSystemService(NotificationManager::class.java)

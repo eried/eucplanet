@@ -19,6 +19,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Offline maps: a refresh button checks for newer squares now.
 - Android Auto is gone for now: Play would not pass it.
 - Phones without Wi-Fi can install it again (Wi-Fi is only for the HUD and Amazfit links).
+- Two crash fixes from Play: reconnecting to the last wheel, and a memory leak on long rides when the phone clock jumps.
 
 ## Please test
 
