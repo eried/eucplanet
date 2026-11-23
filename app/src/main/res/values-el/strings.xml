@@ -2514,6 +2514,8 @@
     <string name="warnings_location_services_title">Η τοποθεσία είναι απενεργοποιημένη</string>
     <string name="warnings_battery_opt_title">Η βελτιστοποίηση μπαταρίας είναι ενεργή</string>
     <string name="warnings_battery_opt_body">Το Android μπορεί να κλείσει το EUC Planet στο παρασκήνιο και να κόψει την εγγραφή στη μέση της βόλτας. Αφήστε το να τρέχει χωρίς περιορισμούς.</string>
+    <string name="warnings_storage_full_title">Ο χώρος αποθήκευσης του τηλεφώνου είναι γεμάτος</string>
+    <string name="warnings_storage_full_body">Η καταγραφή της διαδρομής σταμάτησε. Η διαδρομή μέχρι τώρα έχει αποθηκευτεί. Ελευθερώστε χώρο για να καταγράψετε ξανά.</string>
     <string name="warnings_hud_blocked_title">Το HUD τηλεφώνου δεν μπορεί να εμφανιστεί</string>
     <string name="warnings_hud_blocked_body">Η άδεια εμφάνισης πάνω από άλλες εφαρμογές ανακλήθηκε, οπότε η επικάλυψη δεν θα εμφανίζεται πάνω από χάρτες ή μουσική.</string>
     <string name="warnings_no_backup_title">Δεν υπάρχει αντίγραφο ασφαλείας των διαδρομών</string>

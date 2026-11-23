@@ -2000,6 +2000,8 @@
     <string name="warnings_location_services_title">裝置定位已關閉</string>
     <string name="warnings_battery_opt_title">電池最佳化已開啟</string>
     <string name="warnings_battery_opt_body">Android 可能在背景停掉 EUC Planet，讓記錄在騎到一半時中斷。請允許它不受限制地執行。</string>
+    <string name="warnings_storage_full_title">手機儲存空間已滿</string>
+    <string name="warnings_storage_full_body">行程記錄已停止。目前的騎乘已儲存。請釋放空間後再記錄。</string>
     <string name="warnings_hud_blocked_title">手機 HUD 無法顯示</string>
     <string name="warnings_hud_blocked_body">「顯示在其他應用程式上層」權限被關掉了，因此疊加層不會出現在地圖或音樂上方。</string>
     <string name="warnings_no_backup_title">行程未備份</string>

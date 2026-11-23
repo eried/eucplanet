@@ -2359,6 +2359,8 @@
     <string name="warnings_location_services_title">Sijainti on kytketty pois</string>
     <string name="warnings_battery_opt_title">Akun optimointi on päällä</string>
     <string name="warnings_battery_opt_body">Android voi pysäyttää EUC Planetin taustalla ja katkaista tallennuksen kesken ajon. Salli sovelluksen toimia rajoituksetta.</string>
+    <string name="warnings_storage_full_title">Puhelimen tallennustila on täynnä</string>
+    <string name="warnings_storage_full_body">Matkan tallennus pysähtyi. Tähänastinen ajo on tallessa. Vapauta tilaa tallentaaksesi uudelleen.</string>
     <string name="warnings_hud_blocked_title">Puhelimen HUD ei näy</string>
     <string name="warnings_hud_blocked_body">Lupa näkyä muiden sovellusten päällä on poistettu, joten peittokuva ei näy karttojen tai musiikin päällä.</string>
     <string name="warnings_no_backup_title">Matkoja ei varmuuskopioida</string>

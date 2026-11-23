@@ -2361,6 +2361,8 @@
     <string name="warnings_location_services_title">Poloha je v systému vypnutá</string>
     <string name="warnings_battery_opt_title">Optimalizace baterie je zapnutá</string>
     <string name="warnings_battery_opt_body">Android může EUC Planet na pozadí zastavit a ukončit nahrávání uprostřed jízdy. Povolte aplikaci běžet bez omezení.</string>
+    <string name="warnings_storage_full_title">Úložiště telefonu je plné</string>
+    <string name="warnings_storage_full_body">Záznam jízdy se zastavil. Dosavadní jízda je uložená. Uvolněte místo, abyste mohli znovu nahrávat.</string>
     <string name="warnings_hud_blocked_title">HUD v telefonu nemůže kreslit</string>
     <string name="warnings_hud_blocked_body">Oprávnění kreslit přes ostatní aplikace bylo odebráno, takže se překryv nad mapami ani hudbou neobjeví.</string>
     <string name="warnings_no_backup_title">Jízdy nejsou zálohované</string>

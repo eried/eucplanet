@@ -1365,6 +1365,8 @@
     <string name="online_rejoin_body">La carpeta de respaldo contiene un perfil que se usó en la clasificación.\n\nID de rider: %1$s</string>
     <string name="warnings_battery_opt_title">La optimización de batería está activada</string>
     <string name="warnings_battery_opt_body">Android puede detener EUC Planet en segundo plano y cortar una grabación a mitad de un viaje. Déjala funcionar sin restricciones.</string>
+    <string name="warnings_storage_full_title">El almacenamiento del teléfono está lleno</string>
+    <string name="warnings_storage_full_body">La grabación del viaje se detuvo. Lo recorrido hasta ahora está guardado. Libera espacio para volver a grabar.</string>
     <string name="warnings_hud_blocked_title">El HUD del teléfono no puede mostrarse</string>
     <string name="warnings_hud_blocked_body">Se quitó el permiso para mostrarse sobre otras apps, así que la superposición no aparecerá encima de mapas o música.</string>
     <string name="warnings_no_backup_title">Los viajes no tienen respaldo</string>

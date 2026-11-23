@@ -2006,6 +2006,8 @@
     <string name="warnings_location_services_title">Геолокация отключена в системе</string>
     <string name="warnings_battery_opt_title">Оптимизация батареи включена</string>
     <string name="warnings_battery_opt_body">Android может остановить EUC Planet в фоне и прервать запись посреди поездки. Разрешите работу без ограничений.</string>
+    <string name="warnings_storage_full_title">Память телефона заполнена</string>
+    <string name="warnings_storage_full_body">Запись поездки остановлена. Поездка до этого момента сохранена. Освободите место, чтобы снова записывать.</string>
     <string name="warnings_hud_blocked_title">HUD на телефоне не показывается</string>
     <string name="warnings_hud_blocked_body">Разрешение на показ поверх других приложений отозвано, поэтому оверлей не появится поверх карт или музыки.</string>
     <string name="warnings_no_backup_title">Нет резервной копии поездок</string>

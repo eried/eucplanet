@@ -1858,6 +1858,8 @@
     <string name="online_rejoin_body">备份文件夹中有一份曾用于排行榜的资料。\n\n骑手 ID：%1$s</string>
     <string name="warnings_battery_opt_title">电池优化已开启</string>
     <string name="warnings_battery_opt_body">系统可能在后台停止 EUC Planet，让骑行中的记录中断。请允许它不受限制地运行。</string>
+    <string name="warnings_storage_full_title">手机存储空间已满</string>
+    <string name="warnings_storage_full_body">行程记录已停止。目前的骑行已保存。请释放空间后再记录。</string>
     <string name="warnings_hud_blocked_title">手机 HUD 无法显示</string>
     <string name="warnings_hud_blocked_body">悬浮显示权限已被撤销，因此叠加层不会出现在地图或音乐之上。</string>
     <string name="warnings_no_backup_title">行程未备份</string>

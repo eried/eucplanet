@@ -1363,6 +1363,8 @@
     <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\nFahrer-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Akku-Optimierung ist aktiv</string>
     <string name="warnings_battery_opt_body">Android kann EUC Planet im Hintergrund beenden und eine Aufnahme mitten in der Fahrt abbrechen. Lass die App uneingeschränkt laufen.</string>
+    <string name="warnings_storage_full_title">Telefonspeicher ist voll</string>
+    <string name="warnings_storage_full_body">Die Fahrtaufzeichnung wurde beendet. Die bisherige Fahrt ist gespeichert. Gib Speicher frei, um wieder aufzuzeichnen.</string>
     <string name="warnings_hud_blocked_title">Handy-HUD kann nichts anzeigen</string>
     <string name="warnings_hud_blocked_body">Die Berechtigung zum Einblenden über anderen Apps wurde entzogen, daher erscheint das Overlay nicht über Karten oder Musik.</string>
     <string name="warnings_no_backup_title">Fahrten werden nicht gesichert</string>

@@ -473,23 +473,33 @@ class TonePlayer {
         val minBuf = AudioTrack.getMinBufferSize(
             sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT
         )
-        val track = AudioTrack.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-            )
-            .setAudioFormat(
-                AudioFormat.Builder()
-                    .setSampleRate(sampleRate)
-                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                    .build()
-            )
-            .setBufferSizeInBytes(maxOf(minBuf, bufFrames * 2 * 4))
-            .setTransferMode(AudioTrack.MODE_STREAM)
-            .build()
+        // The build sits outside the playback try below, and this is a bare
+        // thread, so a refused track (audio server busy, out of tracks) used
+        // to close the whole app. Now this tone is skipped and the stream can
+        // be started again.
+        val track = try {
+            AudioTrack.Builder()
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setSampleRate(sampleRate)
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .build()
+                )
+                .setBufferSizeInBytes(maxOf(minBuf, bufFrames * 2 * 4))
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .build()
+        } catch (e: RuntimeException) {
+            android.util.Log.e("TonePlayer", "Stream track refused, tone skipped", e)
+            streamOn = false
+            return
+        }
         val buf = ShortArray(bufFrames)
         var phase = 0.0   // carrier phase in cycles; continuous across buffers
         var modPhase = 0.0 // FM modulator phase (runs at 2x carrier)

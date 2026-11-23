@@ -2000,6 +2000,8 @@
     <string name="warnings_location_services_title">スマホの位置情報がオフです</string>
     <string name="warnings_battery_opt_title">電池の最適化が有効です</string>
     <string name="warnings_battery_opt_body">Android がバックグラウンドで EUC Planet を停止し、走行中の記録が途切れることがあります。制限なしでの実行を許可してください。</string>
+    <string name="warnings_storage_full_title">スマートフォンのストレージがいっぱいです</string>
+    <string name="warnings_storage_full_body">走行の記録を停止しました。ここまでの走行は保存されています。空き容量を作ると再び記録できます。</string>
     <string name="warnings_hud_blocked_title">スマホ HUD を描画できません</string>
     <string name="warnings_hud_blocked_body">他のアプリの上に描画する権限が取り消されたため、マップや音楽の上にオーバーレイは表示されません。</string>
     <string name="warnings_no_backup_title">トリップがバックアップされていません</string>

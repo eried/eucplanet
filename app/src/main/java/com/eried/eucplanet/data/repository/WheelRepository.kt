@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data.repository
 
+import com.eried.eucplanet.service.addToWindow
 import android.content.Context
 import android.util.Log
 import com.eried.eucplanet.R
@@ -850,8 +851,11 @@ class WheelRepository(
                 }
                 kotlinx.coroutines.delay(100L)
                 val now = System.currentTimeMillis()
-                buf.addLast(MetricSample(now, _wheelData.value.speed / 3.6f)) // km/h -> m/s
-                while (buf.isNotEmpty() && now - buf.first().timestampMs > windowMs) buf.removeFirst()
+                // km/h -> m/s. addToWindow starts over if the clock steps back.
+                buf.addToWindow(
+                    MetricSample(now, _wheelData.value.speed / 3.6f), now,
+                    { it.timestampMs }, windowMs, maxCount = 64,
+                )
                 val fwdG = if (buf.size >= 2) {
                     val dt = (buf.last().timestampMs - buf.first().timestampMs) / 1000f
                     if (dt > 0.05f) (buf.last().value - buf.first().value) / dt / 9.80665f else 0f

@@ -1367,6 +1367,8 @@
     <string name="online_rejoin_body">Le dossier de sauvegarde contient un profil qui était utilisé pour le classement.\n\nIdentifiant de rider : %1$s</string>
     <string name="warnings_battery_opt_title">L\'optimisation de la batterie est active</string>
     <string name="warnings_battery_opt_body">Android peut arrêter EUC Planet en arrière-plan et couper un enregistrement en plein trajet. Autorisez-le à fonctionner sans restriction.</string>
+    <string name="warnings_storage_full_title">Le stockage du téléphone est plein</string>
+    <string name="warnings_storage_full_body">L\'enregistrement du trajet s\'est arrêté. Le trajet jusqu\'ici est sauvegardé. Libérez de l\'espace pour enregistrer à nouveau.</string>
     <string name="warnings_hud_blocked_title">Le HUD du téléphone ne peut pas s\'afficher</string>
     <string name="warnings_hud_blocked_body">L\'autorisation d\'afficher par-dessus les autres applications a été retirée : l\'overlay n\'apparaîtra pas sur les cartes ou la musique.</string>
     <string name="warnings_no_backup_title">Les trajets ne sont pas sauvegardés</string>
