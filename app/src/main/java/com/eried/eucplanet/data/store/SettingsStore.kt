@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.eried.eucplanet.data.model.AppSettings
 import kotlinx.coroutines.flow.Flow
@@ -122,4 +124,10 @@ class SettingsStore(private val context: Context) {
 }
 
 private val Context.settingsDataStore: DataStore<Preferences>
-        by preferencesDataStore(name = "eucplanet_settings")
+        by preferencesDataStore(
+            name = "eucplanet_settings",
+            // A damaged file (failing storage, a power cut mid-swap) made
+            // every read throw, and the app crashed on each start. Start
+            // from defaults instead; the rider can restore a backup.
+            corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+        )

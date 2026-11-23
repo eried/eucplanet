@@ -31,6 +31,7 @@ val dataModule = module {
         TripRepository(
             get(), get(), get(), get(), get(), get(), get(), get(), get(),
             shareSession = inject(),
+            appHealth = get(),
         )
     }
     single {

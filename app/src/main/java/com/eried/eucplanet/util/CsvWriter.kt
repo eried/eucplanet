@@ -5,6 +5,7 @@ import com.eried.eucplanet.data.model.WheelData
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -24,23 +25,53 @@ import java.util.Locale
  * open for future events. Values are sanitised so a BLE name can never break
  * the CSV framing.
  */
-class CsvWriter(private val file: File) {
+class CsvWriter(
+    private val file: File,
+    // Swappable so a test can stand in for a phone that runs out of storage.
+    private val openWriter: (File) -> java.io.Writer = { FileWriter(it) },
+) {
 
     private val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS", Locale.US)
     private var writer: BufferedWriter? = null
     private var rowCount = 0
 
+    // writeRow runs on the recording loop while close() comes from whoever
+    // stops the trip, so both hold this lock: a close can never land in the
+    // middle of a row.
+    private val lock = Any()
+
     /** Number of data rows written so far (excluding the header). */
     val rows: Int get() = rowCount
 
     fun open() {
-        writer = BufferedWriter(FileWriter(file))
+        writer = BufferedWriter(openWriter(file))
         writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
         writer?.newLine()
     }
 
-    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true, extra: String? = null) {
-        val w = writer ?: return
+    /**
+     * Appends one row. Returns false when the row could not be written, which
+     * in practice means the phone ran out of storage: the file is then closed
+     * with what it already holds, and every later call returns false. The
+     * caller stops the recording; an IOException here used to escape the
+     * recording loop and close the whole app mid-ride.
+     */
+    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true, extra: String? = null): Boolean {
+        synchronized(lock) {
+            val w = writer ?: return false
+            return try {
+                writeRowTo(w, data, location, externalGpsSpeedKmh, wheelConnected, extra)
+                true
+            } catch (e: IOException) {
+                android.util.Log.e("CsvWriter", "Trip row write failed, closing ${file.name}", e)
+                writer = null
+                runCatching { w.close() }
+                false
+            }
+        }
+    }
+
+    private fun writeRowTo(w: BufferedWriter, data: WheelData, location: Location?, externalGpsSpeedKmh: Float?, wheelConnected: Boolean, extra: String?) {
         // Use wallclock so rows recorded without wheel telemetry (disconnected or
         // never connected) still carry a correct date. WheelData.timestamp defaults to
         // app-start time when no packet has arrived, which would freeze every row.
@@ -108,9 +139,17 @@ class CsvWriter(private val file: File) {
         }
     }
 
+    /** Flushes and closes. Safe to call twice, and never throws on a full disk. */
     fun close() {
-        writer?.flush()
-        writer?.close()
-        writer = null
+        synchronized(lock) {
+            val w = writer ?: return
+            writer = null
+            try {
+                w.flush()
+            } catch (e: IOException) {
+                android.util.Log.e("CsvWriter", "Trip flush on close failed for ${file.name}", e)
+            }
+            runCatching { w.close() }
+        }
     }
 }

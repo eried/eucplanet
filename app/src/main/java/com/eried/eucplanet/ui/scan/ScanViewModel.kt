@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ui.scan
 
+import com.eried.eucplanet.util.canConnectBluetooth
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
@@ -244,9 +245,14 @@ class ScanViewModel(
         // Rider left the scan screen. Re-enable auto-reconnect; if they didn't
         // pick a new wheel, reconnect to the last one (resumeAutoConnect only
         // does so while still disconnected), "reconnect as normal on dismiss".
+        // Only with Nearby devices granted (a virtual wheel needs none): the
+        // scan sheet can be closed without granting it, and connectGatt then
+        // threw a SecurityException that closed the app.
         val reconnectAddress =
             if (!deviceSelected && cachedAutoConnect) cachedLastAddress else null
-        bleConnectionManager.resumeAutoConnect(reconnectAddress, cachedLastName)
+        val mayConnect = reconnectAddress == null || context.canConnectBluetooth() ||
+            com.eried.eucplanet.ble.virtual.VirtualWheelRegistry.parsePseudoAddress(reconnectAddress) != null
+        bleConnectionManager.resumeAutoConnect(reconnectAddress.takeIf { mayConnect }, cachedLastName)
         super.onCleared()
     }
 }

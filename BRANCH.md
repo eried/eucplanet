@@ -20,6 +20,8 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Android Auto is gone for now: Play would not pass it.
 - Phones without Wi-Fi can install it again (Wi-Fi is only for the HUD and Amazfit links).
 - Two crash fixes from Play: reconnecting to the last wheel, and a memory leak on long rides when the phone clock jumps.
+- More crash fixes: full phone storage ends the recording with a warning, damaged settings start from defaults, background starts keep the wheel link.
+- Crew pass: plain approval screen that shows who is asking and for what access.
 
 ## Please test
 
@@ -29,6 +31,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - **Engine sound:** which engine sounds wrong, and at what speed?
 - **Volume keys, screen off:** do click and hold fire? Say your phone model.
 - **Your language:** anything odd or cut off? Say the screen.
+- **Crew pass:** scan a code from eucstats: does the screen read clearly in your language?
 - **Any wheel:** anything acting differently from the last build is a bug.
 
 ## Reporting back

@@ -191,6 +191,40 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * Starts WheelService when a setting needs it running: the Phone HUD, the
+     * HUD companion server, keep-alive and always-on voice.
+     *
+     * Only while this activity is visible. The settings collector keeps
+     * running after the rider leaves the app, and a setting written in the
+     * background (a restore, a Flic button, a watch command) used to call
+     * startForegroundService from the background, which Android 12+ refuses
+     * with an exception that closed the app. onResume calls this again, so a
+     * change made in the background takes effect when the rider comes back.
+     *
+     * Gated on permission because Android 14+ crashes startForeground with
+     * location/connectedDevice types if neither perm is granted. The
+     * HUD-force debug prop is honoured too so emulator testers don't have to
+     * find the Compose toggle by tap. Repeat calls are harmless: a plain start
+     * with no action falls straight through WheelService's onStartCommand.
+     */
+    private fun ensureWheelService(settings: AppSettings?) {
+        if (settings == null) return
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
+        val forceHud = com.eried.eucplanet.hud.protocol.HudDebug
+            .read("debug.eucplanet.hud.force") == "true"
+        val needsService = canStartWheelService() && (
+            (settings.voiceEnabled && settings.voiceAnnounceWhen == "ALWAYS") ||
+                settings.hudServerEnabled ||
+                settings.phoneHudEnabled ||
+                settings.keepAppAlive ||
+                forceHud
+            )
+        if (!needsService) return
+        runCatching { startForegroundService(Intent(this, WheelService::class.java)) }
+            .onFailure { android.util.Log.w("MainActivity", "WheelService start refused: ${it.message}") }
+    }
+
     private fun canStartWheelService(): Boolean {
         val hasBt = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) ==
@@ -303,6 +337,7 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread { micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) }
         }
         ensureWatchMapService(_settings.value)
+        ensureWheelService(_settings.value)
         // Pinging both watch bridges on every resume rather than only at process
         // start makes auto-launch reliable: opening the phone app brings the watch
         // app to the foreground each time, even if the watch service was killed for
@@ -555,31 +590,10 @@ class MainActivity : AppCompatActivity() {
                 com.eried.eucplanet.voice.VoiceTriggerGate.apply(
                     this@MainActivity, it.voiceCommands.headsetButton,
                 )
-                // Deliberately outside the `first` gate above.
-                //
-                // The service carries the Phone HUD, the HUD companion server,
-                // keep-alive and always-on voice. Evaluated on every emission so
-                // it starts on each launch and also when the rider switches one
-                // of those on mid-session, instead of at the next launch.
-                //
-                // Gated on permission because Android 14+ crashes startForeground
-                // with location/connectedDevice types if neither perm is granted.
-                // The HUD-force debug prop is honoured too so emulator testers
-                // don't have to find the Compose toggle by tap.
-                val forceHud = com.eried.eucplanet.hud.protocol.HudDebug
-                    .read("debug.eucplanet.hud.force") == "true"
-                val needsService = canStartWheelService() && (
-                    (it.voiceEnabled && it.voiceAnnounceWhen == "ALWAYS") ||
-                        it.hudServerEnabled ||
-                        it.phoneHudEnabled ||
-                        it.keepAppAlive ||
-                        forceHud
-                    )
-                // Repeat calls are harmless: a plain start with no action falls
-                // straight through WheelService's onStartCommand dispatch.
-                if (needsService) {
-                    startForegroundService(Intent(this@MainActivity, WheelService::class.java))
-                }
+                // Deliberately outside the `first` gate above. Evaluated on
+                // every emission so the service starts on each launch and also
+                // when the rider switches a feature on mid-session.
+                ensureWheelService(it)
             }
         }
 

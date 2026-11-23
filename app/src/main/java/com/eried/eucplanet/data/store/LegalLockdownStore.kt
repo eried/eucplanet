@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -82,4 +84,10 @@ class LegalLockdownStore(private val context: Context) {
 }
 
 private val Context.lockdownDataStore: DataStore<Preferences>
-        by preferencesDataStore(name = "legal_lockdown")
+        by preferencesDataStore(
+            name = "legal_lockdown",
+            // A damaged file (failing storage, a power cut mid-swap) made
+            // every read throw, and the app crashed on each start. Start
+            // from defaults instead; the rider can restore a backup.
+            corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+        )
