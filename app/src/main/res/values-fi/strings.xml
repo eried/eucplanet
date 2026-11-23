@@ -2576,7 +2576,7 @@
     <string name="voice_stat_peak">Huippu</string>
     <string name="crews_pass_action">Crew-passi</string>
     <string name="crews_pass_search_hint">Crew-passi näkyy, kun liityt verkkotulostauluihin.</string>
-    <string name="crews_scan_hint">Avaa eucstats selaimessa, paina Crews ja osoita tällä sivun näyttämää koodia.</string>
+    <string name="crews_scan_hint">Avaa eucstats selaimessa, napauta Crewit ja skannaa näkyvä koodi.</string>
     <string name="crews_scan_invalid">Tämä ei ole crew-passin koodi.</string>
     <string name="crews_scan_is_share">Tuo on live-sijainnin koodi. Skannaa se kartan Jaa-kohdasta.</string>
     <string name="share_scan_is_crewpass">Tuo on crew-passi. Skannaa se Asetuksista, kohdasta %1$s.</string>
@@ -2589,14 +2589,14 @@
     <string name="crews_opensettings">Avaa asetukset</string>
     <string name="crews_dev_title">Kehittäjätila</string>
     <string name="crews_dev_body">Käytetään palvelinta %1$s tavallisen sijaan.</string>
-    <string name="crews_request_title">Crew-passipyyntö</string>
+    <string name="crews_request_title">Passipyyntö</string>
     <string name="crews_request_from">%1$s pyytää passia.</string>
     <string name="crews_access">Käyttöoikeus: %1$s</string>
-    <string name="crews_scope_crew">Crew\'t</string>
+    <string name="crews_scope_crew">Crewit</string>
     <string name="crews_scope_admin">Ylläpitokonsoli</string>
     <string name="crews_grant">Myönnä tämä passi vain, jos teit pyynnön itse.</string>
     <string name="crews_noprofile_title">Liity ensin tulostauluun</string>
-    <string name="crews_noprofile_body">Crew-passit vaativat tulostaulukkoprofiilin, eikä tällä puhelimella ole vielä sellaista. Liity kohdassa %1$s ja skannaa uudelleen.</string>
+    <string name="crews_noprofile_body">Passit vaativat tulostaulukkoprofiilin, eikä tällä puhelimella ole vielä sellaista. Liity kohdassa %1$s ja skannaa uudelleen.</string>
     <string name="crews_issue">Salli</string>
     <string name="crews_notme">Hylkää</string>
     <string name="crews_ratelimited">Liikaa yrityksiä. Odota minuutti ja yritä uudestaan.</string>

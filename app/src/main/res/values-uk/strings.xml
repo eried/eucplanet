@@ -2773,7 +2773,7 @@
     <string name="voice_stat_peak">Пік</string>
     <string name="crews_pass_action">Пропуск клану</string>
     <string name="crews_pass_search_hint">Пропуск клану з\'явиться, коли ви приєднаєтеся до онлайн-таблиць лідерів.</string>
-    <string name="crews_scan_hint">Відкрийте eucstats у браузері, натисніть Crews і наведіть камеру на код, що з\'явиться.</string>
+    <string name="crews_scan_hint">Відкрийте eucstats у браузері, торкніться «Клани» і відскануйте показаний код.</string>
     <string name="crews_scan_invalid">Це не код пропуску клану.</string>
     <string name="crews_scan_is_share">Це код трансляції місця. Скануйте його через «Поділитися» на карті.</string>
     <string name="share_scan_is_crewpass">Це пропуск клану. Скануйте його в налаштуваннях, у розділі «%1$s».</string>
@@ -2786,14 +2786,14 @@
     <string name="crews_opensettings">Налаштування</string>
     <string name="crews_dev_title">Режим розробника</string>
     <string name="crews_dev_body">Зв\'язок із %1$s замість звичайного сервера.</string>
-    <string name="crews_request_title">Запит на пропуск клану</string>
+    <string name="crews_request_title">Запит на пропуск</string>
     <string name="crews_request_from">%1$s запитує пропуск.</string>
     <string name="crews_access">Доступ: %1$s</string>
     <string name="crews_scope_crew">Клани</string>
     <string name="crews_scope_admin">Консоль адміністратора</string>
     <string name="crews_grant">Видавайте цей пропуск, лише якщо запит зробили ви самі.</string>
     <string name="crews_noprofile_title">Спершу приєднайтеся до таблиці лідерів</string>
-    <string name="crews_noprofile_body">Для пропусків клану потрібен профіль у рейтингу, а на цьому телефоні його ще немає. Приєднайтеся в розділі %1$s і відскануйте знову.</string>
+    <string name="crews_noprofile_body">Для пропусків потрібен профіль у рейтингу, а на цьому телефоні його ще немає. Приєднайтеся в розділі %1$s і відскануйте знову.</string>
     <string name="crews_issue">Дозволити</string>
     <string name="crews_notme">Відхилити</string>
     <string name="crews_ratelimited">Забагато спроб. Зачекайте хвилину й спробуйте ще раз.</string>

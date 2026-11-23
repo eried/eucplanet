@@ -2604,7 +2604,7 @@
     <string name="voice_stat_peak">Puncak</string>
     <string name="crews_pass_action">Pass kru</string>
     <string name="crews_pass_search_hint">Pass kru muncul setelah Anda bergabung ke papan peringkat online.</string>
-    <string name="crews_scan_hint">Buka eucstats di browser, tekan Crews, lalu arahkan ini ke kode yang ditampilkan.</string>
+    <string name="crews_scan_hint">Buka eucstats di browser, ketuk Kru, lalu pindai kode yang muncul.</string>
     <string name="crews_scan_invalid">Ini bukan kode pass kru.</string>
     <string name="crews_scan_is_share">Itu kode lokasi real-time. Pindai dari Bagikan di peta.</string>
     <string name="share_scan_is_crewpass">Itu pass kru. Pindai dari Setelan, di bagian %1$s.</string>
@@ -2617,14 +2617,14 @@
     <string name="crews_opensettings">Buka setelan</string>
     <string name="crews_dev_title">Mode developer</string>
     <string name="crews_dev_body">Berkomunikasi dengan %1$s, bukan server biasa.</string>
-    <string name="crews_request_title">Permintaan pass kru</string>
+    <string name="crews_request_title">Permintaan pass</string>
     <string name="crews_request_from">%1$s meminta pass.</string>
     <string name="crews_access">Akses: %1$s</string>
     <string name="crews_scope_crew">Kru</string>
     <string name="crews_scope_admin">Konsol admin</string>
     <string name="crews_grant">Terbitkan pass ini hanya jika Anda sendiri yang membuat permintaan.</string>
     <string name="crews_noprofile_title">Gabung papan peringkat dulu</string>
-    <string name="crews_noprofile_body">Pass kru memerlukan profil papan peringkat, dan ponsel ini belum punya. Bergabunglah di %1$s, lalu pindai lagi.</string>
+    <string name="crews_noprofile_body">Pass memerlukan profil papan peringkat, dan ponsel ini belum punya. Bergabunglah di %1$s, lalu pindai lagi.</string>
     <string name="crews_issue">Izinkan</string>
     <string name="crews_notme">Tolak</string>
     <string name="crews_ratelimited">Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.</string>

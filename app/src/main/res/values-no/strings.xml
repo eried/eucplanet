@@ -2659,7 +2659,7 @@
     <string name="voice_stat_peak">Topp</string>
     <string name="crews_pass_action">Crew-pass</string>
     <string name="crews_pass_search_hint">Crew-pass vises når du blir med på ledertavlene på nett.</string>
-    <string name="crews_scan_hint">Åpne eucstats i en nettleser, trykk Crews, og pek kameraet mot koden som vises.</string>
+    <string name="crews_scan_hint">Åpne eucstats i en nettleser, trykk på Crews, og skann koden som vises.</string>
     <string name="crews_scan_invalid">Dette er ikke en crew-pass-kode.</string>
     <string name="crews_scan_is_share">Det er en kode for direkte posisjonsdeling. Skann den fra Del på kartet.</string>
     <string name="share_scan_is_crewpass">Det er et crew-pass. Skann det fra Innstillinger, under %1$s.</string>
@@ -2672,14 +2672,14 @@
     <string name="crews_opensettings">Åpne innstillinger</string>
     <string name="crews_dev_title">Utviklermodus</string>
     <string name="crews_dev_body">Snakker med %1$s i stedet for den vanlige serveren.</string>
-    <string name="crews_request_title">Forespørsel om crew-pass</string>
+    <string name="crews_request_title">Forespørsel om pass</string>
     <string name="crews_request_from">%1$s ber om et pass.</string>
     <string name="crews_access">Tilgang: %1$s</string>
     <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Administrasjonskonsoll</string>
     <string name="crews_grant">Utsted dette passet bare hvis du selv sendte forespørselen.</string>
     <string name="crews_noprofile_title">Bli med på ledertavlen først</string>
-    <string name="crews_noprofile_body">Crew-pass krever en profil på resultatlisten, og denne telefonen har ingen ennå. Bli med under %1$s, og skann igjen.</string>
+    <string name="crews_noprofile_body">Pass krever en profil på resultatlisten, og denne telefonen har ingen ennå. Bli med under %1$s, og skann igjen.</string>
     <string name="crews_issue">Tillat</string>
     <string name="crews_notme">Avslå</string>
     <string name="crews_ratelimited">For mange forsøk. Vent et minutt og prøv igjen.</string>

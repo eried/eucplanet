@@ -2771,7 +2771,7 @@
     <string name="voice_stat_peak">ピーク</string>
     <string name="crews_pass_action">クルーパス</string>
     <string name="crews_pass_search_hint">クルーパスは、オンラインリーダーボードに参加すると表示されます。</string>
-    <string name="crews_scan_hint">ブラウザで eucstats を開いて「Crews」を押し、表示されたコードにカメラを向けてください。</string>
+    <string name="crews_scan_hint">ブラウザで eucstats を開き、「クルー」をタップして、表示されたコードをスキャンしてください。</string>
     <string name="crews_scan_invalid">これはクルーパスのコードではありません。</string>
     <string name="crews_scan_is_share">これは現在地共有のコードです。マップの「共有」から読み取ってください。</string>
     <string name="share_scan_is_crewpass">これはクルーパスです。設定の「%1$s」から読み取ってください。</string>
@@ -2784,14 +2784,14 @@
     <string name="crews_opensettings">設定を開く</string>
     <string name="crews_dev_title">開発者モード</string>
     <string name="crews_dev_body">通常のサーバーではなく %1$s と通信しています。</string>
-    <string name="crews_request_title">クルーパスのリクエスト</string>
+    <string name="crews_request_title">パスのリクエスト</string>
     <string name="crews_request_from">%1$s がパスをリクエストしています。</string>
     <string name="crews_access">アクセス: %1$s</string>
     <string name="crews_scope_crew">クルー</string>
     <string name="crews_scope_admin">管理コンソール</string>
     <string name="crews_grant">自分でリクエストした場合のみ、このパスを発行してください。</string>
     <string name="crews_noprofile_title">先にリーダーボードに参加してください</string>
-    <string name="crews_noprofile_body">クルーパスにはランキングのプロフィールが必要ですが、このスマートフォンにはまだありません。%1$s で参加してから、もう一度スキャンしてください。</string>
+    <string name="crews_noprofile_body">パスにはランキングのプロフィールが必要ですが、このスマートフォンにはまだありません。%1$s で参加してから、もう一度スキャンしてください。</string>
     <string name="crews_issue">許可</string>
     <string name="crews_notme">拒否</string>
     <string name="crews_ratelimited">試行回数が多すぎます。1 分ほど待ってからもう一度お試しください。</string>

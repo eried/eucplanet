@@ -2776,7 +2776,7 @@
     <string name="voice_stat_peak">Pico</string>
     <string name="crews_pass_action">Passe da turma</string>
     <string name="crews_pass_search_hint">O passe da turma aparece quando você entra nos rankings online.</string>
-    <string name="crews_scan_hint">Abra o eucstats no navegador, toque em Crews e aponte a câmera para o código que aparecer.</string>
+    <string name="crews_scan_hint">Abra o eucstats em um navegador, toque em Turmas e escaneie o código que aparecer.</string>
     <string name="crews_scan_invalid">Este não é um código de passe da turma.</string>
     <string name="crews_scan_is_share">Esse é um código de localização em tempo real. Leia pelo Compartilhar no mapa.</string>
     <string name="share_scan_is_crewpass">Esse é um passe de turma. Leia em Configurações, em %1$s.</string>
@@ -2789,14 +2789,14 @@
     <string name="crews_opensettings">Abrir configurações</string>
     <string name="crews_dev_title">Modo desenvolvedor</string>
     <string name="crews_dev_body">Falando com %1$s em vez do servidor de sempre.</string>
-    <string name="crews_request_title">Pedido de passe da turma</string>
+    <string name="crews_request_title">Pedido de passe</string>
     <string name="crews_request_from">%1$s está pedindo um passe.</string>
     <string name="crews_access">Acesso: %1$s</string>
     <string name="crews_scope_crew">Turmas</string>
     <string name="crews_scope_admin">Console de administração</string>
     <string name="crews_grant">Emita este passe só se você mesmo fez o pedido.</string>
     <string name="crews_noprofile_title">Entre no ranking primeiro</string>
-    <string name="crews_noprofile_body">Os passes da turma precisam de um perfil no ranking, e este celular ainda não tem um. Entre em %1$s e escaneie de novo.</string>
+    <string name="crews_noprofile_body">Os passes precisam de um perfil no ranking, e este celular ainda não tem um. Entre em %1$s e escaneie de novo.</string>
     <string name="crews_issue">Permitir</string>
     <string name="crews_notme">Negar</string>
     <string name="crews_ratelimited">Tentativas demais. Espere um minuto e tente de novo.</string>

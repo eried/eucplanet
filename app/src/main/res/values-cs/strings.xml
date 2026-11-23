@@ -2580,7 +2580,7 @@
     <string name="voice_stat_peak">Špička</string>
     <string name="crews_pass_action">Průkaz crew</string>
     <string name="crews_pass_search_hint">Průkaz crew se zobrazí, až se připojíte k online žebříčkům.</string>
-    <string name="crews_scan_hint">Otevřete eucstats v prohlížeči, klepněte na Crews a namiřte telefon na kód, který se objeví.</string>
+    <string name="crews_scan_hint">Otevřete eucstats v prohlížeči, klepněte na Crews a naskenujte zobrazený kód.</string>
     <string name="crews_scan_invalid">Toto není kód průkazu crew.</string>
     <string name="crews_scan_is_share">To je kód sdílení polohy. Načtěte ho přes Sdílet na mapě.</string>
     <string name="share_scan_is_crewpass">To je průkaz crew. Načtěte ho v Nastavení, v části %1$s.</string>
@@ -2593,14 +2593,14 @@
     <string name="crews_opensettings">Otevřít nastavení</string>
     <string name="crews_dev_title">Vývojářský režim</string>
     <string name="crews_dev_body">Mluví s %1$s místo s obvyklým serverem.</string>
-    <string name="crews_request_title">Žádost o průkaz crew</string>
+    <string name="crews_request_title">Žádost o průkaz</string>
     <string name="crews_request_from">%1$s žádá o průkaz.</string>
     <string name="crews_access">Přístup: %1$s</string>
-    <string name="crews_scope_crew">Crew</string>
+    <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Administrátorská konzole</string>
     <string name="crews_grant">Vydejte tento průkaz jen tehdy, pokud jste žádost podali sami.</string>
     <string name="crews_noprofile_title">Nejdřív se připojte k žebříčku</string>
-    <string name="crews_noprofile_body">Průkazy crew potřebují profil v žebříčku a tento telefon ho zatím nemá. Připojte se v sekci %1$s a naskenujte znovu.</string>
+    <string name="crews_noprofile_body">Průkazy potřebují profil v žebříčku a tento telefon ho zatím nemá. Připojte se v sekci %1$s a naskenujte znovu.</string>
     <string name="crews_issue">Povolit</string>
     <string name="crews_notme">Zamítnout</string>
     <string name="crews_ratelimited">Příliš mnoho pokusů. Počkejte minutu a zkuste to znovu.</string>

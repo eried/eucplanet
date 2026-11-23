@@ -2771,7 +2771,7 @@
 
     <string name="crews_pass_action">Пропуск за екип</string>
     <string name="crews_pass_search_hint">Пропускът за екип се показва, след като се включите в онлайн класациите.</string>
-    <string name="crews_scan_hint">Отворете eucstats в браузър, натиснете Crews и насочете камерата към кода, който се покаже.</string>
+    <string name="crews_scan_hint">Отворете eucstats в браузър, докоснете Екипи и сканирайте показания код.</string>
     <string name="crews_scan_invalid">Това не е код на пропуск за екип.</string>
     <string name="crews_scan_is_share">Това е код за местоположение на живо. Сканирайте го от Сподели на картата.</string>
     <string name="share_scan_is_crewpass">Това е пропуск за екип. Сканирайте го от Настройки, в %1$s.</string>
@@ -2784,14 +2784,14 @@
     <string name="crews_opensettings">Отвори настройките</string>
     <string name="crews_dev_title">Режим за разработчици</string>
     <string name="crews_dev_body">Връзка с %1$s вместо с обичайния сървър.</string>
-    <string name="crews_request_title">Заявка за пропуск за екип</string>
+    <string name="crews_request_title">Заявка за пропуск</string>
     <string name="crews_request_from">%1$s иска пропуск.</string>
     <string name="crews_access">Достъп: %1$s</string>
     <string name="crews_scope_crew">Екипи</string>
     <string name="crews_scope_admin">Администраторска конзола</string>
     <string name="crews_grant">Издайте този пропуск само ако сами сте направили заявката.</string>
     <string name="crews_noprofile_title">Първо се включете в класацията</string>
-    <string name="crews_noprofile_body">Пропуските за екип изискват профил в класирането, а този телефон още няма такъв. Присъединете се в %1$s и сканирайте отново.</string>
+    <string name="crews_noprofile_body">Пропуските изискват профил в класирането, а този телефон още няма такъв. Присъединете се в %1$s и сканирайте отново.</string>
     <string name="crews_issue">Разреши</string>
     <string name="crews_notme">Откажи</string>
     <string name="crews_ratelimited">Твърде много опити. Изчакайте минута и опитайте отново.</string>

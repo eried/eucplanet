@@ -2769,7 +2769,7 @@
     <string name="voice_stat_peak">피크</string>
     <string name="crews_pass_action">크루 패스</string>
     <string name="crews_pass_search_hint">크루 패스는 온라인 리더보드에 참여하면 표시됩니다.</string>
-    <string name="crews_scan_hint">브라우저에서 eucstats를 열고 Crews를 누른 다음, 표시되는 코드에 카메라를 맞추세요.</string>
+    <string name="crews_scan_hint">브라우저에서 eucstats를 열고 크루를 누른 뒤 표시된 코드를 스캔하세요.</string>
     <string name="crews_scan_invalid">크루 패스 코드가 아닙니다.</string>
     <string name="crews_scan_is_share">실시간 위치 코드입니다. 지도의 공유에서 스캔하세요.</string>
     <string name="share_scan_is_crewpass">크루 패스입니다. 설정의 %1$s에서 스캔하세요.</string>
@@ -2782,14 +2782,14 @@
     <string name="crews_opensettings">설정 열기</string>
     <string name="crews_dev_title">개발자 모드</string>
     <string name="crews_dev_body">평소 서버 대신 %1$s에 연결되어 있습니다.</string>
-    <string name="crews_request_title">크루 패스 요청</string>
+    <string name="crews_request_title">패스 요청</string>
     <string name="crews_request_from">%1$s에서 패스를 요청합니다.</string>
     <string name="crews_access">접근 권한: %1$s</string>
     <string name="crews_scope_crew">크루</string>
     <string name="crews_scope_admin">관리 콘솔</string>
     <string name="crews_grant">직접 요청한 경우에만 이 패스를 발급하세요.</string>
     <string name="crews_noprofile_title">먼저 리더보드에 참여하세요</string>
-    <string name="crews_noprofile_body">크루 패스에는 리더보드 프로필이 필요한데, 이 휴대폰에는 아직 없습니다. %1$s에서 가입한 뒤 다시 스캔하세요.</string>
+    <string name="crews_noprofile_body">패스에는 리더보드 프로필이 필요한데, 이 휴대폰에는 아직 없습니다. %1$s에서 가입한 뒤 다시 스캔하세요.</string>
     <string name="crews_issue">허용</string>
     <string name="crews_notme">거부</string>
     <string name="crews_ratelimited">시도 횟수가 너무 많습니다. 1분 후 다시 시도하세요.</string>

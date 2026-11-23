@@ -2771,7 +2771,7 @@
     <string name="voice_stat_peak">Pico</string>
     <string name="crews_pass_action">Pase de cuadrilla</string>
     <string name="crews_pass_search_hint">El pase de cuadrilla aparece cuando te unes a las clasificaciones online.</string>
-    <string name="crews_scan_hint">Abre eucstats en el navegador, dale a Cuadrillas y apunta esto al código que salga.</string>
+    <string name="crews_scan_hint">Abre eucstats en un navegador, toca Cuadrillas y escanea el código que aparece.</string>
     <string name="crews_scan_invalid">Este no es un código de pase de cuadrilla.</string>
     <string name="crews_scan_is_share">Ese es un código de ubicación en directo. Escanéalo desde Compartir en el mapa.</string>
     <string name="share_scan_is_crewpass">Ese es un pase de cuadrilla. Escanéalo desde Ajustes, en %1$s.</string>
@@ -2784,14 +2784,14 @@
     <string name="crews_opensettings">Abrir ajustes</string>
     <string name="crews_dev_title">Modo desarrollador</string>
     <string name="crews_dev_body">Hablando con %1$s en vez de con el servidor de siempre.</string>
-    <string name="crews_request_title">Solicitud de pase de cuadrilla</string>
+    <string name="crews_request_title">Solicitud de pase</string>
     <string name="crews_request_from">%1$s solicita un pase.</string>
     <string name="crews_access">Acceso: %1$s</string>
     <string name="crews_scope_crew">Cuadrillas</string>
     <string name="crews_scope_admin">Consola de administración</string>
     <string name="crews_grant">Emite este pase solo si hiciste la solicitud tú mismo.</string>
     <string name="crews_noprofile_title">Únete primero a la clasificación</string>
-    <string name="crews_noprofile_body">Los pases de cuadrilla necesitan un perfil en la clasificación, y este teléfono aún no tiene uno. Únete en %1$s y vuelve a escanear.</string>
+    <string name="crews_noprofile_body">Los pases necesitan un perfil en la clasificación, y este teléfono aún no tiene uno. Únete en %1$s y vuelve a escanear.</string>
     <string name="crews_issue">Permitir</string>
     <string name="crews_notme">Denegar</string>
     <string name="crews_ratelimited">Demasiados intentos. Espera un minuto y prueba otra vez.</string>

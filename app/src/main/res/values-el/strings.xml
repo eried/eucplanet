@@ -2689,7 +2689,7 @@
 
     <string name="crews_pass_action">Πάσο ομάδας</string>
     <string name="crews_pass_search_hint">Το πάσο ομάδας εμφανίζεται μόλις συμμετάσχετε στις διαδικτυακές κατατάξεις.</string>
-    <string name="crews_scan_hint">Ανοίξτε το eucstats σε πρόγραμμα περιήγησης, πατήστε Crews και στρέψτε την κάμερα στον κωδικό που εμφανίζει.</string>
+    <string name="crews_scan_hint">Ανοίξτε το eucstats σε πρόγραμμα περιήγησης, πατήστε Ομάδες και σαρώστε τον κωδικό που εμφανίζεται.</string>
     <string name="crews_scan_invalid">Αυτός δεν είναι κωδικός πάσου ομάδας.</string>
     <string name="crews_scan_is_share">Αυτός είναι κωδικός ζωντανής τοποθεσίας. Σαρώστε τον από την Κοινοποίηση στον χάρτη.</string>
     <string name="share_scan_is_crewpass">Αυτό είναι πάσο ομάδας. Σαρώστε το από τις Ρυθμίσεις, στα %1$s.</string>
@@ -2702,14 +2702,14 @@
     <string name="crews_opensettings">Άνοιγμα ρυθμίσεων</string>
     <string name="crews_dev_title">Λειτουργία προγραμματιστή</string>
     <string name="crews_dev_body">Σύνδεση με %1$s αντί του συνηθισμένου διακομιστή.</string>
-    <string name="crews_request_title">Αίτημα πάσου ομάδας</string>
+    <string name="crews_request_title">Αίτημα πάσου</string>
     <string name="crews_request_from">Το %1$s ζητά ένα πάσο.</string>
     <string name="crews_access">Πρόσβαση: %1$s</string>
     <string name="crews_scope_crew">Ομάδες</string>
     <string name="crews_scope_admin">Κονσόλα διαχείρισης</string>
     <string name="crews_grant">Εκδώστε αυτό το πάσο μόνο αν κάνατε εσείς το αίτημα.</string>
     <string name="crews_noprofile_title">Συμμετάσχετε πρώτα στην κατάταξη</string>
-    <string name="crews_noprofile_body">Τα πάσα ομάδας χρειάζονται προφίλ στην κατάταξη, και αυτό το τηλέφωνο δεν έχει ακόμη. Εγγραφείτε στο %1$s και σαρώστε ξανά.</string>
+    <string name="crews_noprofile_body">Τα πάσα χρειάζονται προφίλ στην κατάταξη, και αυτό το τηλέφωνο δεν έχει ακόμη. Εγγραφείτε στο %1$s και σαρώστε ξανά.</string>
     <string name="crews_issue">Επιτρέπεται</string>
     <string name="crews_notme">Απόρριψη</string>
     <string name="crews_ratelimited">Πάρα πολλές προσπάθειες. Περιμένετε ένα λεπτό και δοκιμάστε ξανά.</string>

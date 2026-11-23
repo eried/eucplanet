@@ -2792,7 +2792,7 @@
     <string name="voice_stat_peak">Spitze</string>
     <string name="crews_pass_action">Crew-Pass</string>
     <string name="crews_pass_search_hint">Der Crew-Pass erscheint, sobald du den Online-Bestenlisten beitrittst.</string>
-    <string name="crews_scan_hint">Öffne eucstats im Browser, geh auf Crews und richte die Kamera auf den angezeigten Code.</string>
+    <string name="crews_scan_hint">Öffne eucstats im Browser, tippe auf Crews und scanne den angezeigten Code.</string>
     <string name="crews_scan_invalid">Das ist kein Crew-Pass-Code.</string>
     <string name="crews_scan_is_share">Das ist ein Live-Standort-Code. Scanne ihn über Teilen auf der Karte.</string>
     <string name="share_scan_is_crewpass">Das ist ein Crew-Pass. Scanne ihn in den Einstellungen unter %1$s.</string>
@@ -2805,14 +2805,14 @@
     <string name="crews_opensettings">Einstellungen öffnen</string>
     <string name="crews_dev_title">Entwicklermodus</string>
     <string name="crews_dev_body">Spricht mit %1$s statt mit dem üblichen Server.</string>
-    <string name="crews_request_title">Crew-Pass-Anfrage</string>
+    <string name="crews_request_title">Pass-Anfrage</string>
     <string name="crews_request_from">%1$s fordert einen Pass an.</string>
     <string name="crews_access">Zugriff: %1$s</string>
     <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Admin-Konsole</string>
     <string name="crews_grant">Stelle diesen Pass nur aus, wenn du die Anfrage selbst gestellt hast.</string>
     <string name="crews_noprofile_title">Tritt erst der Bestenliste bei</string>
-    <string name="crews_noprofile_body">Crew-Pässe brauchen ein Bestenlisten-Profil, und dieses Telefon hat noch keins. Tritt unter %1$s bei und scanne dann erneut.</string>
+    <string name="crews_noprofile_body">Pässe brauchen ein Bestenlisten-Profil, und dieses Telefon hat noch keins. Tritt unter %1$s bei und scanne dann erneut.</string>
     <string name="crews_issue">Erlauben</string>
     <string name="crews_notme">Ablehnen</string>
     <string name="crews_ratelimited">Zu viele Versuche. Warte eine Minute und probiere es noch mal.</string>

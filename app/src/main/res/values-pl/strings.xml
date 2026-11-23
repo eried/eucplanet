@@ -2776,7 +2776,7 @@
     <string name="voice_stat_peak">Szczyt</string>
     <string name="crews_pass_action">Przepustka ekipy</string>
     <string name="crews_pass_search_hint">Przepustka ekipy pojawi się, gdy dołączysz do rankingów online.</string>
-    <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, wybierz Crews i skieruj aparat na wyświetlony kod.</string>
+    <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, stuknij Ekipy i zeskanuj wyświetlony kod.</string>
     <string name="crews_scan_invalid">To nie jest kod przepustki ekipy.</string>
     <string name="crews_scan_is_share">To kod lokalizacji na żywo. Zeskanuj go przez Udostępnij na mapie.</string>
     <string name="share_scan_is_crewpass">To jest przepustka ekipy. Zeskanuj ją w Ustawieniach, w sekcji %1$s.</string>
@@ -2789,14 +2789,14 @@
     <string name="crews_opensettings">Otwórz ustawienia</string>
     <string name="crews_dev_title">Tryb dewelopera</string>
     <string name="crews_dev_body">Łączy się z %1$s zamiast ze zwykłym serwerem.</string>
-    <string name="crews_request_title">Prośba o przepustkę ekipy</string>
+    <string name="crews_request_title">Prośba o przepustkę</string>
     <string name="crews_request_from">%1$s prosi o przepustkę.</string>
     <string name="crews_access">Dostęp: %1$s</string>
     <string name="crews_scope_crew">Ekipy</string>
     <string name="crews_scope_admin">Konsola administratora</string>
     <string name="crews_grant">Wydaj tę przepustkę tylko wtedy, gdy sam złożyłeś prośbę.</string>
     <string name="crews_noprofile_title">Najpierw dołącz do rankingu</string>
-    <string name="crews_noprofile_body">Przepustki ekipy wymagają profilu w rankingu, a ten telefon jeszcze go nie ma. Dołącz w sekcji %1$s i zeskanuj ponownie.</string>
+    <string name="crews_noprofile_body">Przepustki wymagają profilu w rankingu, a ten telefon jeszcze go nie ma. Dołącz w sekcji %1$s i zeskanuj ponownie.</string>
     <string name="crews_issue">Zezwól</string>
     <string name="crews_notme">Odmów</string>
     <string name="crews_ratelimited">Za dużo prób. Odczekaj minutę i spróbuj jeszcze raz.</string>

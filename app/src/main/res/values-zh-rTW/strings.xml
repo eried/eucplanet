@@ -2769,7 +2769,7 @@
     <string name="voice_stat_peak">峰值</string>
     <string name="crews_pass_action">車隊通行證</string>
     <string name="crews_pass_search_hint">加入線上排行榜後，就會顯示車隊通行證。</string>
-    <string name="crews_scan_hint">在瀏覽器中開啟 eucstats，點選 Crews，再將鏡頭對準畫面上的代碼。</string>
+    <string name="crews_scan_hint">在瀏覽器中開啟 eucstats，點選「車隊」，然後掃描顯示的代碼。</string>
     <string name="crews_scan_invalid">這不是車隊通行證代碼。</string>
     <string name="crews_scan_is_share">這是即時位置代碼，請從地圖上的「分享」掃描。</string>
     <string name="share_scan_is_crewpass">這是車隊通行證，請從「設定」中的「%1$s」掃描。</string>
@@ -2782,14 +2782,14 @@
     <string name="crews_opensettings">開啟設定</string>
     <string name="crews_dev_title">開發者模式</string>
     <string name="crews_dev_body">正在與 %1$s 通訊，而不是平常的伺服器。</string>
-    <string name="crews_request_title">車隊通行證請求</string>
+    <string name="crews_request_title">通行證請求</string>
     <string name="crews_request_from">%1$s 正在請求通行證。</string>
     <string name="crews_access">存取權限：%1$s</string>
     <string name="crews_scope_crew">車隊</string>
     <string name="crews_scope_admin">管理主控台</string>
     <string name="crews_grant">只有在你本人提出請求時才核發此通行證。</string>
     <string name="crews_noprofile_title">先加入排行榜</string>
-    <string name="crews_noprofile_body">車隊通行證需要排行榜個人資料，而這支手機還沒有。請在 %1$s 中加入，然後重新掃描。</string>
+    <string name="crews_noprofile_body">通行證需要排行榜個人資料，而這支手機還沒有。請在 %1$s 中加入，然後重新掃描。</string>
     <string name="crews_issue">允許</string>
     <string name="crews_notme">拒絕</string>
     <string name="crews_ratelimited">嘗試次數過多。請等一分鐘再試。</string>

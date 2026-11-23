@@ -2774,7 +2774,7 @@
     <string name="voice_stat_peak">Piek</string>
     <string name="crews_pass_action">Crewpas</string>
     <string name="crews_pass_search_hint">Crewpas verschijnt zodra je meedoet aan de online klassementen.</string>
-    <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews, en richt dit op de code die verschijnt.</string>
+    <string name="crews_scan_hint">Open eucstats in een browser, tik op Crews en scan de code die verschijnt.</string>
     <string name="crews_scan_invalid">Dit is geen crewpascode.</string>
     <string name="crews_scan_is_share">Dat is een live-locatiecode. Scan hem via Delen op de kaart.</string>
     <string name="share_scan_is_crewpass">Dat is een crewpas. Scan hem via Instellingen, onder %1$s.</string>
@@ -2787,14 +2787,14 @@
     <string name="crews_opensettings">Instellingen openen</string>
     <string name="crews_dev_title">Ontwikkelaarsmodus</string>
     <string name="crews_dev_body">Praat met %1$s in plaats van de gewone server.</string>
-    <string name="crews_request_title">Aanvraag crewpas</string>
+    <string name="crews_request_title">Pasaanvraag</string>
     <string name="crews_request_from">%1$s vraagt een pas aan.</string>
     <string name="crews_access">Toegang: %1$s</string>
     <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Beheerconsole</string>
     <string name="crews_grant">Geef deze pas alleen uit als je de aanvraag zelf hebt gedaan.</string>
     <string name="crews_noprofile_title">Doe eerst mee aan het klassement</string>
-    <string name="crews_noprofile_body">Crewpassen hebben een ranglijstprofiel nodig, en deze telefoon heeft er nog geen. Doe mee via %1$s en scan daarna opnieuw.</string>
+    <string name="crews_noprofile_body">Passen hebben een ranglijstprofiel nodig, en deze telefoon heeft er nog geen. Doe mee via %1$s en scan daarna opnieuw.</string>
     <string name="crews_issue">Toestaan</string>
     <string name="crews_notme">Weigeren</string>
     <string name="crews_ratelimited">Te veel pogingen. Wacht een minuut en probeer het opnieuw.</string>

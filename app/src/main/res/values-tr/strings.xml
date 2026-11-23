@@ -2769,7 +2769,7 @@
     <string name="voice_stat_peak">Tepe</string>
     <string name="crews_pass_action">Ekip kartı</string>
     <string name="crews_pass_search_hint">Ekip kartı, çevrimiçi lider tablolarına katıldığınızda görünür.</string>
-    <string name="crews_scan_hint">eucstats\'ı tarayıcıda açın, Crews\'a basın ve telefonu çıkan koda tutun.</string>
+    <string name="crews_scan_hint">eucstats\'ı bir tarayıcıda açın, Ekipler\'e dokunun ve görünen kodu tarayın.</string>
     <string name="crews_scan_invalid">Bu bir ekip kartı kodu değil.</string>
     <string name="crews_scan_is_share">Bu bir canlı konum kodu. Haritadaki Paylaş bölümünden okutun.</string>
     <string name="share_scan_is_crewpass">Bu bir ekip kartı. Ayarlar\'da %1$s altından okutun.</string>
@@ -2782,14 +2782,14 @@
     <string name="crews_opensettings">Ayarları aç</string>
     <string name="crews_dev_title">Geliştirici modu</string>
     <string name="crews_dev_body">Her zamanki sunucu yerine %1$s ile iletişim kuruluyor.</string>
-    <string name="crews_request_title">Ekip kartı isteği</string>
+    <string name="crews_request_title">Kart isteği</string>
     <string name="crews_request_from">%1$s bir kart istiyor.</string>
     <string name="crews_access">Erişim: %1$s</string>
     <string name="crews_scope_crew">Ekipler</string>
     <string name="crews_scope_admin">Yönetim konsolu</string>
     <string name="crews_grant">Bu kartı yalnızca isteği kendiniz yaptıysanız verin.</string>
     <string name="crews_noprofile_title">Önce lider tablosuna katılın</string>
-    <string name="crews_noprofile_body">Ekip kartları için bir sıralama profili gerekir ve bu telefonda henüz yok. %1$s bölümünden katılın, sonra yeniden tarayın.</string>
+    <string name="crews_noprofile_body">Kartlar için bir sıralama profili gerekir ve bu telefonda henüz yok. %1$s bölümünden katılın, sonra yeniden tarayın.</string>
     <string name="crews_issue">İzin ver</string>
     <string name="crews_notme">Reddet</string>
     <string name="crews_ratelimited">Çok fazla deneme. Bir dakika bekleyip tekrar deneyin.</string>

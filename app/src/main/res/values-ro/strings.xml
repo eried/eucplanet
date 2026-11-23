@@ -2578,7 +2578,7 @@
     <string name="voice_stat_peak">Vârf</string>
     <string name="crews_pass_action">Acces crew</string>
     <string name="crews_pass_search_hint">Accesul crew apare după ce te alături clasamentelor online.</string>
-    <string name="crews_scan_hint">Deschide eucstats în browser, apasă Crews și îndreaptă camera spre codul afișat.</string>
+    <string name="crews_scan_hint">Deschide eucstats într-un browser, atinge Crews și scanează codul afișat.</string>
     <string name="crews_scan_invalid">Acesta nu este un cod de acces crew.</string>
     <string name="crews_scan_is_share">Acesta este un cod de locație live. Scanează-l din Partajare, pe hartă.</string>
     <string name="share_scan_is_crewpass">Acesta este un cod de acces crew. Scanează-l din Setări, la %1$s.</string>
@@ -2591,14 +2591,14 @@
     <string name="crews_opensettings">Deschide setările</string>
     <string name="crews_dev_title">Mod dezvoltator</string>
     <string name="crews_dev_body">Vorbește cu %1$s, nu cu serverul obișnuit.</string>
-    <string name="crews_request_title">Cerere de acces crew</string>
+    <string name="crews_request_title">Cerere de acces</string>
     <string name="crews_request_from">%1$s cere un acces.</string>
     <string name="crews_access">Acces: %1$s</string>
-    <string name="crews_scope_crew">Crew-uri</string>
+    <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Consola de administrare</string>
     <string name="crews_grant">Emite acest acces doar dacă tu ai făcut cererea.</string>
     <string name="crews_noprofile_title">Intră întâi în clasament</string>
-    <string name="crews_noprofile_body">Accesul crew necesită un profil în clasament, iar acest telefon nu are încă unul. Alătură-te din %1$s, apoi scanează din nou.</string>
+    <string name="crews_noprofile_body">Accesul necesită un profil în clasament, iar acest telefon nu are încă unul. Alătură-te din %1$s, apoi scanează din nou.</string>
     <string name="crews_issue">Permite</string>
     <string name="crews_notme">Refuză</string>
     <string name="crews_ratelimited">Prea multe încercări. Așteaptă un minut și încearcă din nou.</string>

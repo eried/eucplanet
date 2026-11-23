@@ -2772,7 +2772,7 @@
     <string name="voice_stat_peak">Topp</string>
     <string name="crews_pass_action">Crew-pass</string>
     <string name="crews_pass_search_hint">Crew-pass visas när du går med i online-topplistorna.</string>
-    <string name="crews_scan_hint">Öppna eucstats i en webbläsare, tryck på Crews, och rikta den här mot koden som visas.</string>
+    <string name="crews_scan_hint">Öppna eucstats i en webbläsare, tryck på Crews och skanna koden som visas.</string>
     <string name="crews_scan_invalid">Det här är inte en crew-pass-kod.</string>
     <string name="crews_scan_is_share">Det där är en kod för liveposition. Skanna den från Dela på kartan.</string>
     <string name="share_scan_is_crewpass">Det där är ett crew-pass. Skanna det från Inställningar, under %1$s.</string>
@@ -2785,14 +2785,14 @@
     <string name="crews_opensettings">Öppna inställningar</string>
     <string name="crews_dev_title">Utvecklarläge</string>
     <string name="crews_dev_body">Pratar med %1$s i stället för den vanliga servern.</string>
-    <string name="crews_request_title">Begäran om crew-pass</string>
+    <string name="crews_request_title">Passbegäran</string>
     <string name="crews_request_from">%1$s begär ett pass.</string>
     <string name="crews_access">Åtkomst: %1$s</string>
     <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Administratörskonsol</string>
     <string name="crews_grant">Utfärda bara passet om du själv gjorde begäran.</string>
     <string name="crews_noprofile_title">Gå med i topplistan först</string>
-    <string name="crews_noprofile_body">Crew-pass kräver en profil på topplistan, och den här telefonen har ingen än. Gå med under %1$s och skanna sedan igen.</string>
+    <string name="crews_noprofile_body">Pass kräver en profil på topplistan, och den här telefonen har ingen än. Gå med under %1$s och skanna sedan igen.</string>
     <string name="crews_issue">Tillåt</string>
     <string name="crews_notme">Neka</string>
     <string name="crews_ratelimited">För många försök. Vänta en minut och försök igen.</string>

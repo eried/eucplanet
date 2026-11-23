@@ -2787,7 +2787,7 @@
     <string name="voice_stat_peak">Spids</string>
     <string name="crews_pass_action">Crew-pas</string>
     <string name="crews_pass_search_hint">Crew-pas vises, når du er med på online-ranglisterne.</string>
-    <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og ret kameraet mod koden, der vises.</string>
+    <string name="crews_scan_hint">Åbn eucstats i en browser, tryk på Crews, og scan den kode, der vises.</string>
     <string name="crews_scan_invalid">Dette er ikke en crew-pas-kode.</string>
     <string name="crews_scan_is_share">Det er en kode til live-position. Scan den fra Del på kortet.</string>
     <string name="share_scan_is_crewpass">Det er et crew-pas. Scan det fra Indstillinger, under %1$s.</string>
@@ -2800,14 +2800,14 @@
     <string name="crews_opensettings">Åbn indstillinger</string>
     <string name="crews_dev_title">Udviklertilstand</string>
     <string name="crews_dev_body">Taler med %1$s i stedet for den sædvanlige server.</string>
-    <string name="crews_request_title">Anmodning om crew-pas</string>
+    <string name="crews_request_title">Anmodning om pas</string>
     <string name="crews_request_from">%1$s anmoder om et pas.</string>
     <string name="crews_access">Adgang: %1$s</string>
     <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Administratorkonsol</string>
     <string name="crews_grant">Udsted kun dette pas, hvis du selv har lavet anmodningen.</string>
     <string name="crews_noprofile_title">Tilmeld dig ranglisten først</string>
-    <string name="crews_noprofile_body">Crew-pas kræver en profil på ranglisten, og denne telefon har endnu ingen. Tilmeld dig under %1$s, og scan igen.</string>
+    <string name="crews_noprofile_body">Pas kræver en profil på ranglisten, og denne telefon har endnu ingen. Tilmeld dig under %1$s, og scan igen.</string>
     <string name="crews_issue">Tillad</string>
     <string name="crews_notme">Afvis</string>
     <string name="crews_ratelimited">For mange forsøg. Vent et minut, og prøv igen.</string>

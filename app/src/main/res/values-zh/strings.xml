@@ -2636,7 +2636,7 @@
     <string name="voice_stat_peak">峰值</string>
     <string name="crews_pass_action">战队通行证</string>
     <string name="crews_pass_search_hint">加入在线排行榜后就会显示战队通行证。</string>
-    <string name="crews_scan_hint">在浏览器中打开 eucstats，点 Crews，然后把手机对准页面上显示的码。</string>
+    <string name="crews_scan_hint">在浏览器中打开 eucstats，点按“战队”，然后扫描显示的代码。</string>
     <string name="crews_scan_invalid">这不是战队通行证代码。</string>
     <string name="crews_scan_is_share">那是实时位置的码。去地图上的“分享”里扫。</string>
     <string name="share_scan_is_crewpass">这是战队通行码，请在设置的“%1$s”中扫描。</string>
@@ -2649,14 +2649,14 @@
     <string name="crews_opensettings">打开设置</string>
     <string name="crews_dev_title">开发者模式</string>
     <string name="crews_dev_body">正在跟 %1$s 通信，不是平时那台服务器。</string>
-    <string name="crews_request_title">战队通行证请求</string>
+    <string name="crews_request_title">通行证请求</string>
     <string name="crews_request_from">%1$s 正在请求通行证。</string>
     <string name="crews_access">访问权限：%1$s</string>
     <string name="crews_scope_crew">战队</string>
     <string name="crews_scope_admin">管理控制台</string>
     <string name="crews_grant">只有在你本人发起请求时才发放此通行证。</string>
     <string name="crews_noprofile_title">先加入排行榜</string>
-    <string name="crews_noprofile_body">战队通行证需要排行榜资料，而这部手机还没有。请在 %1$s 中加入，然后重新扫描。</string>
+    <string name="crews_noprofile_body">通行证需要排行榜资料，而这部手机还没有。请在 %1$s 中加入，然后重新扫描。</string>
     <string name="crews_issue">允许</string>
     <string name="crews_notme">拒绝</string>
     <string name="crews_ratelimited">试太多次了。等一分钟再来。</string>

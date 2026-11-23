@@ -2774,7 +2774,7 @@
 
     <string name="crews_pass_action">Preukaz posádky</string>
     <string name="crews_pass_search_hint">Preukaz posádky sa zobrazí, keď sa pridáte do online rebríčkov.</string>
-    <string name="crews_scan_hint">Otvorte eucstats v prehliadači, kliknite na Crews a namierte telefón na kód, ktorý sa zobrazí.</string>
+    <string name="crews_scan_hint">Otvorte eucstats v prehliadači, ťuknite na Posádky a naskenujte zobrazený kód.</string>
     <string name="crews_scan_invalid">Toto nie je kód preukazu posádky.</string>
     <string name="crews_scan_is_share">Toto je kód na zdieľanie polohy naživo. Naskenujte ho cez Zdieľať na mape.</string>
     <string name="share_scan_is_crewpass">Toto je preukaz posádky. Naskenujte ho v Nastaveniach, v sekcii %1$s.</string>
@@ -2787,14 +2787,14 @@
     <string name="crews_opensettings">Otvoriť nastavenia</string>
     <string name="crews_dev_title">Režim pre vývojárov</string>
     <string name="crews_dev_body">Komunikuje s %1$s namiesto bežného servera.</string>
-    <string name="crews_request_title">Žiadosť o preukaz posádky</string>
+    <string name="crews_request_title">Žiadosť o preukaz</string>
     <string name="crews_request_from">%1$s žiada o preukaz.</string>
     <string name="crews_access">Prístup: %1$s</string>
     <string name="crews_scope_crew">Posádky</string>
     <string name="crews_scope_admin">Administrátorská konzola</string>
     <string name="crews_grant">Vydajte tento preukaz, iba ak ste žiadosť podali sami.</string>
     <string name="crews_noprofile_title">Najprv sa pridajte do rebríčka</string>
-    <string name="crews_noprofile_body">Preukazy posádky potrebujú profil v rebríčku a tento telefón ho zatiaľ nemá. Pripojte sa v sekcii %1$s a naskenujte znova.</string>
+    <string name="crews_noprofile_body">Preukazy potrebujú profil v rebríčku a tento telefón ho zatiaľ nemá. Pripojte sa v sekcii %1$s a naskenujte znova.</string>
     <string name="crews_issue">Povoliť</string>
     <string name="crews_notme">Zamietnuť</string>
     <string name="crews_ratelimited">Príliš veľa pokusov. Počkajte minútu a skúste to znova.</string>

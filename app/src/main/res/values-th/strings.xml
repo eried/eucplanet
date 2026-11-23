@@ -2604,7 +2604,7 @@
     <string name="voice_stat_peak">พีค</string>
     <string name="crews_pass_action">บัตรผ่านครูว์</string>
     <string name="crews_pass_search_hint">บัตรผ่านครูว์จะแสดงเมื่อคุณเข้าร่วมตารางอันดับออนไลน์</string>
-    <string name="crews_scan_hint">เปิด eucstats ในเบราว์เซอร์ กดครูว์ แล้วส่องกล้องไปที่โค้ดที่แสดง</string>
+    <string name="crews_scan_hint">เปิด eucstats ในเบราว์เซอร์ แตะ ครูว์ แล้วสแกนรหัสที่แสดง</string>
     <string name="crews_scan_invalid">นี่ไม่ใช่รหัสบัตรผ่านครูว์</string>
     <string name="crews_scan_is_share">นั่นคือโค้ดตำแหน่งสด สแกนจากปุ่มแชร์บนแผนที่</string>
     <string name="share_scan_is_crewpass">นั่นคือบัตรผ่านครูว์ สแกนจากการตั้งค่า ในหัวข้อ%1$s</string>
@@ -2617,14 +2617,14 @@
     <string name="crews_opensettings">เปิดการตั้งค่า</string>
     <string name="crews_dev_title">โหมดนักพัฒนา</string>
     <string name="crews_dev_body">กำลังติดต่อกับ %1$s แทนเซิร์ฟเวอร์ปกติ</string>
-    <string name="crews_request_title">คำขอบัตรผ่านครูว์</string>
+    <string name="crews_request_title">คำขอบัตรผ่าน</string>
     <string name="crews_request_from">%1$s กำลังขอบัตรผ่าน</string>
     <string name="crews_access">สิทธิ์เข้าถึง: %1$s</string>
     <string name="crews_scope_crew">ครูว์</string>
     <string name="crews_scope_admin">คอนโซลผู้ดูแล</string>
     <string name="crews_grant">ออกบัตรผ่านนี้เฉพาะเมื่อคุณเป็นผู้ส่งคำขอเอง</string>
     <string name="crews_noprofile_title">เข้าร่วมตารางอันดับก่อน</string>
-    <string name="crews_noprofile_body">บัตรผ่านครูว์ต้องมีโปรไฟล์กระดานผู้นำ แต่โทรศัพท์เครื่องนี้ยังไม่มี เข้าร่วมที่ %1$s แล้วสแกนอีกครั้ง</string>
+    <string name="crews_noprofile_body">บัตรผ่านต้องมีโปรไฟล์กระดานผู้นำ แต่โทรศัพท์เครื่องนี้ยังไม่มี เข้าร่วมที่ %1$s แล้วสแกนอีกครั้ง</string>
     <string name="crews_issue">อนุญาต</string>
     <string name="crews_notme">ปฏิเสธ</string>
     <string name="crews_ratelimited">ลองหลายครั้งเกินไป รอสักนาทีแล้วลองอีกครั้ง</string>

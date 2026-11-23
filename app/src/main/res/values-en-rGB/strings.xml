@@ -2831,7 +2831,7 @@
          up with everything else; hardcoded strings are strings that never get translated. -->
     <string name="crews_pass_action">Crew pass</string>
     <string name="crews_pass_search_hint">Crew pass shows once you join the online leaderboards.</string>
-    <string name="crews_scan_hint">Open eucstats in a browser, hit Crews, and point this at the code it shows.</string>
+    <string name="crews_scan_hint">Open eucstats in a browser, tap Crews, and scan the code it shows.</string>
     <string name="crews_scan_invalid">This is not a crew pass code.</string>
     <string name="crews_scan_is_share">That is a live-location code. Scan it from Share on the map.</string>
     <string name="share_scan_is_crewpass">That is a crew pass. Scan it from Settings, under %1$s.</string>
@@ -2844,14 +2844,14 @@
     <string name="crews_opensettings">Open settings</string>
     <string name="crews_dev_title">Developer mode</string>
     <string name="crews_dev_body">Talking to %1$s instead of the usual server.</string>
-    <string name="crews_request_title">Crew pass request</string>
+    <string name="crews_request_title">Pass request</string>
     <string name="crews_request_from">%1$s is requesting a pass.</string>
     <string name="crews_access">Access: %1$s</string>
     <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Admin console</string>
     <string name="crews_grant">Issue this pass only if you made the request yourself.</string>
     <string name="crews_noprofile_title">Join the leaderboard first</string>
-    <string name="crews_noprofile_body">Crew passes need a leaderboard profile, and this phone has none yet. Join under %1$s, then scan again.</string>
+    <string name="crews_noprofile_body">Passes need a leaderboard profile, and this phone has none yet. Join under %1$s, then scan again.</string>
     <string name="crews_issue">Allow</string>
     <string name="crews_notme">Deny</string>
     <string name="crews_ratelimited">Too many attempts. Wait a minute and try again.</string>

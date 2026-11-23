@@ -2576,7 +2576,7 @@
     <string name="voice_stat_peak">Csúcs</string>
     <string name="crews_pass_action">Crew-belépő</string>
     <string name="crews_pass_search_hint">A Crew-belépő az online ranglistákhoz való csatlakozás után jelenik meg.</string>
-    <string name="crews_scan_hint">Nyisd meg az eucstatsot böngészőben, nyomd meg a Crews gombot, és irányítsd ezt a megjelenő kódra.</string>
+    <string name="crews_scan_hint">Nyisd meg az eucstats oldalt egy böngészőben, koppints a Crews gombra, és olvasd be a megjelenő kódot.</string>
     <string name="crews_scan_invalid">Ez nem crew-belépő kód.</string>
     <string name="crews_scan_is_share">Ez egy élő helyzet kódja. A térképen, a Megosztásból olvasd be.</string>
     <string name="share_scan_is_crewpass">Ez egy Crew-belépő. A Beállításokban, a %1$s alatt olvasd be.</string>
@@ -2589,14 +2589,14 @@
     <string name="crews_opensettings">Beállítások</string>
     <string name="crews_dev_title">Fejlesztői mód</string>
     <string name="crews_dev_body">A szokásos szerver helyett ezzel kommunikál: %1$s.</string>
-    <string name="crews_request_title">Crew-belépő kérés</string>
+    <string name="crews_request_title">Belépőkérés</string>
     <string name="crews_request_from">%1$s belépőt kér.</string>
     <string name="crews_access">Hozzáférés: %1$s</string>
-    <string name="crews_scope_crew">Crew-k</string>
+    <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Adminisztrációs konzol</string>
     <string name="crews_grant">Csak akkor add ki ezt a belépőt, ha a kérést te magad indítottad.</string>
     <string name="crews_noprofile_title">Előbb csatlakozz a ranglistához</string>
-    <string name="crews_noprofile_body">A crew-belépőkhöz ranglistaprofil kell, és ezen a telefonon még nincs. Csatlakozz itt: %1$s, majd olvasd be újra.</string>
+    <string name="crews_noprofile_body">A belépőkhöz ranglistaprofil kell, és ezen a telefonon még nincs. Csatlakozz itt: %1$s, majd olvasd be újra.</string>
     <string name="crews_issue">Engedélyezés</string>
     <string name="crews_notme">Elutasítás</string>
     <string name="crews_ratelimited">Túl sok próbálkozás. Várj egy percet, és próbáld újra.</string>
