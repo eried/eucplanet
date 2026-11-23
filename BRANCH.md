@@ -21,6 +21,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Phones without Wi-Fi can install it again (Wi-Fi is only for the HUD and Amazfit links).
 - Two crash fixes from Play: reconnecting to the last wheel, and a memory leak on long rides when the phone clock jumps.
 - More crash fixes: full phone storage ends the recording with a warning, damaged settings start from defaults, background starts keep the wheel link.
+- Full phone: opening the app no longer wipes alarms and wheel profiles, and saving a setting no longer closes the app.
 - Crew pass: plain approval screen that shows who is asking and for what access.
 
 ## Please test
