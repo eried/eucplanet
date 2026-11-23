@@ -43,10 +43,22 @@ class CsvWriter(
     /** Number of data rows written so far (excluding the header). */
     val rows: Int get() = rowCount
 
+    /**
+     * Creates the file and writes the header through to disk. Throws when that
+     * fails, with nothing left open: on a full phone the start then fails
+     * cleanly, instead of looking fine until the first rows are flushed.
+     */
     fun open() {
-        writer = BufferedWriter(openWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
-        writer?.newLine()
+        val w = BufferedWriter(openWriter(file))
+        try {
+            w.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
+            w.newLine()
+            w.flush()
+        } catch (e: IOException) {
+            runCatching { w.close() }
+            throw e
+        }
+        synchronized(lock) { writer = w }
     }
 
     /**

@@ -12,6 +12,7 @@ import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.db.WheelProfileDao
 import com.eried.eucplanet.data.store.SettingsJson
 import com.eried.eucplanet.data.store.LegalLockdownStore
+import com.eried.eucplanet.data.repository.AppHealthRepository
 import com.eried.eucplanet.data.store.SettingsStore
 import com.eried.eucplanet.util.isOutOfStorage
 import com.eried.eucplanet.util.mayRebuildDatabase
@@ -26,8 +27,8 @@ import java.util.Locale
 
 /** Settings, the Legal Mode Lockdown store, and the Room database with its DAOs. */
 val appModule = module {
-    single { AppModule.provideSettingsStore(androidContext()) }
-    single { AppModule.provideLegalLockdownStore(androidContext()) }
+    single { AppModule.provideSettingsStore(androidContext(), get()) }
+    single { AppModule.provideLegalLockdownStore(androidContext(), get()) }
     single { AppModule.provideDatabase(androidContext()) }
     factory { AppModule.provideTripDao(get()) }
     factory { AppModule.provideAlarmDao(get()) }
@@ -39,8 +40,8 @@ object AppModule {
     private const val DB_NAME = "eucplanet.db"
     private const val TAG = "AppModule"
 
-    fun provideSettingsStore(context: Context): SettingsStore {
-        val store = SettingsStore(context)
+    fun provideSettingsStore(context: Context, health: AppHealthRepository): SettingsStore {
+        val store = SettingsStore(context) { health.noteSettingNotSaved(it) }
         copyLegacyRoomSettingsIfPresent(context, store)
         // After the legacy migration: if DataStore is still empty this is a
         // genuine fresh install, seed unit defaults from the device locale.
@@ -50,8 +51,8 @@ object AppModule {
     }
 
     /** Legal Mode Lockdown state. Its own store, never part of AppSettings. */
-    fun provideLegalLockdownStore(context: Context): LegalLockdownStore =
-        LegalLockdownStore(context)
+    fun provideLegalLockdownStore(context: Context, health: AppHealthRepository): LegalLockdownStore =
+        LegalLockdownStore(context) { health.noteSettingNotSaved(it) }
 
     fun provideDatabase(context: Context): AppDatabase {
         return openOrRecover(context)

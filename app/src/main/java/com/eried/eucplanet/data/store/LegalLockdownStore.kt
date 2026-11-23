@@ -2,6 +2,7 @@ package com.eried.eucplanet.data.store
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -49,7 +50,12 @@ data class LockdownState(
  * from device transfer in `data_extraction_rules.xml`, so the lock does not
  * ride onto a new phone and a reinstall is genuinely clean.
  */
-class LegalLockdownStore(private val context: Context) {
+class LegalLockdownStore(
+    private val context: Context,
+    // Told when a save fails, which in practice means the phone is out of
+    // storage.
+    private val onWriteFailed: (java.io.IOException) -> Unit = {},
+) {
 
     private val dataStore: DataStore<Preferences> get() = context.lockdownDataStore
 
@@ -63,8 +69,18 @@ class LegalLockdownStore(private val context: Context) {
 
     suspend fun get(): LockdownState = state.first()
 
+    /** A save that fails is dropped and reported, see SettingsStore.write. */
+    private suspend fun write(transform: suspend (MutablePreferences) -> Unit) {
+        try {
+            dataStore.edit(transform)
+        } catch (e: java.io.IOException) {
+            android.util.Log.e("LegalLockdownStore", "Lockdown state not saved", e)
+            onWriteFailed(e)
+        }
+    }
+
     suspend fun set(armed: Boolean, engaged: Boolean, codeHash: String) {
-        dataStore.edit { prefs ->
+        write { prefs ->
             prefs[KEY_ARMED] = armed
             prefs[KEY_ENGAGED] = engaged
             prefs[KEY_HASH] = codeHash
@@ -73,7 +89,7 @@ class LegalLockdownStore(private val context: Context) {
 
     /** Latch the mode on without touching the armed flag or the code. */
     suspend fun setEngaged(engaged: Boolean) {
-        dataStore.edit { prefs -> prefs[KEY_ENGAGED] = engaged }
+        write { prefs -> prefs[KEY_ENGAGED] = engaged }
     }
 
     private companion object {

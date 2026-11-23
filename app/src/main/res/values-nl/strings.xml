@@ -1365,7 +1365,7 @@
     <string name="warnings_battery_opt_title">Batterijoptimalisatie staat aan</string>
     <string name="warnings_battery_opt_body">Android kan EUC Planet op de achtergrond stoppen en een opname midden in de rit afbreken. Laat de app onbeperkt draaien.</string>
     <string name="warnings_storage_full_title">Telefoonopslag is vol</string>
-    <string name="warnings_storage_full_body">De ritopname is gestopt. De rit tot nu toe is opgeslagen. Maak ruimte vrij om weer op te nemen.</string>
+    <string name="warnings_storage_full_body">Ritten kunnen niet worden opgenomen en wijzigingen niet opgeslagen. De ritten tot nu toe zijn veilig. Maak ruimte vrij om door te gaan.</string>
     <string name="warnings_hud_blocked_title">Telefoon-HUD kan niet tekenen</string>
     <string name="warnings_hud_blocked_body">De toestemming om over andere apps te tekenen is ingetrokken, dus de overlay verschijnt niet boven kaarten of muziek.</string>
     <string name="warnings_no_backup_title">Ritten worden niet geback-upt</string>

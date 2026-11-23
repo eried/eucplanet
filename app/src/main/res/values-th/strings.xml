@@ -2434,7 +2434,7 @@
     <string name="warnings_battery_opt_title">การเพิ่มประสิทธิภาพแบตเตอรี่เปิดอยู่</string>
     <string name="warnings_battery_opt_body">Android อาจหยุด EUC Planet ในเบื้องหลัง ทำให้การบันทึกจบกลางทาง อนุญาตให้ทำงานโดยไม่จำกัด</string>
     <string name="warnings_storage_full_title">พื้นที่เก็บข้อมูลของโทรศัพท์เต็ม</string>
-    <string name="warnings_storage_full_body">การบันทึกทริปหยุดแล้ว การขับขี่จนถึงตอนนี้ถูกบันทึกไว้ ล้างพื้นที่เพื่อบันทึกอีกครั้ง</string>
+    <string name="warnings_storage_full_body">ไม่สามารถบันทึกทริปและบันทึกการเปลี่ยนแปลงได้ ทริปที่ผ่านมายังปลอดภัย ล้างพื้นที่เพื่อดำเนินการต่อ</string>
     <string name="warnings_hud_blocked_title">HUD บนโทรศัพท์แสดงผลไม่ได้</string>
     <string name="warnings_hud_blocked_body">สิทธิ์แสดงทับแอปอื่นถูกปิดไปแล้ว โอเวอร์เลย์จึงไม่แสดงทับแผนที่หรือเพลง</string>
     <string name="warnings_no_backup_title">ทริปยังไม่ได้สำรอง</string>

@@ -1369,7 +1369,7 @@
     <string name="warnings_battery_opt_title">Оптимізацію батареї увімкнено</string>
     <string name="warnings_battery_opt_body">Android може зупинити EUC Planet у фоні та обірвати запис посеред поїздки. Дозвольте роботу без обмежень.</string>
     <string name="warnings_storage_full_title">Пам\'ять телефону заповнена</string>
-    <string name="warnings_storage_full_body">Запис поїздки зупинено. Поїздку дотепер збережено. Звільніть місце, щоб знову записувати.</string>
+    <string name="warnings_storage_full_body">Поїздки не записуються, а зміни не зберігаються. Попередні поїздки в безпеці. Звільніть місце, щоб продовжити.</string>
     <string name="warnings_hud_blocked_title">HUD на телефоні заблоковано</string>
     <string name="warnings_hud_blocked_body">Дозвіл малювати поверх інших застосунків відкликано, тому оверлей не з\'явиться поверх карт чи музики.</string>
     <string name="warnings_no_backup_title">Резервних копій поїздок немає</string>

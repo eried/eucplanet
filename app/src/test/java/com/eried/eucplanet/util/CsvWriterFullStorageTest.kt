@@ -4,6 +4,7 @@ import com.eried.eucplanet.data.model.WheelData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import java.io.File
 import java.io.IOException
@@ -54,6 +55,21 @@ class CsvWriterFullStorageTest {
         csv.close()
         // What fit before the disk filled up is still there, header first.
         assertTrue(sink.kept.toString().startsWith("Date,Speed,"))
+    }
+
+    @Test
+    fun aFullDiskFailsTheOpenAndLeavesNothingOpen() {
+        // The header goes to disk at open, so a phone with no room fails the
+        // start instead of looking fine until the first rows are flushed.
+        val csv = CsvWriter(File("unused.csv")) { FullAfter(roomChars = 0) }
+        try {
+            csv.open()
+            fail("open should throw on a full disk")
+        } catch (expected: IOException) {
+            // The caller aborts the recording.
+        }
+        assertFalse(csv.writeRow(WheelData(speed = 20f), location = null))
+        csv.close()
     }
 
     @Test
