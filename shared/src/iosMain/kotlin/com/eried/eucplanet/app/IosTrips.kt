@@ -26,6 +26,12 @@ import com.eried.eucplanet.util.TextSink
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
+import kotlinx.cinterop.ObjCObjectVar
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
+import platform.Foundation.NSError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -203,6 +209,7 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
             return
         }
         writer = w
+        IosAppHealth.storageAvailable()
         trip = record.copy(id = id)
         _currentTripId.value = id
         gpsKm = 0.0
@@ -266,6 +273,11 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
             var lastWheelTripKm: Float? = null
             val wheel = IosAppGraph.wheel
             var wasConnected = wheel.connectionState.value == ConnectionState.CONNECTED
+            // Out of storage, the CSV row fails to write, as on Android. The
+            // trip ends with what was saved, and the dashboard says why. Only
+            // for this recording: a normal stop closes the writer too, and a
+            // write racing that close must not read as a full disk.
+            val loopTripId = _currentTripId.value
             while (_recording.value) {
                 val data = wheel.wheelData.value
                 val connected = wheel.connectionState.value == ConnectionState.CONNECTED
@@ -298,7 +310,15 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
                     IosAppGraph.settings.currentOrLoad().gpsPrioritizeExternal,
                     intervalMs,
                 )
-                writer?.writeRow(data, fix, extSpeed, wheelConnected = connected, extra = wheelLog.nextExtra())
+                if (writer?.writeRow(data, fix, extSpeed, wheelConnected = connected, extra = wheelLog.nextExtra()) == false) {
+                    if (_recording.value && _currentTripId.value == loopTripId) {
+                        Log.e(TAG, "Storage full, stopping the recording")
+                        IosAppHealth.noteStorageFull()
+                        // Its own coroutine: stopRecording cancels this loop.
+                        scope.launch { if (_currentTripId.value == loopTripId) stopRecording() }
+                    }
+                    break
+                }
                 if (fix != null) {
                     val prev = lastFix
                     if (prev != null && fix.accuracy <= 25f) {
@@ -331,13 +351,21 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
         priorKm = 0f
         // A last look in case the wheel is still connected, then what the ride gathered.
         captureWheel()
-        dao.update(
-            t.copy(
-                endTime = System.currentTimeMillis(), distanceKm = distance, sampleCount = rows,
-                // A resumed trip whose wheel never came back keeps what it had.
-                wheelMetaJson = wheelLog.identity.toJson() ?: t.wheelMetaJson,
+        try {
+            dao.update(
+                t.copy(
+                    endTime = System.currentTimeMillis(), distanceKm = distance, sampleCount = rows,
+                    // A resumed trip whose wheel never came back keeps what it had.
+                    wheelMetaJson = wheelLog.identity.toJson() ?: t.wheelMetaJson,
+                )
             )
-        )
+        } catch (e: Exception) {
+            // No room to save the end time, as on Android. The rows are
+            // already in the CSV, and the row keeps its start, so the trip
+            // still shows.
+            Log.e(TAG, "Could not save the trip's end", e)
+            IosAppHealth.noteStorageFull()
+        }
         Log.i(TAG, "Recording stopped: ${t.fileName}, $rows rows, $distance km")
         // The voice says so at once, even if the rider then discards the trip
         // in the grace window; only the uploads wait.
@@ -374,6 +402,22 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
 
     /** TripRepository.finalizePendingTrip: the grace is over, so queue the trip for every upload. */
     private suspend fun finalizePendingTrip() {
+        // Out of storage, the status update fails. The trip keeps its
+        // unfinalized status and the next finalize sweep picks it up, as on Android.
+        try {
+            finalizePendingTripOrThrow()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Trip left to the next finalize", e)
+            IosAppHealth.noteStorageFull()
+            pendingTrip = null
+            _pendingTripId.value = null
+            pendingFinalizeJob = null
+        }
+    }
+
+    private suspend fun finalizePendingTripOrThrow() {
         val t = pendingTrip ?: return
         val settings = IosAppGraph.settings.get()
         val willSync = settings.syncFolderUri != null
@@ -548,7 +592,7 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
     }
 
     /** Lines appended to a file, flushed when the writer asks. */
-    @OptIn(ExperimentalForeignApi::class)
+    @OptIn(ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
     private class FileSink(private val path: String, private val keepBytes: ULong? = null) : TextSink {
         private var handle: NSFileHandle? = null
         private val pending = StringBuilder()
@@ -575,7 +619,17 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
             if (pending.isEmpty()) return
             val bytes = pending.toString().encodeToByteArray()
             pending.clear()
-            bytes.usePinned { h.writeData(NSData.dataWithBytes(it.addressOf(0), bytes.size.toULong())) }
+            val data = bytes.usePinned { NSData.dataWithBytes(it.addressOf(0), bytes.size.toULong()) }
+            // The NSError form: the plain writeData raises an Objective-C
+            // exception on a full disk, which Kotlin cannot catch and which
+            // closed the app. This one fails as a Kotlin exception, which
+            // CsvWriter turns into a refused row.
+            memScoped {
+                val err = alloc<ObjCObjectVar<NSError?>>()
+                if (!h.writeData(data, err.ptr)) {
+                    throw IllegalStateException("trip write failed: ${err.value?.localizedDescription}")
+                }
+            }
         }
 
         override fun close() {

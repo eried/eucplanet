@@ -337,7 +337,37 @@ class WheelService : LifecycleService() {
         } catch (e: RuntimeException) {
             locationForegroundReady = false
             Log.e(TAG, "startForeground failed", e)
-            false
+            // Android 14+ refuses the location type while the app is not on
+            // screen, even with location granted, and that used to take the
+            // Bluetooth type down with it. Keep the wheel link: Bluetooth only.
+            // GPS comes back on the next start while the app is visible.
+            val bluetoothOnly = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+            if (!canUseBluetooth || foregroundTypes == bluetoothOnly) return false
+            try {
+                startForeground(NOTIFICATION_ID, buildNotification(null), bluetoothOnly)
+                inForeground = true
+                lastNotificationShown = ""
+                true
+            } catch (e2: RuntimeException) {
+                Log.e(TAG, "startForeground (Bluetooth only) failed", e2)
+                false
+            }
+        }
+    }
+
+    /**
+     * Running with Bluetooth only because location was refused in the
+     * background? Once the app is on screen Android allows the location type
+     * again, so take it back and restart GPS for trips and navigation.
+     */
+    private fun regainLocationIfVisible() {
+        if (!inForeground || locationForegroundReady || shuttingDown) return
+        if (!com.eried.eucplanet.util.AppForeground.isForeground.value) return
+        val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
+            hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (!canUseLocation) return
+        if (promoteWithAvailableTypes() && locationForegroundReady) {
+            tripRepository.startLocationUpdates()
         }
     }
 
@@ -613,18 +643,23 @@ class WheelService : LifecycleService() {
      * stopSelf() here breaks that promise and Android kills the whole app with
      * ForegroundServiceDidNotStartInTimeException, which is what a rider who
      * denied the permission and then tapped a wheel used to get. Honour the
-     * promise first with the one type that needs no permission (API 34+), then
-     * stop; if even that is refused, stop the old way, no worse than before.
+     * promise first with a type that needs no permission, then stop; if even
+     * that is refused, stop the old way, no worse than before.
+     *
+     * API 34+ uses shortService, which must also be listed in the manifest's
+     * foregroundServiceType or Android rejects it. Below 34 there is no
+     * shortService, and type 0 (none) is accepted there.
      */
     private fun stopWithoutBreakingTheForegroundPromise() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            runCatching {
-                startForeground(
-                    NOTIFICATION_ID, buildNotification(null),
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
-                )
-            }.onFailure { Log.w(TAG, "shortService fallback refused: ${it.message}") }
+        val fallbackType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
+        } else {
+            0
         }
+        runCatching {
+            startForeground(NOTIFICATION_ID, buildNotification(null), fallbackType)
+        }.onFailure { Log.w(TAG, "Foreground fallback refused: ${it.message}") }
+        inForeground = false
         stopSelf()
     }
 
@@ -635,6 +670,7 @@ class WheelService : LifecycleService() {
             stopWithoutBreakingTheForegroundPromise()
             return START_NOT_STICKY
         }
+        regainLocationIfVisible()
 
         when (intent?.action) {
             ACTION_CONNECT -> {

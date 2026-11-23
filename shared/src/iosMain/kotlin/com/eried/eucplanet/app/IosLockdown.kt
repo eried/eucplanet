@@ -1,7 +1,9 @@
 package com.eried.eucplanet.app
 
 import androidx.compose.runtime.Composable
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.emptyPreferences
 import com.eried.eucplanet.data.repository.LegalLockdownController
 import com.eried.eucplanet.data.store.LegalLockdownStore
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
@@ -48,6 +50,9 @@ internal object IosLockdown {
     private val store: LegalLockdownStore by lazy {
         LegalLockdownStore(
             PreferenceDataStoreFactory.createWithPath(
+                // A damaged file made every read throw and each start crash. Start
+                // from defaults instead; the rider can restore a backup.
+                corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
                 produceFile = { "$folder/legal_lockdown.preferences_pb".toPath() },
             ),
         )

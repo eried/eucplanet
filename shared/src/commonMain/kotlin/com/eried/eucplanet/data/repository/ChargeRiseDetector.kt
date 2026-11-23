@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.repository
 
+import com.eried.eucplanet.service.addToWindow
+
 /**
  * Charging inferred from the pack percentage climbing while the wheel stands
  * still, for the families that say nothing else.
@@ -146,8 +148,8 @@ class ChargeRiseDetector(
      * a minute of them is a level that only moves when the pack does.
      */
     private fun smoothedLevel(nowMs: Long, percent: Float): Float {
-        recent.addLast(nowMs to percent)
-        while (recent.size > 1 && nowMs - recent.first().first > SMOOTH_MS) recent.removeFirst()
+        // addToWindow starts over if the clock steps back, and caps the count.
+        recent.addToWindow(nowMs to percent, nowMs, { it.first }, SMOOTH_MS, maxCount = 5_000)
         var sum = 0f
         for (sample in recent) sum += sample.second
         return sum / recent.size

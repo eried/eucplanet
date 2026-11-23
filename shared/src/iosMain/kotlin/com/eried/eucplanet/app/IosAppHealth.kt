@@ -116,6 +116,19 @@ internal object IosAppHealth : AppHealth {
     /** Both are allowed now; the entry has nothing left to say. */
     fun microphoneGranted() = dismiss(MIC_ID)
 
+    /**
+     * A trip recording stopped because the phone is out of storage, as
+     * Android's AppHealthRepository.noteStorageFull. It stays until a
+     * recording starts again, the proof that there is room now. iOS has no
+     * link to its storage page, so the entry opens the app's settings, the
+     * same fallback Android uses.
+     */
+    fun noteStorageFull() = upsert(
+        AppWarning(STORAGE_FULL_ID, Res.string.warnings_storage_full_title, Res.string.warnings_storage_full_body, fix = ::openAppSettings)
+    )
+
+    fun storageAvailable() = dismiss(STORAGE_FULL_ID)
+
     // The trips half of Android's no-backup warning; the Dropbox half is read here.
     override fun refreshBackupWarning(hasFolder: Boolean, hasTrips: Boolean) {
         state.value = state.value.copy(hasTrips = hasTrips)
@@ -241,6 +254,9 @@ internal object IosAppHealth : AppHealth {
 
     /** Android's id for the same entry (AppHealthRepository.PERM_MIC_ID). */
     private const val MIC_ID = "perm.microphone"
+
+    /** Android's id for the same entry (AppHealthRepository.STORAGE_FULL_ID). */
+    private const val STORAGE_FULL_ID = "storage.full"
 
     /** The app's own page in the iPhone's Settings. */
     fun openSettings() = openAppSettings()

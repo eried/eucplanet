@@ -1,5 +1,7 @@
 package com.eried.eucplanet.data.repository
 
+import com.eried.eucplanet.service.addToWindow
+
 /**
  * One tick of the ride-efficiency window: cumulative net energy and cumulative
  * distance, stamped together. Kept as cumulative series rather than per-tick
@@ -248,10 +250,10 @@ class RideEfficiencyTracker {
      * go to the newest reading, so a pack standing still reports the present.
      */
     private fun restLevel(nowMs: Long, percent: Int, netWh: Float): PackSample {
-        restWindow.addLast(PackSample(nowMs, percent, netWh))
-        while (restWindow.size > 1 && nowMs - restWindow.first().timestampMs > REST_WINDOW_MS) {
-            restWindow.removeFirst()
-        }
+        // addToWindow starts over if the clock steps back, and caps the count.
+        restWindow.addToWindow(
+            PackSample(nowMs, percent, netWh), nowMs, { it.timestampMs }, REST_WINDOW_MS, maxCount = 2_000,
+        )
         var best = restWindow.first()
         for (sample in restWindow) if (sample.percent >= best.percent) best = sample
         return best

@@ -20,10 +20,13 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Android Auto is gone for now: Play would not pass it.
 - Phones without Wi-Fi can install it again (Wi-Fi is only for the HUD and Amazfit links).
 - Two crash fixes from Play: reconnecting to the last wheel, and a memory leak on long rides when the phone clock jumps.
+- More crash fixes: full phone storage ends the recording with a warning, damaged settings start from defaults, background starts keep the wheel link.
+- Crew pass: plain approval screen that shows who is asking and for what access.
 - iPhone (TestFlight): the same app from shared code: dashboard, alarms, voice reports and commands, settings, themes, trips and trip tools, leaderboards and crew pass, Dropbox and the backup folder, navigation with offline areas, the Overlay Studio, motor sound, the MotoEye HUD, ENGO glasses, the radar, TPMS caps, GPS sensors, Flic buttons and home screen widgets, in all 31 languages.
 - iPhone: left out because iOS does not allow it: volume keys, starting or skipping music, a window over other apps, sending the HUD its app, the watches. It never had Android Auto.
 - iPhone: reconnects, records, speaks and beeps with the phone locked, and uploads when iOS gives it time. ENGO glasses are not tried with real glasses on an iPhone yet.
 - iPhone: built with Xcode 27 (iOS 27 SDK), which needs the scene start-up: the app no longer closes at launch with it.
+- iPhone: the same storage and settings crash fixes, and the same crew pass screen.
 
 ## Please test
 
@@ -33,6 +36,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - **Engine sound:** which engine sounds wrong, and at what speed?
 - **Volume keys, screen off:** do click and hold fire? Say your phone model.
 - **Your language:** anything odd or cut off? Say the screen.
+- **Crew pass:** scan a code from eucstats: does the screen read clearly in your language?
 - **Any wheel:** anything acting differently from the last build is a bug.
 
 **iPhone** (TestFlight)

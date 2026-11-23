@@ -1,5 +1,7 @@
 package com.eried.eucplanet.audio
 
+import com.eried.eucplanet.service.addToWindow
+
 /**
  * Detects the "red-light balance dance", when an EUC rider holds position by
  * rocking back and forth at very low speeds. We map that pattern to a virtual
@@ -29,9 +31,8 @@ class RevDetector(
 
     /** Push a fresh telemetry sample and evaluate the trigger condition. */
     fun update(nowMs: Long, speedKmh: Float) {
-        history.addLast(Sample(nowMs, speedKmh))
-        val cutoff = nowMs - windowMs
-        while (history.isNotEmpty() && history.first().t < cutoff) history.removeFirst()
+        // addToWindow starts over if the clock steps back, and caps the count.
+        history.addToWindow(Sample(nowMs, speedKmh), nowMs, { it.t }, windowMs, maxCount = 256)
 
         if (nowMs - lastTriggerAt < cooldownMs) return
 

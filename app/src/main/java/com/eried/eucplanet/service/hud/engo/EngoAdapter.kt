@@ -1,5 +1,6 @@
 package com.eried.eucplanet.service.hud.engo
 
+import com.eried.eucplanet.util.canConnectBluetooth
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
@@ -109,6 +110,8 @@ class EngoAdapter(
         if (_state.value != EngoGlasses.State.DISCONNECTED) return
         val adapter = bluetooth ?: run { Log.w(TAG, "no BluetoothAdapter"); return }
         if (!adapter.isEnabled) { Log.w(TAG, "bluetooth off"); return }
+        // Nearby devices taken away: stay disconnected instead of crashing.
+        if (!context.canConnectBluetooth()) { Log.w(TAG, "Nearby devices permission missing"); return }
         val device = runCatching { adapter.getRemoteDevice(address) }.getOrNull() ?: return
         _state.value = EngoGlasses.State.CONNECTING
         DiagnosticsLogger.note("Engo: connecting to $address")

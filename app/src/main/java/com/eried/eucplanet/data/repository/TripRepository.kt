@@ -62,7 +62,8 @@ class TripRepository(
      * is Dispatchers.IO, so this never runs inline on the constructing thread;
      * a Lazy alone does not guarantee that, the dispatcher does.
      */
-    private val shareSession: Lazy<com.eried.eucplanet.share.ShareSession>
+    private val shareSession: Lazy<com.eried.eucplanet.share.ShareSession>,
+    private val appHealth: AppHealthRepository,
 ) : RideRecording {
     companion object {
         private const val TAG = "TripRepo"
@@ -680,6 +681,7 @@ class TripRepository(
             return
         }
         csvWriter = writer
+        appHealth.storageAvailable()
 
         gpsDistanceKm = 0.0
         _liveGpsDistanceKm.value = 0f
@@ -728,7 +730,20 @@ class TripRepository(
             var rowsWithGps = 0
             var wasConnected = wheelRepository.connectionState.value ==
                 com.eried.eucplanet.ble.ConnectionState.CONNECTED
-            while (_recording.value) {
+            // Out of storage, the CSV row or the trip's database row fails to
+            // write. That used to escape this loop and close the whole app
+            // mid-ride. Now the trip ends with what was saved, and the
+            // dashboard says why.
+            // Only for this recording: a normal stop closes the writer too, and
+            // a write racing that close must not read as a full disk.
+            val loopTripId = _currentTripId.value
+            fun stopForFullStorage(e: Exception?) {
+                if (!_recording.value || _currentTripId.value != loopTripId) return
+                Log.e(TAG, "Storage full, stopping the recording", e)
+                appHealth.noteStorageFull()
+                scope.launch { if (_currentTripId.value == loopTripId) stopRecording() }
+            }
+            try { while (_recording.value) {
                 val data = wheelRepository.wheelData.value
                 // Gate the recorded point on freshness + accuracy so a cold start
                 // (GPS just came back from OFF) logs "no GPS yet" instead of the
@@ -776,7 +791,10 @@ class TripRepository(
                     lastWheelTripKm = null
                 }
                 wasConnected = wheelConnected
-                csvWriter?.writeRow(data, location?.toPhoneLocation(), extSpeed, wheelConnected, wheelLog.nextExtra())
+                if (csvWriter?.writeRow(data, location?.toPhoneLocation(), extSpeed, wheelConnected, wheelLog.nextExtra()) == false) {
+                    stopForFullStorage(null)
+                    break
+                }
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++
@@ -797,6 +815,8 @@ class TripRepository(
                     Log.i(TAG, "Recording: $rowsWritten rows ($rowsWithGps with GPS, ${"%.2f".format(gpsDistanceKm)} km)")
                 }
                 kotlinx.coroutines.delay(recordIntervalMs)
+            } } catch (e: android.database.sqlite.SQLiteFullException) {
+                stopForFullStorage(e)
             }
             Log.i(TAG, "Recorder loop ending: $rowsWritten rows, $rowsWithGps with GPS")
         }
@@ -857,7 +877,14 @@ class TripRepository(
         )
         // Write endTime/distance immediately so the trip list shows it correctly.
         // uploadStatus stays 0, we only flip it to 1 (queued for sync) after grace.
-        tripDao.update(finishedTrip)
+        try {
+            tripDao.update(finishedTrip)
+        } catch (e: android.database.sqlite.SQLiteFullException) {
+            // No room to save the end time. The rows are already in the CSV,
+            // and the row keeps its start, so the trip still shows.
+            Log.e(TAG, "Storage full, could not save the trip's end", e)
+            appHealth.noteStorageFull()
+        }
 
         // Voice announcement fires immediately so the user gets audible feedback
         // that the recording stopped, even if they end up discarding the trip in
@@ -913,6 +940,22 @@ class TripRepository(
 
     /** Run the deferred finalize step: queue the trip for sync upload. */
     private suspend fun finalizePendingTrip() {
+        // Out of storage, the status update and the sync queue (WorkManager
+        // keeps its own database) both fail. That used to close the app a few
+        // seconds after a full disk ended the recording. The trip keeps its
+        // unfinalized status and is picked up by the next finalize sweep.
+        try {
+            finalizePendingTripOrThrow()
+        } catch (e: android.database.sqlite.SQLiteFullException) {
+            Log.e(TAG, "Storage full, trip left to the next finalize", e)
+            appHealth.noteStorageFull()
+            pendingTrip = null
+            _pendingTripId.value = null
+            pendingFinalizeJob = null
+        }
+    }
+
+    private suspend fun finalizePendingTripOrThrow() {
         val trip = pendingTrip ?: return
         val appSettings = settingsRepository.get()
         val willSync = appSettings.syncFolderUri != null

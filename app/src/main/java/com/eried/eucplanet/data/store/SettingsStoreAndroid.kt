@@ -2,12 +2,20 @@ package com.eried.eucplanet.data.store
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 
 /** The settings file, `<app>/files/datastore/eucplanet_settings.preferences_pb`. */
 val Context.settingsDataStore: DataStore<Preferences>
-        by preferencesDataStore(name = "eucplanet_settings")
+        by preferencesDataStore(
+            name = "eucplanet_settings",
+            // A damaged file (failing storage, a power cut mid-swap) made
+            // every read throw, and the app crashed on each start. Start
+            // from defaults instead; the rider can restore a backup.
+            corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+        )
 
 /**
  * This phone's two signals, the network's country and the region setting's,

@@ -405,6 +405,29 @@ class AppHealthRepository(
      * warning auto-clears on the next refreshPermissionWarnings() call
      * (MainActivity.onResume will fire it on return).
      */
+    /**
+     * A trip recording stopped because the phone is out of storage. It stays
+     * until a recording starts again, the proof that there is room now.
+     */
+    fun noteStorageFull() {
+        upsert(
+            AppWarning(
+                id = STORAGE_FULL_ID,
+                titleRes = Res.string.warnings_storage_full_title,
+                bodyRes = Res.string.warnings_storage_full_body,
+                fix = { openStorageSettings() }
+            )
+        )
+    }
+
+    fun storageAvailable() = dismiss(STORAGE_FULL_ID)
+
+    private fun openStorageSettings() {
+        val intent = Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (runCatching { context.startActivity(intent) }.isFailure) openAppSettings()
+    }
+
     private fun openAppSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", context.packageName, null)
@@ -423,6 +446,7 @@ class AppHealthRepository(
         private const val PERM_BLUETOOTH_ID = "perm.bluetooth"
         private const val BATTERY_OPT_ID = "power.battery-optimised"
         private const val BACKUP_FOLDER_ID = "backup.folder"
+        private const val STORAGE_FULL_ID = "storage.full"
 
         /** "Backups and leaderboards" in the settings tab order. */
         private const val SETTINGS_TAB_BACKUPS = 4

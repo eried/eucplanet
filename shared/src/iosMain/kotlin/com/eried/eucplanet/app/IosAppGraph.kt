@@ -1,6 +1,8 @@
 package com.eried.eucplanet.app
 
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.emptyPreferences
 import com.eried.eucplanet.ble.CompositeWheelAdapter
 import com.eried.eucplanet.cheats.CheatState
 import com.eried.eucplanet.ble.IosWheelLink
@@ -88,6 +90,9 @@ object IosAppGraph {
     val settingsStore: SettingsStore by lazy {
         SettingsStore(
             PreferenceDataStoreFactory.createWithPath(
+                // A damaged file made every read throw and each start crash. Start
+                // from defaults instead; the rider can restore a backup.
+                corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
                 produceFile = { "$documents/datastore/eucplanet_settings.preferences_pb".toPath() },
             ),
             // Android also asks the cell network; iOS has no reliable carrier

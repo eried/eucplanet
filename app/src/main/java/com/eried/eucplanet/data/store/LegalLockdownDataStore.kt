@@ -2,7 +2,9 @@ package com.eried.eucplanet.data.store
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 
 /**
@@ -12,4 +14,10 @@ import androidx.datastore.preferences.preferencesDataStore
  * `data_extraction_rules.xml`.
  */
 val Context.lockdownDataStore: DataStore<Preferences>
-        by preferencesDataStore(name = "legal_lockdown")
+        by preferencesDataStore(
+            name = "legal_lockdown",
+            // A damaged file (failing storage, a power cut mid-swap) made
+            // every read throw, and the app crashed on each start. Start
+            // from defaults instead; the rider can restore a backup.
+            corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+        )

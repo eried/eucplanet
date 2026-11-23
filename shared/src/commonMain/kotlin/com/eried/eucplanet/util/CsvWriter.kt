@@ -3,13 +3,20 @@ package com.eried.eucplanet.util
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.PhoneLocation
 import com.eried.eucplanet.platform.Locale
+import com.eried.eucplanet.platform.Log
 import com.eried.eucplanet.platform.System
 import com.eried.eucplanet.platform.format
 import com.eried.eucplanet.platform.formatLocalDateUs
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 /** Where [CsvWriter] puts its lines: a file, opened on the platform's terms. */
 interface TextSink {
-    /** Creates or truncates the file. Throws when it cannot. */
+    /**
+     * Creates or truncates the file. Throws when it cannot. [writeLine] and
+     * [flush] throw when the file cannot take more (the phone is out of
+     * storage); [CsvWriter] turns that into a refused row.
+     */
     fun open()
 
     /**
@@ -43,6 +50,11 @@ class CsvWriter(private val sink: TextSink) {
     private var writer: TextSink? = null
     private var rowCount = 0
 
+    // writeRow runs on the recording loop while close() comes from whoever
+    // stops the trip, so both hold this lock: a close can never land in the
+    // middle of a row.
+    private val lock = SynchronizedObject()
+
     /** Number of data rows written so far (excluding the header). */
     val rows: Int get() = rowCount
 
@@ -63,8 +75,28 @@ class CsvWriter(private val sink: TextSink) {
         rowCount = rowsSoFar.coerceAtLeast(0)
     }
 
-    fun writeRow(data: WheelData, location: PhoneLocation?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true, extra: String? = null) {
-        val w = writer ?: return
+    /**
+     * Appends one row. Returns false when the row could not be written, which
+     * in practice means the phone ran out of storage: the file is then closed
+     * with what it already holds, and every later call returns false. The
+     * caller stops the recording; an exception here used to escape the
+     * recording loop and close the whole app mid-ride.
+     */
+    fun writeRow(data: WheelData, location: PhoneLocation?, externalGpsSpeedKmh: Float? = null, wheelConnected: Boolean = true, extra: String? = null): Boolean =
+        synchronized(lock) {
+            val w = writer ?: return@synchronized false
+            try {
+                writeRowTo(w, data, location, externalGpsSpeedKmh, wheelConnected, extra)
+                true
+            } catch (e: Exception) {
+                Log.e("CsvWriter", "Trip row write failed, closing the file", e)
+                writer = null
+                runCatching { w.close() }
+                false
+            }
+        }
+
+    private fun writeRowTo(w: TextSink, data: WheelData, location: PhoneLocation?, externalGpsSpeedKmh: Float?, wheelConnected: Boolean, extra: String?) {
         // Use wallclock so rows recorded without wheel telemetry (disconnected or
         // never connected) still carry a correct date. WheelData.timestamp defaults to
         // app-start time when no packet has arrived, which would freeze every row.
@@ -131,9 +163,17 @@ class CsvWriter(private val sink: TextSink) {
         }
     }
 
+    /** Flushes and closes. Safe to call twice, and never throws on a full disk. */
     fun close() {
-        writer?.flush()
-        writer?.close()
-        writer = null
+        synchronized(lock) {
+            val w = writer ?: return
+            writer = null
+            try {
+                w.flush()
+            } catch (e: Exception) {
+                Log.e("CsvWriter", "Trip flush on close failed", e)
+            }
+            runCatching { w.close() }
+        }
     }
 }

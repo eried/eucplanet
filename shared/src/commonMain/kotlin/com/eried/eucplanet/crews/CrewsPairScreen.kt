@@ -268,6 +268,19 @@ fun CrewsPairScreen(
                     )
                     Spacer(Modifier.height(14.dp))
                 }
+                // What is asking, said by its server name: the one thing worth checking
+                // before approving, and the same words for a crews pass or an admin one.
+                Text(
+                    stringResource(Res.string.crews_request_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.appColors.textPrimary,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(6.dp))
+                Hint(stringResource(Res.string.crews_request_from, s.link.host.substringAfter("://")))
+                Spacer(Modifier.height(14.dp))
                 // The card's body aligns its children to the start, so the code sat against
                 // the left edge under a centred header. It is the one thing on this screen the
                 // rider is checking against the browser, so it goes in the middle.
@@ -291,6 +304,18 @@ fun CrewsPairScreen(
                             .align(Alignment.CenterHorizontally),
                     )
                 } else {
+                    // The scope the server says this pass is for. One screen for every
+                    // scope: a known one gets a translated name, anything newer shows the
+                    // server's own word, so a rider always sees what they are approving.
+                    Text(
+                        stringResource(Res.string.crews_access, scopeLabel(s.offer.scope)),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.appColors.textPrimary,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(10.dp))
                     Hint(stringResource(Res.string.crews_grant))
                     Spacer(Modifier.height(18.dp))
                     val storeId = deps.storeId()
@@ -381,6 +406,13 @@ fun CrewsPairScreen(
         }
       }
     }
+}
+
+@Composable
+private fun scopeLabel(scope: String): String = when (scope) {
+    "crew" -> stringResource(Res.string.crews_scope_crew)
+    "admin" -> stringResource(Res.string.crews_scope_admin)
+    else -> scope
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ble.gps
 
+import com.eried.eucplanet.util.canConnectBluetooth
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
@@ -127,6 +128,13 @@ class ExternalGpsConnectionManager(
         // 133/147) and churns; the reconnector's STATE_ON handler drives it.
         if (bluetoothManager.adapter?.isEnabled != true) {
             Log.i(TAG, "connect($address) deferred: Bluetooth is off")
+            _connectionState.value = ConnectionState.DISCONNECTED
+            return
+        }
+        // Nearby devices taken away: stay disconnected instead of crashing.
+        // The dashboard warning asks for it; the reconnector picks up after.
+        if (!context.canConnectBluetooth()) {
+            Log.w(TAG, "connect($address) skipped: Nearby devices permission missing")
             _connectionState.value = ConnectionState.DISCONNECTED
             return
         }

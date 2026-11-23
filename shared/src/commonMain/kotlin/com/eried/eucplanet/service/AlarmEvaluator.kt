@@ -187,9 +187,9 @@ class AlarmEvaluator {
     /** Append a sample to a metric's history and drop anything older than the window. */
     private fun recordSample(metric: String, value: Float, now: Long) {
         val buf = sampleBuffers.getOrPut(metric) { ArrayDeque() }
-        buf.addLast(Sample(now, value))
-        val cutoff = now - bufferMaxMs
-        while (buf.isNotEmpty() && buf.first().t < cutoff) buf.removeFirst()
+        // addToWindow, not an age-only trim: a phone clock that steps back
+        // would otherwise stop the trim and grow this every frame.
+        buf.addToWindow(Sample(now, value), now, { it.t }, bufferMaxMs, MAX_SAMPLES_PER_METRIC)
     }
 
     /** Drop state + trend history for rules / metrics that no longer exist. Pass
@@ -200,3 +200,6 @@ class AlarmEvaluator {
         sampleBuffers.keys.removeAll { it !in activeMetrics }
     }
 }
+
+/** Per-metric sample cap: far above any real window, small enough to never matter for memory. */
+private const val MAX_SAMPLES_PER_METRIC = 2_000

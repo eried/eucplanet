@@ -120,6 +120,8 @@ class OverlayStudioViewModel(
     companion object {
         /** Keep this many seconds of telemetry for graph elements. */
         private const val HISTORY_SECONDS = 360
+        // 360 s at the 10 Hz sample rate is 3600; twice that is headroom.
+        private const val HISTORY_MAX_SAMPLES = 7_200
         private const val DRAFT_DEBOUNCE_MS = 600L
         /** Hard cap on overlay elements in one layout. */
         const val MAX_ELEMENTS = 32
@@ -391,8 +393,14 @@ class OverlayStudioViewModel(
             wheelRepository.wheelData.sample(100L).collect { data ->
                 val now = System.currentTimeMillis()
                 val cutoff = now - HISTORY_SECONDS * 1000L
-                _history.value = (_history.value + StudioSample(now, data))
+                // A clock that stepped back starts the history over, and the
+                // count cap holds whatever the timestamps say.
+                val kept = _history.value.let { h ->
+                    if (h.isNotEmpty() && now < h.last().timeMs) emptyList() else h
+                }
+                _history.value = (kept + StudioSample(now, data))
                     .dropWhile { it.timeMs < cutoff }
+                    .takeLast(HISTORY_MAX_SAMPLES)
             }
         }
         viewModelScope.launch {

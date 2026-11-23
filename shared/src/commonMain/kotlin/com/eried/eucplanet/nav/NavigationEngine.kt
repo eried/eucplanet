@@ -1,6 +1,7 @@
 package com.eried.eucplanet.nav
 
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.service.addToWindow
 import com.eried.eucplanet.data.model.ArrowDir
 import com.eried.eucplanet.data.model.GeoPoint
 import com.eried.eucplanet.data.model.Maneuver
@@ -509,10 +510,8 @@ class NavigationEngine(
         val rideKmh = if (wheelKmh > 0.0) wheelKmh else gpsSpeed * 3.6
         movingAverage.add(now, rideKmh, movingKmh)
 
-        recentFixes.addLast(Fix(point, now, moving, accuracy))
-        while (recentFixes.isNotEmpty() && now - recentFixes.first().timeMs > fixBufferMs) {
-            recentFixes.removeFirst()
-        }
+        // addToWindow starts over if the clock steps back, and caps the count.
+        recentFixes.addToWindow(Fix(point, now, moving, accuracy), now, { it.timeMs }, fixBufferMs, maxCount = 4_000)
         updateHeading(now)
         Log.i(
             TAG,

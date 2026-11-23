@@ -50,6 +50,7 @@ val dataModule = module {
         TripRepository(
             get(), get(), get(), get(), get(), get(), get(), get(), get(),
             shareSession = inject(),
+            appHealth = get(),
         )
     } bind RideRecording::class
     // WheelRepository lives in :shared and names its collaborators by small

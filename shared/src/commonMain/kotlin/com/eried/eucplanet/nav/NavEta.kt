@@ -1,5 +1,7 @@
 package com.eried.eucplanet.nav
 
+import com.eried.eucplanet.service.addToWindow
+
 /**
  * Arrival time for the map's navigator view. The speed starts at the rider's
  * cruising-speed setting and slides to their own moving average over the
@@ -50,8 +52,8 @@ class ClosingSpeed(private val windowMs: Long = 120_000L, private val minSpanMs:
     private val samples = ArrayDeque<Pair<Long, Double>>()
 
     fun add(timeMs: Long, distM: Double) {
-        samples.addLast(timeMs to distM)
-        while (samples.isNotEmpty() && timeMs - samples.first().first > windowMs) samples.removeFirst()
+        // addToWindow starts over if the clock steps back, and caps the count.
+        samples.addToWindow(timeMs to distM, timeMs, { it.first }, windowMs, maxCount = 2_000)
     }
 
     fun kmh(): Double? {

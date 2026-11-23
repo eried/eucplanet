@@ -233,7 +233,7 @@
 
         <service
             android:name=".service.WheelService"
-            android:foregroundServiceType="connectedDevice|location"
+            android:foregroundServiceType="connectedDevice|location|shortService"
             android:exported="false" />
 
         <!-- Wear OS Data Layer: receives /euc/control messages from a paired watch. -->
