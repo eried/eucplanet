@@ -2434,7 +2434,7 @@
     <string name="warnings_battery_opt_title">Tối ưu hóa pin đang bật</string>
     <string name="warnings_battery_opt_body">Android có thể dừng EUC Planet khi chạy nền, khiến bản ghi bị ngắt giữa chuyến. Hãy cho phép chạy không hạn chế.</string>
     <string name="warnings_storage_full_title">Bộ nhớ điện thoại đã đầy</string>
-    <string name="warnings_storage_full_body">Đã dừng ghi chuyến đi. Phần đã đi được đã lưu. Hãy giải phóng dung lượng để ghi tiếp.</string>
+    <string name="warnings_storage_full_body">Không thể ghi chuyến đi và lưu thay đổi. Các chuyến đã đi vẫn an toàn. Hãy giải phóng dung lượng để tiếp tục.</string>
     <string name="warnings_hud_blocked_title">HUD điện thoại không thể hiển thị</string>
     <string name="warnings_hud_blocked_body">Quyền hiển thị trên ứng dụng khác đã bị thu hồi, nên lớp phủ sẽ không hiện trên bản đồ hay trình phát nhạc.</string>
     <string name="warnings_no_backup_title">Chuyến đi chưa được sao lưu</string>

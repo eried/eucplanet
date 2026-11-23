@@ -2002,7 +2002,7 @@
     <string name="warnings_battery_opt_title">Pil optimizasyonu açık</string>
     <string name="warnings_battery_opt_body">Android, EUC Planet\'i arka planda durdurup sürüşün ortasında kaydı kesebilir. Kısıtlamasız çalışmasına izin verin.</string>
     <string name="warnings_storage_full_title">Telefon depolama alanı dolu</string>
-    <string name="warnings_storage_full_body">Sürüş kaydı durdu. Şimdiye kadarki sürüş kaydedildi. Yeniden kaydetmek için yer açın.</string>
+    <string name="warnings_storage_full_body">Sürüşler kaydedilemiyor ve değişiklikler saklanamıyor. Şimdiye kadarki sürüşler güvende. Devam etmek için yer açın.</string>
     <string name="warnings_hud_blocked_title">Telefon HUD çizilemiyor</string>
     <string name="warnings_hud_blocked_body">Diğer uygulamaların üzerine çizme izni geri alındı, bu yüzden kaplama harita veya müziğin üstünde görünmeyecek.</string>
     <string name="warnings_no_backup_title">Sürüşler yedeklenmiyor</string>

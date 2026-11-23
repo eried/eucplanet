@@ -2361,7 +2361,7 @@
     <string name="warnings_battery_opt_title">Optimizarea bateriei este activată</string>
     <string name="warnings_battery_opt_body">Android poate opri EUC Planet în fundal și poate întrerupe o înregistrare în mijlocul cursei. Permite rularea fără restricții.</string>
     <string name="warnings_storage_full_title">Memoria telefonului este plină</string>
-    <string name="warnings_storage_full_body">Înregistrarea traseului s-a oprit. Traseul de până acum este salvat. Eliberează spațiu pentru a înregistra din nou.</string>
+    <string name="warnings_storage_full_body">Traseele nu pot fi înregistrate, iar modificările nu pot fi salvate. Traseele de până acum sunt în siguranță. Eliberează spațiu pentru a continua.</string>
     <string name="warnings_hud_blocked_title">HUD-ul de pe telefon nu se poate afișa</string>
     <string name="warnings_hud_blocked_body">Permisiunea de afișare peste alte aplicații a fost retrasă, așa că suprapunerea nu va apărea peste hărți sau muzică.</string>
     <string name="warnings_no_backup_title">Cursele nu au copie de rezervă</string>

@@ -1877,7 +1877,7 @@
     <string name="warnings_battery_opt_title">Batterioptimalisering er på</string>
     <string name="warnings_battery_opt_body">Android kan stoppe EUC Planet i bakgrunnen og avbryte et opptak midt i turen. Tillat at appen kjører uten begrensninger.</string>
     <string name="warnings_storage_full_title">Telefonens lagring er full</string>
-    <string name="warnings_storage_full_body">Turopptaket stoppet. Turen så langt er lagret. Frigjør plass for å ta opp igjen.</string>
+    <string name="warnings_storage_full_body">Turer kan ikke tas opp, og endringer kan ikke lagres. Turene så langt er trygge. Frigjør plass for å fortsette.</string>
     <string name="warnings_hud_blocked_title">Telefon-HUD kan ikke tegne</string>
     <string name="warnings_hud_blocked_body">Tillatelsen til å tegne over andre apper ble trukket tilbake, så overlegget vises ikke oppå kart eller musikk.</string>
     <string name="warnings_no_backup_title">Turer sikkerhetskopieres ikke</string>

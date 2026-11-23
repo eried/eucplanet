@@ -2595,7 +2595,7 @@
     <string name="warnings_battery_opt_title">Оптимизацията на батерията е включена</string>
     <string name="warnings_battery_opt_body">Android може да спре EUC Planet във фонов режим и да прекъсне запис по време на каране. Разрешете му да работи без ограничения.</string>
     <string name="warnings_storage_full_title">Паметта на телефона е пълна</string>
-    <string name="warnings_storage_full_body">Записът на пътуването спря. Карането досега е запазено. Освободете място, за да записвате отново.</string>
+    <string name="warnings_storage_full_body">Пътуванията не могат да се записват и промените не могат да се запазват. Досегашните карания са запазени. Освободете място, за да продължите.</string>
     <string name="warnings_hud_blocked_title">HUD на телефона е блокиран</string>
     <string name="warnings_hud_blocked_body">Разрешението за показване върху други приложения е отнето, затова наслагването няма да се показва върху карти или музика.</string>
     <string name="warnings_no_backup_title">Пътуванията не са архивирани</string>

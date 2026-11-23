@@ -32,7 +32,12 @@ import org.json.JSONObject
  * stay in Room with real migrations because they don't churn nearly as much
  * as the toggle list does.
  */
-class SettingsStore(private val context: Context) {
+class SettingsStore(
+    private val context: Context,
+    // Told when a save fails, which in practice means the phone is out of
+    // storage.
+    private val onWriteFailed: (java.io.IOException) -> Unit = {},
+) {
 
     private val dataStore: DataStore<Preferences> get() = context.settingsDataStore
 
@@ -40,9 +45,24 @@ class SettingsStore(private val context: Context) {
 
     suspend fun get(): AppSettings = readSettings(dataStore.data.first())
 
+    /**
+     * Every write goes through here. Out of storage, DataStore throws an
+     * IOException, and since saves run in plain coroutines that closed the
+     * whole app on a tap of any setting. DataStore writes a new file and swaps
+     * it in, so a failed save leaves the settings that were there intact.
+     */
+    private suspend fun write(transform: suspend (MutablePreferences) -> Unit) {
+        try {
+            dataStore.edit(transform)
+        } catch (e: java.io.IOException) {
+            android.util.Log.e("SettingsStore", "Settings not saved", e)
+            onWriteFailed(e)
+        }
+    }
+
     suspend fun update(settings: AppSettings) {
         val json = SettingsJson.toJson(settings).toString()
-        dataStore.edit { prefs -> prefs[KEY_JSON] = json }
+        write { prefs -> prefs[KEY_JSON] = json }
     }
 
     /**
@@ -62,7 +82,7 @@ class SettingsStore(private val context: Context) {
      * ordered against every other change.
      */
     suspend fun update(transform: (AppSettings) -> AppSettings) {
-        dataStore.edit { prefs ->
+        write { prefs ->
             prefs[KEY_JSON] = SettingsJson.toJson(transform(readSettings(prefs))).toString()
         }
     }
@@ -73,7 +93,7 @@ class SettingsStore(private val context: Context) {
      * migration is safe.
      */
     suspend fun seedIfAbsent(imported: AppSettings) {
-        dataStore.edit { prefs ->
+        write { prefs ->
             if (prefs[KEY_JSON] == null) {
                 prefs[KEY_JSON] = SettingsJson.toJson(imported).toString()
             }
@@ -89,7 +109,7 @@ class SettingsStore(private val context: Context) {
      * is already present, so they are never flipped.
      */
     suspend fun seedDefaultsIfAbsent() {
-        dataStore.edit { prefs ->
+        write { prefs ->
             if (prefs[KEY_JSON] == null) {
                 val units = startingUnits()
                 val seeded = AppSettings(
