@@ -7,6 +7,13 @@ import org.junit.Test
 /** Glasses that drop come back on their own. */
 class EngoLinkTest {
 
+    @Test fun `a new screen waits while the glasses are far behind`() {
+        assertTrue(EngoLink.roomFor(0))
+        assertTrue(EngoLink.roomFor(EngoLink.MAX_BACKLOG - 1))
+        assertFalse(EngoLink.roomFor(EngoLink.MAX_BACKLOG))
+        assertFalse(EngoLink.roomFor(100_000))
+    }
+
     @Test fun `the first search starts at once`() {
         assertTrue(EngoLink.searchDue(autoConnect = true, idle = true, sinceLastSearchMs = Long.MAX_VALUE))
     }

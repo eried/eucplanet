@@ -67,7 +67,12 @@ class EngoHudRenderer(
                     last = null
                     adapter.connect(address)
                 }
-                if (adapter.state.value == EngoAdapter.State.CONNECTED) {
+                val connected = adapter.state.value == EngoAdapter.State.CONNECTED
+                if (connected && !EngoLink.roomFor(adapter.backlog())) {
+                    // The glasses are behind. `last` stays as it is, so the
+                    // next screen is worked out against the last one queued.
+                    adapter.send(emptyList())
+                } else if (connected) {
                     val settings = settingsRepository.get()
                     val page = buildPage(settings)
                     // The glasses say whether their display is colour; a grey
@@ -76,7 +81,9 @@ class EngoHudRenderer(
                     val caps = EngoCaps(colorRYG = color)
                     val widgets = EngoLayout.widgets(page, caps)
                     val cmds = EngoLayout.delta(if (color == lastColor) last else null, widgets, caps)
-                    if (cmds.isNotEmpty()) adapter.send(cmds)
+                    // Sent even when nothing changed: an empty list only
+                    // gives a refused write another go.
+                    adapter.send(cmds)
                     last = widgets
                     lastColor = color
                 }

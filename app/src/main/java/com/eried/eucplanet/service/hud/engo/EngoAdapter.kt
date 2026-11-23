@@ -84,6 +84,8 @@ class EngoAdapter(
     private val queueLock = Any()
     @Volatile private var writeInFlight = false
     @Volatile private var flowPaused = false
+    /** Writes the phone refused in a row, so only the first is logged. */
+    @Volatile private var refusedWrites = 0
 
     /** Look for glasses to pair. Results arrive in [found]. */
     @SuppressLint("MissingPermission")
@@ -127,19 +129,29 @@ class EngoAdapter(
         gatt?.let { runCatching { it.disconnect(); it.close() } }
         gatt = null
         rx = null
-        synchronized(queueLock) { queue.clear() }
-        writeInFlight = false
+        synchronized(queueLock) {
+            queue.clear()
+            writeInFlight = false
+        }
         flowPaused = false
+        refusedWrites = 0
         _colorCapable.value = false
         _state.value = State.DISCONNECTED
     }
 
-    /** Enqueue a screen's frames; the pump writes them respecting flow control. */
+    /**
+     * Enqueue a screen's frames; the pump writes them respecting flow
+     * control. An empty list queues nothing and only gives a write the phone
+     * refused another go.
+     */
     fun send(frames: List<ByteArray>) {
         if (_state.value != State.CONNECTED) return
         synchronized(queueLock) { frames.forEach(queue::add) }
         pump()
     }
+
+    /** Frames still waiting to be written, see [EngoLink.roomFor]. */
+    fun backlog(): Int = synchronized(queueLock) { queue.size }
 
     // --- scanning ---
     private val scanCallback = object : ScanCallback() {
@@ -298,18 +310,40 @@ class EngoAdapter(
     private fun pump() {
         val g = gatt ?: return
         val ch = rx ?: return
-        if (flowPaused || writeInFlight) return
-        val frame = synchronized(queueLock) { if (queue.isEmpty()) null else queue.poll() } ?: return
-        writeInFlight = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            g.writeCharacteristic(ch, frame, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
-        } else {
-            @Suppress("DEPRECATION")
-            ch.value = frame
-            @Suppress("DEPRECATION")
-            ch.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-            @Suppress("DEPRECATION")
-            g.writeCharacteristic(ch)
+        // Taking the next frame and marking a write as in flight is one
+        // step. The renderer and the Bluetooth callback both pump, and with
+        // the check outside the lock both could take a frame: the second
+        // write was refused and its frame lost.
+        val frame = synchronized(queueLock) {
+            if (flowPaused || writeInFlight) return
+            val next = queue.poll() ?: return
+            writeInFlight = true
+            next
         }
+        val started = runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                g.writeCharacteristic(ch, frame, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) ==
+                    android.bluetooth.BluetoothStatusCodes.SUCCESS
+            } else {
+                @Suppress("DEPRECATION")
+                ch.value = frame
+                @Suppress("DEPRECATION")
+                ch.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                @Suppress("DEPRECATION")
+                g.writeCharacteristic(ch)
+            }
+        }.getOrDefault(false)
+        if (started) {
+            refusedWrites = 0
+            return
+        }
+        // A write the phone refuses gets no callback, so nothing would ever
+        // pump again and the glasses froze on their last screen. Put the
+        // frame back in its place; the renderer's next tick tries again.
+        synchronized(queueLock) {
+            queue.addFirst(frame)
+            writeInFlight = false
+        }
+        if (refusedWrites++ == 0) DiagnosticsLogger.note("Engo: write refused, trying again")
     }
 }

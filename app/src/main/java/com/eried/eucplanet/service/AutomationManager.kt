@@ -500,8 +500,10 @@ fun parseVolumeCurve(raw: String): List<Pair<Float, Float>> {
     return raw.split(",").mapNotNull { pair ->
         val parts = pair.trim().split(":")
         if (parts.size == 2) {
-            val speed = parts[0].toFloatOrNull()
-            val mult = parts[1].toFloatOrNull()
+            // Text reads "NaN" and "Infinity" as numbers. Neither is a
+            // point on a curve.
+            val speed = parts[0].toFloatOrNull()?.takeIf { it.isFinite() }
+            val mult = parts[1].toFloatOrNull()?.takeIf { it.isFinite() }
             if (speed != null && mult != null) speed to mult else null
         } else null
     }.sortedBy { it.first }

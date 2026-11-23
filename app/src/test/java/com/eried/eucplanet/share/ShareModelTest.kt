@@ -83,6 +83,34 @@ class ShareModelTest {
         assertEquals(3.0, pts.last().lat, 0.0); assertEquals(1.0f, pts.last().alpha, 0.001f)
         assertTrue(pts.first().alpha < pts.last().alpha && pts.first().alpha >= 0.15f)
     }
+    /** Only the map reads a trail. With the map closed nothing trimmed it,
+     *  and a long group ride kept every point of every rider. */
+    @Test fun trailNobodyReadsStaysTheLengthOfTheTrail() {
+        val tr = Trail(maxAgeMs = 5 * 60_000L)
+        // Two hours at a point every 3 s, never read.
+        for (i in 0..2_400) tr.add(60.0, 10.0 + i * 1e-5, t = i * 3_000L)
+        assertEquals(101, tr.size())
+        val pts = tr.points(now = 2_400 * 3_000L)
+        assertEquals(101, pts.size)
+        assertEquals(2_400 * 3_000L, pts.last().t)
+        assertEquals(2_300 * 3_000L, pts.first().t)
+    }
+    /** Stamps are the other rider's clock. If it runs backwards the age says
+     *  nothing, so the count is what holds the trail down. */
+    @Test fun trailWithStampsRunningBackwardsIsHeldByCount() {
+        val tr = Trail(maxAgeMs = 5 * 60_000L)
+        for (i in 0 until 10_000) tr.add(60.0, 10.0, t = 1_000_000_000L - i)
+        assertEquals(Trail.MAX_POINTS, tr.size())
+        // The newest stays, the oldest go.
+        assertEquals(1_000_000_000L - 9_999, tr.points(now = 1_000_000_000L).last().t)
+    }
+    /** A stamp older than the one before it removes nothing. */
+    @Test fun trailKeepsAPointWhoseStampIsOlderThanTheLast() {
+        val tr = Trail(maxAgeMs = 60_000L)
+        tr.add(1.0, 1.0, t = 500_000L)
+        tr.add(2.0, 2.0, t = 0L)
+        assertEquals(2, tr.size())
+    }
     /** The map draws one polyline per band and reads the band number straight
      *  off the wire, so a band that ever landed outside 0..3 would index past
      *  the page's opacity table. The default trail is five minutes, and these

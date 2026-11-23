@@ -20,6 +20,23 @@ object EngoLink {
     fun searchDue(autoConnect: Boolean, idle: Boolean, sinceLastSearchMs: Long): Boolean =
         autoConnect && idle && sinceLastSearchMs >= SEARCH_EVERY_MS
 
+    /**
+     * How many frames may wait for the glasses before a new screen is held
+     * back. A changed screen is a few dozen frames, so in normal use the
+     * wait never gets near this.
+     */
+    const val MAX_BACKLOG = 256
+
+    /**
+     * Whether a new screen may be queued while [backlog] frames still wait.
+     *
+     * The glasses can ask the phone to pause, and a weak link writes slowly.
+     * Every screen queued meanwhile used to pile up without limit and then
+     * play back late. Held back instead, the next screen is worked out
+     * against the last one queued, so the glasses jump to what is true now.
+     */
+    fun roomFor(backlog: Int): Boolean = backlog < MAX_BACKLOG
+
     /** The maker id ActiveLook glasses advertise (its documentation: filter
      *  on a manufacturer id ending in 0x08F2). */
     const val MAKER_ID = 0x08F2

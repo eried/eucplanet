@@ -516,6 +516,17 @@ class BleConnectionManager(
             return
         }
 
+        // A saved address that is not an address would throw further down,
+        // on every start. Leave things as they are; picking the wheel in the
+        // scan list saves a good address.
+        if (!isBluetoothAddress(address)) {
+            Log.e(TAG, "connect($address) skipped: not a Bluetooth address")
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Connect skipped: \"$address\" is not a Bluetooth address"
+            )
+            return
+        }
+
         // A real GATT connection needs the adapter on. Issuing connectGatt while
         // Bluetooth is off fails with status 133, and the reconnect loop retries
         // it every couple of seconds - each failed attempt leaks a GATT client
@@ -616,6 +627,8 @@ class BleConnectionManager(
      */
     private fun reconnectManualNow() {
         val address = currentAddress ?: return
+        // A virtual wheel's pseudo-address is not one the stack can dial.
+        if (!isBluetoothAddress(address)) return
         if (bluetoothManager.adapter?.isEnabled != true) {
             _connectionState.value = ConnectionState.DISCONNECTED
         _connectedSinceMs.value = 0L
