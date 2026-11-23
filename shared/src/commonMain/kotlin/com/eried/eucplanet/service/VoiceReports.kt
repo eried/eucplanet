@@ -61,18 +61,19 @@ class VoiceReports(
     /** Longest window a report can ask for; older samples are dropped. */
     private val LOAD_HISTORY_MS = 300_000L
 
+    /** Hard cap: five minutes at 50 frames a second, with room to spare. */
+    private val LOAD_HISTORY_MAX_SAMPLES = 20_000
+
     /**
      * Feed one telemetry frame. Called from the service's wheelData collector,
      * so this sees every frame rather than only the ones a report lands on.
      */
     fun recordTelemetry(data: WheelData) = synchronized(lock) {
         val now = data.timestamp
-        loadSamples.addLast(
-            LoadSample(now, data.pwm, data.current, data.voltage * data.current)
+        loadSamples.addToWindow(
+            LoadSample(now, data.pwm, data.current, data.voltage * data.current),
+            now, { it.t }, LOAD_HISTORY_MS, LOAD_HISTORY_MAX_SAMPLES
         )
-        while (loadSamples.isNotEmpty() && now - loadSamples.first().t > LOAD_HISTORY_MS) {
-            loadSamples.removeFirst()
-        }
     }
 
     /** Clears the rolling window, e.g. when the wheel disconnects. */

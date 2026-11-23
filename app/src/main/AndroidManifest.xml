@@ -70,6 +70,12 @@
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
+    <!-- Wi-Fi is optional: only the HUD and Amazfit links use it, over the
+         local network. ACCESS_WIFI_STATE otherwise implies android.hardware.wifi
+         as REQUIRED, and Play hides the app from devices without Wi-Fi. -->
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
 
     <!-- Package visibility (Android 11+) for handing the live-share link to a
          browser. The share URL is our own verified App Link, so a plain

@@ -9,7 +9,7 @@ import org.junit.Test
 
 /**
  * The HUD gets offline map pictures from the phone over plain HTTP. Which
- * requests are tiles is HudTileHttpTest's, in shared code.
+ * requests are tiles is HudLinkRulesTest's, in shared code.
  */
 class HudTileServerTest {
 
