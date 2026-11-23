@@ -169,7 +169,10 @@ class KingsongAdapter : WheelAdapter {
      */
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray {
         val max = tiltbackKmh.toInt().coerceIn(0, 255)
-        val a1 = alarmKmh.toInt().coerceIn(0, 255)
+        // The alarm cannot sit above the tiltback. The two are separate
+        // settings, and a restored or synced file can carry them the wrong
+        // way round; the ladder below then had an empty range and threw.
+        val a1 = alarmKmh.toInt().coerceIn(0, max)
         val a2 = (a1 + ((max - a1) / 3)).coerceIn(a1, max)
         val a3 = (a1 + (2 * (max - a1) / 3)).coerceIn(a1, max)
         return KingsongCommands.setMaxSpeedAndAlarms(a1, a2, a3, max)

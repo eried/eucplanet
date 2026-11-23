@@ -514,6 +514,14 @@ class WheelRepository(
             .toMutableMap()
     private var lastHistorySampleMs = 0L
 
+    /**
+     * Held for every read and change of the history buffers above. Samples
+     * are added on the telemetry thread and the Reset buttons clear from the
+     * screen's thread; a clear landing in the middle of a sample broke the
+     * list under the loop that was reading it.
+     */
+    private val historyLock = Any()
+
     private val _fullHistory = MutableStateFlow(FullMetricHistory())
     val fullHistory: StateFlow<FullMetricHistory> = _fullHistory.asStateFlow()
 
@@ -524,7 +532,7 @@ class WheelRepository(
      * Settings and trip records are untouched, fresh samples re-seed
      * the buffer at the next 1Hz tick.
      */
-    fun resetHistory(key: String) {
+    fun resetHistory(key: String) = synchronized(historyLock) {
         val current = _fullHistory.value
         _fullHistory.value = when (key) {
             "BATTERY" -> { battHist.clear(); current.copy(battery = emptyList()) }
@@ -578,7 +586,7 @@ class WheelRepository(
      * Reset metrics read as a button that did nothing. [connect] has always
      * cleared both when switching wheels; this is the same clear.
      */
-    fun resetAllHistory() {
+    fun resetAllHistory() = synchronized(historyLock) {
         battHist.clear(); tempHist.clear(); voltHist.clear()
         ampsHist.clear(); loadHist.clear(); speedHist.clear()
         extrasHist.values.forEach { it.clear() }
@@ -1504,10 +1512,7 @@ class WheelRepository(
         batteryEnvelope.reset()
         if (lastConnectedAddress != null && lastConnectedAddress != address) {
             // Different wheel, clear history
-            battHist.clear(); tempHist.clear(); voltHist.clear()
-            ampsHist.clear(); loadHist.clear(); speedHist.clear()
-            extrasHist.values.forEach { it.clear() }
-            _fullHistory.value = FullMetricHistory()
+            resetAllHistory()
             // Same rule for the Battery screen's charging session: a new wheel starts
             // fresh so its charge curve / packs / cells don't inherit the last wheel's.
             resetChargingSession()
@@ -2331,54 +2336,56 @@ class WheelRepository(
                 val now = System.currentTimeMillis()
                 if (now - lastHistorySampleMs >= graphSampleIntervalMs) {
                     lastHistorySampleMs = now
-                    val d = _wheelData.value
-                    battHist.add(MetricSample(now, d.batteryPercent.toFloat()))
-                    tempHist.add(MetricSample(now, d.maxTemperature))
-                    voltHist.add(MetricSample(now, d.voltage))
-                    ampsHist.add(MetricSample(now, d.current))
-                    loadHist.add(MetricSample(now, d.pwm.absoluteValue))
-                    speedHist.add(MetricSample(now, d.speed.absoluteValue))
-                    // Sample every extra metric on the same tick. Each
-                    // EXTRA_HISTORY_METRICS entry feeds one buffer in
-                    // extrasHist; the extractor is read against the same
-                    // WheelData snapshot the legacy 6 use, so all rolling
-                    // history is time-aligned.
-                    for ((key, extractor) in EXTRA_HISTORY_METRICS) {
-                        // null = "no sample this tick" (e.g. an implausible or
-                        // absent temperature), so the buffer never records a
-                        // value the tile itself would refuse to show.
-                        extractor(d)?.let { extrasHist[key]?.add(MetricSample(now, it)) }
+                    synchronized(historyLock) {
+                        val d = _wheelData.value
+                        battHist.add(MetricSample(now, d.batteryPercent.toFloat()))
+                        tempHist.add(MetricSample(now, d.maxTemperature))
+                        voltHist.add(MetricSample(now, d.voltage))
+                        ampsHist.add(MetricSample(now, d.current))
+                        loadHist.add(MetricSample(now, d.pwm.absoluteValue))
+                        speedHist.add(MetricSample(now, d.speed.absoluteValue))
+                        // Sample every extra metric on the same tick. Each
+                        // EXTRA_HISTORY_METRICS entry feeds one buffer in
+                        // extrasHist; the extractor is read against the same
+                        // WheelData snapshot the legacy 6 use, so all rolling
+                        // history is time-aligned.
+                        for ((key, extractor) in EXTRA_HISTORY_METRICS) {
+                            // null = "no sample this tick" (e.g. an implausible or
+                            // absent temperature), so the buffer never records a
+                            // value the tile itself would refuse to show.
+                            extractor(d)?.let { extrasHist[key]?.add(MetricSample(now, it)) }
+                        }
+                        // Phone- and GPS-derived stat metrics aren't on WheelData,
+                        // so sample them from their injected sources on this same
+                        // tick. Store raw values (km/h, metres, percent) so the
+                        // stat math and the tile formatter agree, exactly like the
+                        // wheel extras above.
+                        sampleSourceHistory(now)
+                        // Drop anything older than the retention window from every
+                        // buffer in one pass. List.removeAll touches each list
+                        // once so this stays linear in buffer size.
+                        val cutoff = now - historyWindowMs
+                        listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
+                            .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                        extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                        // The buffers keep at least 5 min so widening the stats
+                        // length has data at once, but everything that reads them
+                        // (tile stats, sparklines, the detail screen, voice
+                        // answers) sees only the rider's chosen window. Publishing
+                        // the whole buffer made 30 s, 1, 2 and 3 min all read as
+                        // 5 min.
+                        val shownFrom = now - rollingWindowMs
+                        fun List<MetricSample>.shown() = filter { it.timestampMs >= shownFrom }
+                        _fullHistory.value = FullMetricHistory(
+                            battery = battHist.shown(),
+                            temperature = tempHist.shown(),
+                            voltage = voltHist.shown(),
+                            current = ampsHist.shown(),
+                            load = loadHist.shown(),
+                            speed = speedHist.shown(),
+                            extras = extrasHist.mapValues { (_, list) -> list.shown() }
+                        )
                     }
-                    // Phone- and GPS-derived stat metrics aren't on WheelData,
-                    // so sample them from their injected sources on this same
-                    // tick. Store raw values (km/h, metres, percent) so the
-                    // stat math and the tile formatter agree, exactly like the
-                    // wheel extras above.
-                    sampleSourceHistory(now)
-                    // Drop anything older than the retention window from every
-                    // buffer in one pass. List.removeAll touches each list
-                    // once so this stays linear in buffer size.
-                    val cutoff = now - historyWindowMs
-                    listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
-                        .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
-                    extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
-                    // The buffers keep at least 5 min so widening the stats
-                    // length has data at once, but everything that reads them
-                    // (tile stats, sparklines, the detail screen, voice
-                    // answers) sees only the rider's chosen window. Publishing
-                    // the whole buffer made 30 s, 1, 2 and 3 min all read as
-                    // 5 min.
-                    val shownFrom = now - rollingWindowMs
-                    fun List<MetricSample>.shown() = filter { it.timestampMs >= shownFrom }
-                    _fullHistory.value = FullMetricHistory(
-                        battery = battHist.shown(),
-                        temperature = tempHist.shown(),
-                        voltage = voltHist.shown(),
-                        current = ampsHist.shown(),
-                        load = loadHist.shown(),
-                        speed = speedHist.shown(),
-                        extras = extrasHist.mapValues { (_, list) -> list.shown() }
-                    )
                 }
                 // Evaluate alarm rules against new telemetry
                 alarmEngine.evaluate(_wheelData.value)

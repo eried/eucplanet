@@ -158,8 +158,18 @@ class Trail(
     private val pts = ArrayDeque<Triple<Double, Double, Long>>()
     private val lock = Any()
     fun add(lat: Double, lng: Double, t: Long) {
-        synchronized(lock) { pts.addLast(Triple(lat, lng, t)) }
+        synchronized(lock) {
+            pts.addLast(Triple(lat, lng, t))
+            // Trimmed here as well as on reading. Only the map reads a
+            // trail, so with the map closed a long group ride kept every
+            // point of every rider. The age is measured against the point
+            // just added; the count covers stamps that run backwards.
+            while (pts.size > 1 && t - pts.first().third > maxAgeMs) pts.removeFirst()
+            while (pts.size > MAX_POINTS) pts.removeFirst()
+        }
     }
+    /** How many points are held, read or not. */
+    internal fun size(): Int = synchronized(lock) { pts.size }
     fun points(now: Long): List<TrailPoint> = synchronized(lock) {
         while (pts.isNotEmpty() && now - pts.first().third > maxAgeMs) pts.removeFirst()
         val n = pts.size
@@ -167,5 +177,11 @@ class Trail(
             val frac = if (n <= 1) 1f else i.toFloat() / (n - 1)      // 0 oldest .. 1 newest
             TrailPoint(lat, lng, t, 0.15f + 0.85f * frac)
         }
+    }
+
+    companion object {
+        /** The most points one trail holds. The longest trail the settings
+         *  allow, at a point every second, fits with room to spare. */
+        const val MAX_POINTS = 2_000
     }
 }
