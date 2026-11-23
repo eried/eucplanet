@@ -25,6 +25,7 @@ only when you can cut the ride short.
 - iPhone: left out because iOS does not allow it: volume keys, starting or skipping music, a window over other apps, sending the HUD its app, the watches. It never had Android Auto.
 - iPhone: reconnects, records, speaks and beeps with the phone locked, and uploads when iOS gives it time. ENGO glasses are not tried with real glasses on an iPhone yet.
 - iPhone: 0.25.0 merged from next-version: the offline refresh button, the native language review, and the ENGO editor without the "Element N" label.
+- iPhone: built with Xcode 27 (iOS 27 SDK), which needs the scene start-up: the app no longer closes at launch with it.
 
 ## Please test
 
@@ -40,6 +41,7 @@ only when you can cut the ride short.
 **iPhone** (TestFlight)
 - **ENGO glasses:** pair them from the iPhone (once on each phone) and ride: does the glasses page match the preview?
 - **Offline:** the refresh button on "Update weekly on Wi-Fi", as on Android.
+- **Links:** tap a weather widget or open a crew pass link: does the app open on the right screen?
 - **Locked in your pocket:** do voice reports, alarm beeps and the recording carry on? Turn the wheel off and on: does it reconnect?
 - **Navigation, locked:** turn cues at the right corners, and a reroute when you miss one?
 - **Backup folder:** pick a folder in Files and record a trip: is it there? Point Android at the same synced folder: do trips and themes show on both?

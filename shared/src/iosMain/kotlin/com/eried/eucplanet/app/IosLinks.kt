@@ -67,7 +67,7 @@ object IosLinks {
     }
 
     /**
-     * An URL the app was opened with (AppDelegate). The link waits where the
+     * An URL the app was opened with (SceneDelegate). The link waits where the
      * route builder looks for it, and MainViewController goes there. Returns
      * whether it was ours.
      */

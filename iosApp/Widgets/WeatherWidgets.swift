@@ -156,7 +156,7 @@ enum WeatherPalette {
     }
 }
 
-// A tap opens the app on its weather panel (AppDelegate, eucplanet://weather).
+// A tap opens the app on its weather panel (SceneDelegate, eucplanet://weather).
 let weatherPanelUrl = URL(string: "eucplanet://weather")!
 
 // MARK: - Good to ride?

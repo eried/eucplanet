@@ -93,7 +93,7 @@ object IosCrews {
     }
 
     /**
-     * An URL the app was opened with (AppDelegate). An eucplanet://pair link
+     * An URL the app was opened with (SceneDelegate). An eucplanet://pair link
      * opens the pass, on its code when it parses and on the scanner when not,
      * as the Android activity does. Returns whether it was ours.
      */

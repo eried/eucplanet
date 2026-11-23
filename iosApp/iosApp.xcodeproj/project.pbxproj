@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		ED0000000000000000000006 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000005 /* AppDelegate.swift */; };
+		ED00000000000000005CE0A0 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00000000000000005CE0A1 /* SceneDelegate.swift */; };
 		ED0000000000000000000021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000020 /* Assets.xcassets */; };
 		ED0000000000000000000058 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000057 /* PrivacyInfo.xcprivacy */; };
 		ED0000000000000000000035 /* RideActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0000000000000000000030 /* RideActivityAttributes.swift */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		ED0000000000000000000005 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		ED00000000000000005CE0A1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		ED0000000000000000000007 /* EucPlanet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EucPlanet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED0000000000000000000013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED0000000000000000000020 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				ED0000000000000000000005 /* AppDelegate.swift */,
+				ED00000000000000005CE0A1 /* SceneDelegate.swift */,
 				ED0000000000000000000050 /* FlicBridge.swift */,
 				ED0000000000000000000055 /* LocationBridge.swift */,
 				ED0000000000000000000091 /* QrScannerBridge.swift */,
@@ -367,6 +370,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED0000000000000000000006 /* AppDelegate.swift in Sources */,
+				ED00000000000000005CE0A0 /* SceneDelegate.swift in Sources */,
 				ED0000000000000000000051 /* FlicBridge.swift in Sources */,
 				ED0000000000000000000056 /* LocationBridge.swift in Sources */,
 				ED0000000000000000000090 /* QrScannerBridge.swift in Sources */,

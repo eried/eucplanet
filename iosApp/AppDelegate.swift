@@ -2,16 +2,21 @@ import UIKit
 import Shared
 
 // UIKit host for the shared Compose UI. Everything on screen comes from the
-// shared module; this file starts the services (IosAppStart) and creates the
-// window, once a screen is wanted.
+// shared module; this file starts the services (IosAppStart) and
+// SceneDelegate creates the window, once a screen is wanted.
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var window: UIWindow?
     private let flic = FlicBridge()
     private let location = LocationBridge()
     private let qrCamera = QrScannerBridge()
     // EUC_HEADLESS: no screen until its timer, whatever the app's state.
-    private var uiHeld = false
+    private static var uiHeld = false
+    private static var pendingUi: (() -> Void)?
+
+    // Runs show now, or when the EUC_HEADLESS timer ends.
+    static func whenUiAllowed(_ show: @escaping () -> Void) {
+        if uiHeld { pendingUi = show } else { show() }
+    }
 
     func application(
         _ application: UIApplication,
@@ -42,54 +47,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let relaunch = launchOptions?[.bluetoothCentrals] != nil
         IosAppStart.shared.start(bluetoothRelaunch: relaunch || headless != nil)
         if let secs = headless {
-            uiHeld = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + secs) { [weak self] in
-                self?.uiHeld = false
-                self?.showUi()
+            AppDelegate.uiHeld = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + secs) {
+                AppDelegate.uiHeld = false
+                AppDelegate.pendingUi?()
+                AppDelegate.pendingUi = nil
             }
-        } else if application.applicationState != .background {
-            showUi()
         }
         return true
-    }
-
-    // A background launch has no screen until the rider opens the app.
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        showUi()
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        showUi()
-    }
-
-    // The window and the shared Compose UI, once. MainViewController attaches
-    // to the services already running.
-    private func showUi() {
-        guard window == nil, !uiHeld else { return }
-        let w = UIWindow(frame: UIScreen.main.bounds)
-        // Same as the launch screen colour, so there is no flash before the
-        // first Compose frame.
-        let dark = UIColor(red: 13.0 / 255.0, green: 13.0 / 255.0, blue: 13.0 / 255.0, alpha: 1.0)
-        w.backgroundColor = dark
-        let root = MainViewControllerKt.MainViewController()
-        root.view.backgroundColor = dark
-        w.rootViewController = root
-        w.makeKeyAndVisible()
-        window = w
-    }
-
-    // eucplanet:// links (Info.plist CFBundleURLTypes): the crew pass, a
-    // weather widget, a live share and a shared route.
-    // Also called after a cold launch from a link.
-    func application(
-        _ app: UIApplication,
-        open url: URL,
-        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
-    ) -> Bool {
-        // A tap on a weather widget, a crew pass link, or a share or route
-        // link from the site's "Open in EUC Planet".
-        IosWeatherWidgets.shared.handleUrl(url: url.absoluteString)
-            || IosCrews.shared.handleUrl(url: url.absoluteString)
-            || IosLinks.shared.handleUrl(url: url.absoluteString)
     }
 }

@@ -79,7 +79,7 @@ import kotlinx.coroutines.launch
 import platform.Foundation.NSProcessInfo
 import platform.UIKit.UIViewController
 
-/** Entry point the Swift host (iosApp/AppDelegate.swift) shows. */
+/** Entry point the Swift host (iosApp/SceneDelegate.swift) shows. */
 @Suppress("FunctionName", "unused")
 fun MainViewController(): UIViewController {
     // The services run already when the app was started without a screen
