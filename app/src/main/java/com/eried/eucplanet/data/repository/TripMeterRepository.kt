@@ -64,13 +64,25 @@ class TripMeterRepository(
 
     private val accumulator = TripMeterAccumulator()
 
+    /**
+     * Makes a tick and a reset one step each: advance or clear the meter,
+     * then publish what it reads. The tick runs on this repository's own
+     * thread and a reset arrives from the screen's. Without it a tick that
+     * had already read the meter could publish the old total after a reset
+     * had cleared it, and write it back to storage.
+     *
+     * Held around in-memory work only, never across a wait or a write to
+     * storage, so neither side can hold the other up.
+     */
+    private val meterLock = Any()
+
     private val _state = MutableStateFlow(TripMeterState())
     val state: StateFlow<TripMeterState> = _state.asStateFlow()
 
     /** Convenience for the HUD / Overlay Studio: current total distance in km. */
     val distanceKm: Float get() = _state.value.distanceKm
 
-    // Per-connection tick state, reset on each (re)connect.
+    // Per-connection tick state, reset on each (re)connect. Under [meterLock].
     private var lastGpsPoint: Location? = null
     private var lastWheelOdoKm: Float = 0f
     private var lastTickMs: Long = 0L
@@ -80,9 +92,12 @@ class TripMeterRepository(
         // Restore the persisted meter first, then seed the accumulator from it.
         scope.launch {
             val restored = runCatching { store.load() }.getOrDefault(TripMeterState())
-            accumulator.intervalKm = intervalKmFor(settingsRepository.get())
-            accumulator.restore(restored)
-            _state.value = accumulator.snapshot()
+            val intervalKm = intervalKmFor(settingsRepository.get())
+            synchronized(meterLock) {
+                accumulator.intervalKm = intervalKm
+                accumulator.restore(restored)
+                _state.value = accumulator.snapshot()
+            }
         }
         // Keep the split step in sync with the rider's distance unit.
         scope.launch {
@@ -96,7 +111,7 @@ class TripMeterRepository(
                     runAccumulationLoop()
                 } else {
                     resetTickState()
-                    persist(_state.value)
+                    persist()
                 }
             }
         }
@@ -109,7 +124,7 @@ class TripMeterRepository(
     private fun intervalKmFor(s: com.eried.eucplanet.data.model.AppSettings): Float =
         Units.distanceToKm(10f, Units.effectiveDistanceUnit(s))
 
-    private fun resetTickState() {
+    private fun resetTickState() = synchronized(meterLock) {
         lastGpsPoint = null
         lastWheelOdoKm = 0f
         lastTickMs = 0L
@@ -123,25 +138,27 @@ class TripMeterRepository(
             val loc = tripRepository().currentLocation.value
             val now = System.currentTimeMillis()
 
-            val dKm = perTickDistanceKm(loc, wheel)
-            // Wall time since the last tick, bounded so a long pause / clock jump
-            // can't dump a phantom bucket of active time in one go.
-            val dt = if (lastTickMs == 0L) 0L else (now - lastTickMs).coerceIn(0L, 5_000L)
-            lastTickMs = now
-            val speed = abs(wheel.speed)
-            val moving = speed > MOVING_SPEED_KMH || dKm > 0f
-            val dtActive = if (moving) dt else 0L
+            val persistNow = synchronized(meterLock) {
+                val dKm = perTickDistanceKm(loc, wheel)
+                // Wall time since the last tick, bounded so a long pause / clock jump
+                // can't dump a phantom bucket of active time in one go.
+                val dt = if (lastTickMs == 0L) 0L else (now - lastTickMs).coerceIn(0L, 5_000L)
+                lastTickMs = now
+                val speed = abs(wheel.speed)
+                val moving = speed > MOVING_SPEED_KMH || dKm > 0f
+                val dtActive = if (moving) dt else 0L
 
-            val before = _state.value.splits.size
-            accumulator.onTick(dKm, dtActive, speed, wheel.batteryPercent, now)
-            val snapshot = accumulator.snapshot()
-            _state.value = snapshot
+                val before = _state.value.splits.size
+                accumulator.onTick(dKm, dtActive, speed, wheel.batteryPercent, now)
+                val snapshot = accumulator.snapshot()
+                _state.value = snapshot
 
-            val splitAdded = snapshot.splits.size != before
-            if (splitAdded || now - lastPersistMs >= PERSIST_INTERVAL_MS) {
-                lastPersistMs = now
-                persist(snapshot)
+                val splitAdded = snapshot.splits.size != before
+                val due = splitAdded || now - lastPersistMs >= PERSIST_INTERVAL_MS
+                if (due) lastPersistMs = now
+                due
             }
+            if (persistNow) persist()
             delay(TICK_INTERVAL_MS)
         }
     }
@@ -180,15 +197,21 @@ class TripMeterRepository(
         return 0f
     }
 
-    private fun persist(snapshot: TripMeterState) {
-        scope.launch { runCatching { store.save(snapshot) } }
+    /**
+     * Write the meter to storage, off this thread. It writes what the meter
+     * reads when the write runs, not what it read when it was asked: a write
+     * queued by a tick just before a reset would otherwise put the old total
+     * back after the reset had saved the cleared one.
+     */
+    private fun persist() {
+        scope.launch { runCatching { store.save(_state.value) } }
     }
 
     /** Zero the total, clear the split log, and persist (fire-and-forget). Backs
      *  the detail-view Reset button. */
     fun reset() {
-        val snapshot = clearInMemory()
-        persist(snapshot)
+        clearInMemory()
+        persist()
         Log.i(TAG, "Trip meter reset")
     }
 
@@ -204,12 +227,12 @@ class TripMeterRepository(
         Log.i(TAG, "Trip meter reset (persisted)")
     }
 
-    private fun clearInMemory(): TripMeterState {
+    private fun clearInMemory(): TripMeterState = synchronized(meterLock) {
         accumulator.reset()
         resetTickState()
         val snapshot = accumulator.snapshot()
         _state.value = snapshot
         lastPersistMs = System.currentTimeMillis()
-        return snapshot
+        snapshot
     }
 }

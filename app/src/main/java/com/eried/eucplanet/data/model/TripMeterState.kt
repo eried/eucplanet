@@ -53,10 +53,14 @@ data class TripMeterState(
  *
  * The in-progress (partial) segment is not a split yet; it lives in the running
  * [distanceKm] / [activeMs] the [snapshot] exposes.
+ *
+ * The four calls that touch the split log take the same lock. The meter ticks
+ * on its own thread while a reset arrives from the screen's, and a log cleared
+ * halfway through a tick threw.
  */
 class TripMeterAccumulator(
     /** The split step in km (10 for a km rider, 10 mi -> ~16.09 for a mi rider). */
-    var intervalKm: Float = 10f,
+    @Volatile var intervalKm: Float = 10f,
 ) {
     var distanceKm: Double = 0.0
         private set
@@ -78,6 +82,7 @@ class TripMeterAccumulator(
      * @param batteryPct battery percent sampled this tick (used when a mark lands here).
      * @param nowMs wall clock, used only to stamp [startedAtMs] on the first motion.
      */
+    @Synchronized
     fun onTick(
         distanceDeltaKm: Float,
         dtActiveMs: Long,
@@ -116,6 +121,7 @@ class TripMeterAccumulator(
     }
 
     /** Current running state (total + full split log). */
+    @Synchronized
     fun snapshot(): TripMeterState =
         TripMeterState(
             distanceKm = distanceKm.toFloat(),
@@ -125,6 +131,7 @@ class TripMeterAccumulator(
         )
 
     /** Zero the total and clear the split log. */
+    @Synchronized
     fun reset() {
         distanceKm = 0.0
         activeMs = 0L
@@ -138,6 +145,7 @@ class TripMeterAccumulator(
      * running max isn't persisted, so it restarts at 0; the completed splits and
      * the totals carry over exactly.
      */
+    @Synchronized
     fun restore(state: TripMeterState) {
         distanceKm = state.distanceKm.toDouble()
         activeMs = state.activeMs

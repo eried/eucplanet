@@ -392,6 +392,13 @@ class WheelRepository(
     // current (both InMotion generations), gated on that capability in
     // deriveChargeStatus.
     private val chargeRiseDetector = ChargeRiseDetector()
+    /**
+     * Held while the charge inference above is advanced or cleared. Frames
+     * advance it on the telemetry thread and the disconnect handler clears
+     * it from its own; a frame still in flight could count on from the old
+     * run after the clear.
+     */
+    private val chargeDetectLock = Any()
 
     // Charging session (estimator + per-session history) lives here so the
     // prediction persists across navigation; updated each telemetry frame.
@@ -561,11 +568,16 @@ class WheelRepository(
      * curve they were watching.
      */
     fun resetRideEnergy() {
-        sessionEnergyWh = 0f
-        sessionEnergyInWh = 0f
-        sessionEnergyOutWh = 0f
-        sessionLastEnergyMs = 0L
-        sessionLastPowerW = 0f
+        // The telemetry thread adds to these totals under the same lock. A
+        // reset that landed between its read and its write was undone, and
+        // Wh used carried on from the old total.
+        synchronized(chargeLock) {
+            sessionEnergyWh = 0f
+            sessionEnergyInWh = 0f
+            sessionEnergyOutWh = 0f
+            sessionLastEnergyMs = 0L
+            sessionLastPowerW = 0f
+        }
         rideEfficiency.reset()
         // Publish immediately so the tiles do not read the old total for the
         // second until the next telemetry frame lands.
@@ -1065,10 +1077,12 @@ class WheelRepository(
                         _wheelHasBeeperVolume.value = false
                         _wheelSeriesCells.value = null
                         _chargeStatus.value = ChargeStatus.Disconnected
-                        chargeInferred = false
-                        chargeNegSamples = 0
-                        chargePosSamples = 0
-                        chargeRiseDetector.reset()
+                        synchronized(chargeDetectLock) {
+                            chargeInferred = false
+                            chargeNegSamples = 0
+                            chargePosSamples = 0
+                            chargeRiseDetector.reset()
+                        }
                         // The charging session (charge / voltage / pack / cell
                         // history, estimator, energy) is NOT cleared here: the
                         // Battery screen keeps it frozen so a BLE drop or a
@@ -1389,7 +1403,11 @@ class WheelRepository(
      * ones, holds through the trickle band) so the dashboard doesn't flicker as
      * the charger tapers near full. A moving wheel is never reported charging.
      */
-    private fun deriveChargeStatus(data: WheelData): ChargeStatus {
+    private fun deriveChargeStatus(data: WheelData): ChargeStatus =
+        synchronized(chargeDetectLock) { deriveChargeStatusLocked(data) }
+
+    /** Call with [chargeDetectLock] held. */
+    private fun deriveChargeStatusLocked(data: WheelData): ChargeStatus {
         if (bleManager.connectionState.value != ConnectionState.CONNECTED) {
             chargeInferred = false
             chargeNegSamples = 0

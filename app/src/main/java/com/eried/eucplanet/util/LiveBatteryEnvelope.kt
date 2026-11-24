@@ -36,6 +36,10 @@ package com.eried.eucplanet.util
  *
  * Pure and tickless: it is fed samples and asked for a value, so a test can
  * run a whole ride through it in a millisecond.
+ *
+ * [sample] and [reset] take the same lock: readings arrive on the telemetry
+ * side while connecting to a wheel resets the line from the screen's thread,
+ * and a bucket emptied halfway through a reading threw.
  */
 class LiveBatteryEnvelope(
     private val bucketMs: Long = (BatteryEnvelope.BUCKET_S * 1000).toLong(),
@@ -59,6 +63,7 @@ class LiveBatteryEnvelope(
     private var pendingDrop = Float.NaN
 
     /** The envelope now, or NaN before the first bucket has closed. */
+    @Volatile
     var value: Float = Float.NaN
         private set
 
@@ -74,6 +79,7 @@ class LiveBatteryEnvelope(
      * before the first real frame, and letting that into the bucket would
      * start every ride with an envelope at the bottom of the pack.
      */
+    @Synchronized
     fun sample(nowMs: Long, batteryPercent: Float, charging: Boolean = false): Float {
         if (batteryPercent <= 0f || batteryPercent > 100f) return value
         if (!started) { bucketStartMs = nowMs; started = true }
@@ -89,6 +95,7 @@ class LiveBatteryEnvelope(
     }
 
     /** Forget the ride so far: a new wheel is a new pack. */
+    @Synchronized
     fun reset() {
         bucketStartMs = 0L
         started = false
