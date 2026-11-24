@@ -2,6 +2,8 @@ package com.eried.eucplanet.data.repository
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import com.eried.eucplanet.raceThreads
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
@@ -320,5 +322,25 @@ class RideEfficiencyTrackerTest {
         assertTrue("coverage ${ride.coverage()}", ride.coverage() > 0.9f)
         val expected = ride.trueWhPerKm(startKm)
         assertEquals(expected, ride.values.average().toFloat(), expected * 0.25f)
+    }
+
+    @Test
+    fun `a reset from another thread does not break a sample in progress`() {
+        // The tiles are fed once a second from the telemetry side, while Reset
+        // metrics and the Battery screen's Reset data arrive from the screen.
+        val tracker = RideEfficiencyTracker()
+        val thrown = raceThreads(
+            sides = arrayOf(
+                { i ->
+                    tracker.sample(
+                        nowMs = i * 1000L, whConsumed = i * 0.1f, whRegen = 0f,
+                        sourceKm = i * 0.01f, batteryPercent = 80,
+                        windowMs = 5 * 60_000L, packCapacityWh = 0,
+                    )
+                },
+                { tracker.reset() },
+            ),
+        )
+        assertNull("$thrown", thrown)
     }
 }

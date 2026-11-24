@@ -127,6 +127,14 @@ class RadarRepository(
     private data class TrackState(val distanceM: Int, val firstSeenMs: Long, val lastSeenMs: Long)
     private val tracks = HashMap<Int, TrackState>()
 
+    /**
+     * Held while [tracks] and the published frame change. Frames arrive on
+     * the radar's thread and Disconnect or Unpair clears both from the
+     * screen's; a map cleared halfway through a frame threw. Held around
+     * in-memory work only, never across the alarm engine or the link.
+     */
+    private val trackLock = Any()
+
     // Advanced threat-classification thresholds, mirrored from settings.
     @Volatile private var fastApproachDistM: Int = FAST_APPROACH_DISTANCE_M
     @Volatile private var fastApproachSpeedKmh: Int = FAST_APPROACH_SPEED_KMH
@@ -164,7 +172,10 @@ class RadarRepository(
         scope.launch {
             connectionManager.notifications.collect { n ->
                 if (n.uuid == BATTERY_LEVEL_UUID) {
-                    if (n.bytes.isNotEmpty()) {
+                    if (n.bytes.isNotEmpty()) synchronized(trackLock) {
+                        // A reading still in flight after Disconnect must
+                        // not bring back what it cleared.
+                        if (explicitlyDisconnected) return@synchronized
                         latestBattery = n.bytes[0].toInt() and 0xFF
                         // Re-publish the current frame with the new battery
                         // so the UI doesn't have to wait for a threat frame.
@@ -213,30 +224,34 @@ class RadarRepository(
 
     private fun publishFrame(vendor: RadarVendor, decoded: List<DecodedThreat>) {
         val now = System.currentTimeMillis()
-        // Forget tracks the radar has dropped (id no longer present this frame).
-        val presentIds = decoded.map { it.id }.toSet()
-        tracks.keys.retainAll(presentIds)
+        val frame = synchronized(trackLock) {
+            // A frame still in flight after Disconnect must not bring back
+            // what it cleared. No frame is due until the next connect.
+            if (explicitlyDisconnected) return
+            // Forget tracks the radar has dropped (id no longer present this frame).
+            val presentIds = decoded.map { it.id }.toSet()
+            tracks.keys.retainAll(presentIds)
 
-        val threats = decoded.map { d ->
-            val prev = tracks[d.id]
-            val firstSeen = prev?.firstSeenMs ?: now
-            tracks[d.id] = TrackState(d.distanceM, firstSeen, now)
-            val level = classify(prev, d, now)
-            RadarThreat(
-                id = d.id,
-                distanceM = d.distanceM,
-                approachSpeedKmh = d.approachSpeedKmh,
-                threatLevel = level,
-                firstSeenMs = firstSeen
-            )
+            val threats = decoded.map { d ->
+                val prev = tracks[d.id]
+                val firstSeen = prev?.firstSeenMs ?: now
+                tracks[d.id] = TrackState(d.distanceM, firstSeen, now)
+                val level = classify(prev, d, now)
+                RadarThreat(
+                    id = d.id,
+                    distanceM = d.distanceM,
+                    approachSpeedKmh = d.approachSpeedKmh,
+                    threatLevel = level,
+                    firstSeenMs = firstSeen
+                )
+            }
+            RadarFrame(
+                vendor = vendor,
+                threats = threats,
+                batteryPercent = latestBattery,
+                timestamp = now
+            ).also { _currentFrame.value = it }
         }
-        val frame = RadarFrame(
-            vendor = vendor,
-            threats = threats,
-            batteryPercent = latestBattery,
-            timestamp = now
-        )
-        _currentFrame.value = frame
         // Feed the alarm engine so the rider's RADAR_DISTANCE /
         // RADAR_APPROACH_SPEED rules fire on the same cadence as the radar.
         alarmEngine.evaluateRadar(frame)
@@ -335,10 +350,12 @@ class RadarRepository(
     }
 
     fun disconnect() {
-        explicitlyDisconnected = true
-        latestBattery = null
-        tracks.clear()
-        _currentFrame.value = null
+        synchronized(trackLock) {
+            explicitlyDisconnected = true
+            latestBattery = null
+            tracks.clear()
+            _currentFrame.value = null
+        }
         connectionManager.disconnect()
     }
 

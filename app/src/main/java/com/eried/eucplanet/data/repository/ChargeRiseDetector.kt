@@ -37,6 +37,10 @@ import com.eried.eucplanet.service.addToWindow
  * minutes of it never fires, while a charger sustains it all afternoon.
  *
  * Kept free of Android so it can be unit-tested directly.
+ *
+ * [update] and [reset] take the same lock: frames arrive on the telemetry
+ * side while the disconnect handler resets from its own, and readings cleared
+ * halfway through a frame threw.
  */
 class ChargeRiseDetector(
     /** Climb per minute at or above which the pack counts as charging. */
@@ -70,6 +74,7 @@ class ChargeRiseDetector(
     /** Trailing readings, averaged into the level the rest of this works on. */
     private val recent = ArrayDeque<Pair<Long, Float>>()
 
+    @Synchronized
     fun reset() {
         rising = false
         refMs = 0L
@@ -86,6 +91,7 @@ class ChargeRiseDetector(
      * answers. The detector forgets its reference then, so a ride's motor
      * current cannot leave a stale latch behind for the charge that follows.
      */
+    @Synchronized
     fun update(nowMs: Long, percent: Float, applicable: Boolean): Boolean {
         if (!applicable) {
             reset()

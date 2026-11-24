@@ -3,6 +3,8 @@ package com.eried.eucplanet.data.repository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import com.eried.eucplanet.raceThreads
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
@@ -148,5 +150,19 @@ class ChargeRiseDetectorTest {
         assertFalse(detector.update(t, 27f, applicable = false))
         // And the next frame while parked starts from nothing, not from latched.
         assertFalse(detector.update(t + 1000L, 27f, applicable = true))
+    }
+
+    @Test
+    fun `a reset from another thread does not break a frame in progress`() {
+        // Frames arrive on the telemetry side; the disconnect handler resets
+        // the detector from its own.
+        val detector = ChargeRiseDetector()
+        val thrown = raceThreads(
+            sides = arrayOf(
+                { i -> detector.update(i * 1000L, 50f + i % 3, applicable = true) },
+                { detector.reset() },
+            ),
+        )
+        assertNull("$thrown", thrown)
     }
 }

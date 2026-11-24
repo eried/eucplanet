@@ -2,6 +2,8 @@ package com.eried.eucplanet.util
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import com.eried.eucplanet.raceThreads
+import org.junit.Assert.assertNull
 import org.junit.Test
 import kotlin.random.Random
 
@@ -209,5 +211,18 @@ class LiveBatteryEnvelopeTest {
         e.ride(0, 80f)
         e.reset()
         assertTrue(e.value.isNaN())
+    }
+
+    @Test fun `a reset from another thread does not break a reading in progress`() {
+        // Readings arrive on the telemetry side; connecting to a wheel resets
+        // the line from the screen's.
+        val e = LiveBatteryEnvelope(bucketMs = 5L)
+        val thrown = raceThreads(
+            sides = arrayOf(
+                { i -> e.sample(i.toLong(), 50f + i % 10) },
+                { e.reset() },
+            ),
+        )
+        assertNull("$thrown", thrown)
     }
 }

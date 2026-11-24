@@ -23,6 +23,12 @@ data class EnergySample(
  * unit test. It is fed one sample per tick and hands back the two numbers the
  * tiles render; it owns no coroutines and touches no Android.
  *
+ * [sample] and [reset] take the same lock. The sample comes from the telemetry
+ * side once a second, while a reset arrives from the screen's thread (Reset
+ * metrics, the Battery screen's Reset data) or from a voice report. A window
+ * cleared halfway through a sample threw. Nothing in here waits or calls out,
+ * so the lock is never held for longer than one sample.
+ *
  * Two rules earn their keep:
  *
  * **The session restart is detected on the consumed counter, not the net.**
@@ -128,6 +134,7 @@ class RideEfficiencyTracker {
     private var chargingSinceMs = 0L
 
     /** Forget the session. Called on a reconnect and by the repository. */
+    @Synchronized
     fun reset() {
         window.clear()
         restWindow.clear()
@@ -151,6 +158,7 @@ class RideEfficiencyTracker {
      * @param packCapacityWh rider-entered pack size, 0 when unset
      * @param charging       the wheel is on a charger, so the pack baseline moves
      */
+    @Synchronized
     fun sample(
         nowMs: Long,
         whConsumed: Float,
