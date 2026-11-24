@@ -23,7 +23,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - More crash fixes: full phone storage ends the recording with a warning, damaged settings start from defaults, background starts keep the wheel link.
 - Full phone: opening the app no longer wipes alarms and wheel profiles, and saving a setting no longer closes the app.
 - Crew pass: plain approval screen that shows who is asking and for what access.
-- Smaller crash fixes: KingSong speed setting, a damaged saved wheel address, chart Reset, long group rides with the map closed.
+- Smaller crash fixes: KingSong speed setting, a damaged saved wheel address, chart and Battery Reset, long group rides with the map closed.
 - ENGO: the glasses should no longer fall behind or freeze on a slow link.
 
 ## Please test
