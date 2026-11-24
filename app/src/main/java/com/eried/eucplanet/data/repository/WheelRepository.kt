@@ -1110,6 +1110,15 @@ class WheelRepository(
         }
     }
 
+    /**
+     * Held while the charging session is updated or wiped. The update runs on
+     * the telemetry thread and Reset data on the screen's thread; a wipe in
+     * the middle of an update left the session half cleared, with the old
+     * curve published once more after the reset.
+     */
+    private val chargeLock = Any()
+
+    /** Call with [chargeLock] held. */
     private fun updateChargingSession(data: WheelData, status: ChargeStatus) {
         // Connection-scoped: the session runs whenever a wheel is connected (so the
         // charts / Added / Rate keep updating while riding too). A disconnect
@@ -1240,7 +1249,7 @@ class WheelRepository(
      * an empty snapshot; the next connected frame starts a fresh session (the
      * `!chargingSessionActive` init path in updateChargingSession).
      */
-    fun resetChargingSession() {
+    fun resetChargingSession() = synchronized(chargeLock) {
         chargingSessionActive = false
         chargingEstimator.reset()
         chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear(); clearPackHist()
@@ -2321,7 +2330,9 @@ class WheelRepository(
                 }
                 // Never let the charging-session bookkeeping throw out of the
                 // telemetry path, telemetry/dashboard must keep flowing regardless.
-                runCatching { updateChargingSession(_wheelData.value, _chargeStatus.value) }
+                runCatching {
+                    synchronized(chargeLock) { updateChargingSession(_wheelData.value, _chargeStatus.value) }
+                }
                 // Mirror wheel-reported tilt-back / alarm thresholds into the
                 // app's settings store on adapters that surface them (Veteran),
                 // so the Settings UI shows what the wheel firmware is actually
