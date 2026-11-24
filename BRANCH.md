@@ -25,6 +25,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Crew pass: plain approval screen that shows who is asking and for what access.
 - Smaller crash fixes: KingSong speed setting, a damaged saved wheel address, chart and Battery Reset, long group rides with the map closed.
 - ENGO: the glasses should no longer fall behind or freeze on a slow link.
+- Resets: Reset metrics, the trip meter Reset and radar Disconnect can no longer close the app or be undone by an update in progress.
 
 ## Please test
 
@@ -35,6 +36,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - **Volume keys, screen off:** do click and hold fire? Say your phone model.
 - **Your language:** anything odd or cut off? Say the screen.
 - **Crew pass:** scan a code from eucstats: does the screen read clearly in your language?
+- **Reset metrics, trip meter Reset:** do the numbers go to zero and stay there?
 - **Any wheel:** anything acting differently from the last build is a bug.
 
 ## Reporting back
