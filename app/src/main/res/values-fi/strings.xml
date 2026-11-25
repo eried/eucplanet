@@ -2583,7 +2583,7 @@
     <string name="crews_type_instead">Syötä käsin</string>
     <string name="crews_code_label">Passin koodi</string>
     <string name="crews_foreign_title">Tuo koodi ei ole eucstatsista</string>
-    <string name="crews_foreign_body">Tämä pyyntö tulee osoitteesta %1$s, ei eucstatsista. Passin myöntäminen antaisi palvelimelle pääsyn tulostaulukko-tiliisi.\n\nJos haluat käyttää omaa palvelinta, ota ensin kehittäjätila käyttöön asetuksissa.</string>
+    <string name="crews_foreign_body">Tämä pyyntö tulee osoitteesta %1$s, ei eucstatsista. Passin myöntäminen antaisi palvelimelle pääsyn tulostaulutiliisi.\n\nJos haluat käyttää omaa palvelinta, ota ensin kehittäjätila käyttöön asetuksissa.</string>
     <string name="crews_scan_switch">Skannaa sen sijaan</string>
     <string name="crews_close">Sulje</string>
     <string name="crews_opensettings">Avaa asetukset</string>
@@ -2596,7 +2596,7 @@
     <string name="crews_scope_admin">Ylläpitokonsoli</string>
     <string name="crews_grant">Myönnä tämä passi vain, jos teit pyynnön itse.</string>
     <string name="crews_noprofile_title">Liity ensin tulostauluun</string>
-    <string name="crews_noprofile_body">Passit vaativat tulostaulukkoprofiilin, eikä tällä puhelimella ole vielä sellaista. Liity kohdassa %1$s ja skannaa uudelleen.</string>
+    <string name="crews_noprofile_body">Passit vaativat tulostauluprofiilin, eikä tällä puhelimella ole vielä sellaista. Liity kohdassa %1$s ja skannaa uudelleen.</string>
     <string name="crews_issue">Salli</string>
     <string name="crews_notme">Hylkää</string>
     <string name="crews_ratelimited">Liikaa yrityksiä. Odota minuutti ja yritä uudestaan.</string>

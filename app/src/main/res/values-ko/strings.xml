@@ -2000,8 +2000,8 @@
     <string name="warnings_location_services_title">위치가 꺼져 있습니다</string>
     <string name="warnings_battery_opt_title">배터리 최적화가 켜져 있습니다</string>
     <string name="warnings_battery_opt_body">Android가 백그라운드에서 EUC Planet을 중지해 주행 중 기록이 끊길 수 있습니다. 제한 없이 실행하도록 허용하세요.</string>
-    <string name="warnings_storage_full_title">휴대폰 저장 공간이 가득 찼습니다</string>
-    <string name="warnings_storage_full_body">주행을 기록할 수 없고 변경 사항도 저장할 수 없습니다. 지금까지의 주행은 안전합니다. 계속하려면 공간을 확보하세요.</string>
+    <string name="warnings_storage_full_title">휴대전화 저장 공간이 가득 찼습니다</string>
+    <string name="warnings_storage_full_body">주행을 기록할 수 없고 변경 사항도 저장할 수 없습니다. 지금까지의 주행 기록은 안전합니다. 계속하려면 공간을 확보하세요.</string>
     <string name="warnings_hud_blocked_title">휴대전화 HUD를 표시할 수 없습니다</string>
     <string name="warnings_hud_blocked_body">다른 앱 위에 표시 권한이 해제되어 지도나 음악 앱 위에 오버레이가 나타나지 않습니다.</string>
     <string name="warnings_no_backup_title">주행 기록이 백업되지 않았습니다</string>
@@ -2789,7 +2789,7 @@
     <string name="crews_scope_admin">관리 콘솔</string>
     <string name="crews_grant">직접 요청한 경우에만 이 패스를 발급하세요.</string>
     <string name="crews_noprofile_title">먼저 리더보드에 참여하세요</string>
-    <string name="crews_noprofile_body">패스에는 리더보드 프로필이 필요한데, 이 휴대폰에는 아직 없습니다. %1$s에서 가입한 뒤 다시 스캔하세요.</string>
+    <string name="crews_noprofile_body">패스에는 리더보드 프로필이 필요한데, 이 휴대전화에는 아직 없습니다. %1$s에서 참여한 뒤 다시 스캔하세요.</string>
     <string name="crews_issue">허용</string>
     <string name="crews_notme">거부</string>
     <string name="crews_ratelimited">시도 횟수가 너무 많습니다. 1분 후 다시 시도하세요.</string>

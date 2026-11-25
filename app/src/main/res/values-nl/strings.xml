@@ -2781,7 +2781,7 @@
     <string name="crews_type_instead">Handmatig invoeren</string>
     <string name="crews_code_label">Pascode</string>
     <string name="crews_foreign_title">Deze code komt niet van eucstats</string>
-    <string name="crews_foreign_body">Deze aanvraag komt van %1$s, niet van eucstats. Een pas uitgeven geeft die server toegang tot je ranglijstaccount.\n\nWil je je eigen server gebruiken, zet dan eerst de ontwikkelaarsmodus aan in Instellingen.</string>
+    <string name="crews_foreign_body">Deze aanvraag komt van %1$s, niet van eucstats. Een pas uitgeven geeft die server toegang tot je klassementsaccount.\n\nWil je je eigen server gebruiken, zet dan eerst de ontwikkelaarsmodus aan in Instellingen.</string>
     <string name="crews_scan_switch">Liever scannen</string>
     <string name="crews_close">Sluiten</string>
     <string name="crews_opensettings">Instellingen openen</string>
@@ -2794,7 +2794,7 @@
     <string name="crews_scope_admin">Beheerconsole</string>
     <string name="crews_grant">Geef deze pas alleen uit als je de aanvraag zelf hebt gedaan.</string>
     <string name="crews_noprofile_title">Doe eerst mee aan het klassement</string>
-    <string name="crews_noprofile_body">Passen hebben een ranglijstprofiel nodig, en deze telefoon heeft er nog geen. Doe mee via %1$s en scan daarna opnieuw.</string>
+    <string name="crews_noprofile_body">Passen hebben een klassementsprofiel nodig, en deze telefoon heeft er nog geen. Doe mee via %1$s en scan daarna opnieuw.</string>
     <string name="crews_issue">Toestaan</string>
     <string name="crews_notme">Weigeren</string>
     <string name="crews_ratelimited">Te veel pogingen. Wacht een minuut en probeer het opnieuw.</string>
@@ -2920,7 +2920,7 @@
     <string name="offline_data_update">Bijwerken</string>
     <string name="offline_data_wifi_updates">Wekelijks bijwerken via wifi</string>
     <string name="offline_data_check_now">Controleren op updates</string>
-    <string name="offline_data_all_current">Al je gebieden zijn bijgewerkt.</string>
+    <string name="offline_data_all_current">Al je gebieden zijn up-to-date.</string>
     <plurals name="offline_data_updates_found">
         <item quantity="one">%1$d gebied kan worden bijgewerkt.</item>
         <item quantity="other">%1$d gebieden kunnen worden bijgewerkt.</item>

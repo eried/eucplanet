@@ -2005,7 +2005,7 @@
     <string name="warnings_location_services_title">La ubicación está apagada</string>
     <string name="warnings_battery_opt_title">La optimización de batería está activada</string>
     <string name="warnings_battery_opt_body">Android puede detener EUC Planet en segundo plano y cortar una grabación a mitad del viaje. Deja que funcione sin restricciones.</string>
-    <string name="warnings_storage_full_title">El almacenamiento del teléfono está lleno</string>
+    <string name="warnings_storage_full_title">El almacenamiento del móvil está lleno</string>
     <string name="warnings_storage_full_body">No se pueden grabar viajes ni guardar cambios. Lo recorrido hasta ahora está a salvo. Libera espacio para continuar.</string>
     <string name="warnings_hud_blocked_title">El HUD del móvil no puede dibujar</string>
     <string name="warnings_hud_blocked_body">Se ha retirado el permiso para dibujar sobre otras apps, así que la superposición no aparecerá encima de mapas o música.</string>
@@ -2693,7 +2693,7 @@
     <string name="widget_weather_question">¿Rodar?</string>
     <string name="widget_weather_score_desc">El tiempo para rodar, ahora mismo.</string>
     <string name="widget_weather_compact_desc">Qué tal está el tiempo para rodar, ahora y en las próximas horas.</string>
-    <string name="widget_weather_graph_desc">Qué tal está el tiempo para rodar a lo largo de la previsión.</string>
+    <string name="widget_weather_graph_desc">Qué tal está el tiempo para rodar a lo largo de la previsión</string>
     <string name="widget_weather_refresh_desc">Actualizar la previsión</string>
     <string name="widget_weather_never">Aún no hay previsión. Abre la app una vez o toca Actualizar.</string>
     <string name="widget_weather_never_short">Nunca</string>
@@ -2789,15 +2789,15 @@
     <string name="crews_access">Acceso: %1$s</string>
     <string name="crews_scope_crew">Cuadrillas</string>
     <string name="crews_scope_admin">Consola de administración</string>
-    <string name="crews_grant">Emite este pase solo si hiciste la solicitud tú mismo.</string>
+    <string name="crews_grant">Emite este pase solo si has hecho tú la solicitud.</string>
     <string name="crews_noprofile_title">Únete primero a la clasificación</string>
-    <string name="crews_noprofile_body">Los pases necesitan un perfil en la clasificación, y este teléfono aún no tiene uno. Únete en %1$s y vuelve a escanear.</string>
+    <string name="crews_noprofile_body">Los pases necesitan un perfil en la clasificación, y este móvil aún no tiene uno. Únete en %1$s y vuelve a escanear.</string>
     <string name="crews_issue">Permitir</string>
     <string name="crews_notme">Denegar</string>
     <string name="crews_ratelimited">Demasiados intentos. Espera un minuto y prueba otra vez.</string>
     <string name="crews_unreachable">No hay conexión con %1$s.</string>
     <string name="crews_refused">El servidor lo ha rechazado (%1$d).</string>
-    <string name="crews_done_title">Pase dado</string>
+    <string name="crews_done_title">Pase emitido</string>
     <string name="crews_done_body">Puedes cerrar esta pantalla.</string>
     <string name="crews_failed_title">Pase no emitido</string>
     <string name="crews_tryagain">Reintentar</string>

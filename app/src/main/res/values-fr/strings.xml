@@ -1368,7 +1368,7 @@
     <string name="warnings_battery_opt_title">L\'optimisation de la batterie est active</string>
     <string name="warnings_battery_opt_body">Android peut arrêter EUC Planet en arrière-plan et couper un enregistrement en plein trajet. Autorisez-le à fonctionner sans restriction.</string>
     <string name="warnings_storage_full_title">Le stockage du téléphone est plein</string>
-    <string name="warnings_storage_full_body">Impossible d\'enregistrer les trajets et les modifications. Les trajets jusqu\'ici sont en sécurité. Libérez de l\'espace pour continuer.</string>
+    <string name="warnings_storage_full_body">Impossible d\'enregistrer les trajets et les modifications. Les trajets déjà enregistrés sont en sécurité. Libérez de l\'espace pour continuer.</string>
     <string name="warnings_hud_blocked_title">Le HUD du téléphone ne peut pas s\'afficher</string>
     <string name="warnings_hud_blocked_body">L\'autorisation d\'afficher par-dessus les autres applications a été retirée : l\'overlay n\'apparaîtra pas sur les cartes ou la musique.</string>
     <string name="warnings_no_backup_title">Les trajets ne sont pas sauvegardés</string>
@@ -2778,7 +2778,7 @@
     <string name="voice_stat_peak">Pic</string>
     <string name="crews_pass_action">Pass crew</string>
     <string name="crews_pass_search_hint">Le pass crew apparaît une fois que vous rejoignez les classements en ligne.</string>
-    <string name="crews_scan_hint">Ouvrez eucstats dans un navigateur, touchez Crews et scannez le code affiché.</string>
+    <string name="crews_scan_hint">Ouvrez eucstats dans un navigateur, appuyez sur Crews et scannez le code affiché.</string>
     <string name="crews_scan_invalid">Ce n\'est pas un code de pass crew.</string>
     <string name="crews_scan_is_share">C\'est un code de position en direct. Scannez-le depuis Partager sur la carte.</string>
     <string name="share_scan_is_crewpass">C\'est un pass crew. Scannez-le depuis Paramètres, dans %1$s.</string>
@@ -2798,7 +2798,7 @@
     <string name="crews_scope_admin">Console d\'administration</string>
     <string name="crews_grant">Ne délivrez ce pass que si vous avez fait la demande vous-même.</string>
     <string name="crews_noprofile_title">Rejoignez d\'abord le classement</string>
-    <string name="crews_noprofile_body">Les pass nécessitent un profil au classement, et ce téléphone n\'en a pas encore. Rejoignez-le dans %1$s, puis scannez à nouveau.</string>
+    <string name="crews_noprofile_body">Les pass nécessitent un profil de classement, et ce téléphone n\'en a pas encore. Rejoignez le classement dans %1$s, puis scannez à nouveau.</string>
     <string name="crews_issue">Autoriser</string>
     <string name="crews_notme">Refuser</string>
     <string name="crews_ratelimited">Trop de tentatives. Attendez une minute et réessayez.</string>

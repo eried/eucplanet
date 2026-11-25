@@ -2434,7 +2434,7 @@
     <string name="warnings_battery_opt_title">การเพิ่มประสิทธิภาพแบตเตอรี่เปิดอยู่</string>
     <string name="warnings_battery_opt_body">Android อาจหยุด EUC Planet ในเบื้องหลัง ทำให้การบันทึกจบกลางทาง อนุญาตให้ทำงานโดยไม่จำกัด</string>
     <string name="warnings_storage_full_title">พื้นที่เก็บข้อมูลของโทรศัพท์เต็ม</string>
-    <string name="warnings_storage_full_body">ไม่สามารถบันทึกทริปและบันทึกการเปลี่ยนแปลงได้ ทริปที่ผ่านมายังปลอดภัย ล้างพื้นที่เพื่อดำเนินการต่อ</string>
+    <string name="warnings_storage_full_body">ไม่สามารถบันทึกทริปและบันทึกการเปลี่ยนแปลงได้ ทริปที่ผ่านมายังปลอดภัย เพิ่มพื้นที่ว่างเพื่อดำเนินการต่อ</string>
     <string name="warnings_hud_blocked_title">HUD บนโทรศัพท์แสดงผลไม่ได้</string>
     <string name="warnings_hud_blocked_body">สิทธิ์แสดงทับแอปอื่นถูกปิดไปแล้ว โอเวอร์เลย์จึงไม่แสดงทับแผนที่หรือเพลง</string>
     <string name="warnings_no_backup_title">ทริปยังไม่ได้สำรอง</string>
@@ -2611,7 +2611,7 @@
     <string name="crews_type_instead">ใส่เอง</string>
     <string name="crews_code_label">รหัสบัตรผ่าน</string>
     <string name="crews_foreign_title">โค้ดนี้ไม่ได้มาจาก eucstats</string>
-    <string name="crews_foreign_body">คำขอนี้มาจาก %1$s ไม่ใช่ eucstats การออกบัตรผ่านจะทำให้เซิร์ฟเวอร์นั้นเข้าถึงบัญชีกระดานผู้นำของคุณได้\n\nหากต้องการใช้เซิร์ฟเวอร์ของคุณเอง ให้เปิดโหมดนักพัฒนาในการตั้งค่าก่อน</string>
+    <string name="crews_foreign_body">คำขอนี้มาจาก %1$s ไม่ใช่ eucstats การออกบัตรผ่านจะทำให้เซิร์ฟเวอร์นั้นเข้าถึงบัญชีตารางอันดับของคุณได้\n\nหากต้องการใช้เซิร์ฟเวอร์ของคุณเอง ให้เปิดโหมดนักพัฒนาในการตั้งค่าก่อน</string>
     <string name="crews_scan_switch">สแกนแทน</string>
     <string name="crews_close">ปิด</string>
     <string name="crews_opensettings">เปิดการตั้งค่า</string>
@@ -2624,7 +2624,7 @@
     <string name="crews_scope_admin">คอนโซลผู้ดูแล</string>
     <string name="crews_grant">ออกบัตรผ่านนี้เฉพาะเมื่อคุณเป็นผู้ส่งคำขอเอง</string>
     <string name="crews_noprofile_title">เข้าร่วมตารางอันดับก่อน</string>
-    <string name="crews_noprofile_body">บัตรผ่านต้องมีโปรไฟล์กระดานผู้นำ แต่โทรศัพท์เครื่องนี้ยังไม่มี เข้าร่วมที่ %1$s แล้วสแกนอีกครั้ง</string>
+    <string name="crews_noprofile_body">บัตรผ่านต้องมีโปรไฟล์ตารางอันดับ แต่โทรศัพท์เครื่องนี้ยังไม่มี เข้าร่วมที่ %1$s แล้วสแกนอีกครั้ง</string>
     <string name="crews_issue">อนุญาต</string>
     <string name="crews_notme">ปฏิเสธ</string>
     <string name="crews_ratelimited">ลองหลายครั้งเกินไป รอสักนาทีแล้วลองอีกครั้ง</string>

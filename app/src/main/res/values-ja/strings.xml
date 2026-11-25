@@ -2000,8 +2000,8 @@
     <string name="warnings_location_services_title">スマホの位置情報がオフです</string>
     <string name="warnings_battery_opt_title">電池の最適化が有効です</string>
     <string name="warnings_battery_opt_body">Android がバックグラウンドで EUC Planet を停止し、走行中の記録が途切れることがあります。制限なしでの実行を許可してください。</string>
-    <string name="warnings_storage_full_title">スマートフォンのストレージがいっぱいです</string>
-    <string name="warnings_storage_full_body">走行を記録できず、変更も保存できません。これまでの走行は安全です。空き容量を作ると続行できます。</string>
+    <string name="warnings_storage_full_title">スマホのストレージがいっぱいです</string>
+    <string name="warnings_storage_full_body">トリップを記録できず、変更も保存できません。これまでのトリップは無事です。続けるには空き容量を増やしてください。</string>
     <string name="warnings_hud_blocked_title">スマホ HUD を描画できません</string>
     <string name="warnings_hud_blocked_body">他のアプリの上に描画する権限が取り消されたため、マップや音楽の上にオーバーレイは表示されません。</string>
     <string name="warnings_no_backup_title">トリップがバックアップされていません</string>
@@ -2778,7 +2778,7 @@
     <string name="crews_type_instead">手動で入力</string>
     <string name="crews_code_label">パスコード</string>
     <string name="crews_foreign_title">eucstats のコードではありません</string>
-    <string name="crews_foreign_body">このリクエストは eucstats ではなく %1$s から来ています。パスを発行すると、そのサーバーがランキングのアカウントにアクセスできるようになります。\n\n自分のサーバーを使うには、先に設定で開発者モードをオンにしてください。</string>
+    <string name="crews_foreign_body">このリクエストは eucstats ではなく %1$s から来ています。パスを発行すると、そのサーバーがリーダーボードのアカウントにアクセスできるようになります。\n\n自分のサーバーを使うには、先に設定で開発者モードをオンにしてください。</string>
     <string name="crews_scan_switch">スキャンする</string>
     <string name="crews_close">閉じる</string>
     <string name="crews_opensettings">設定を開く</string>
@@ -2791,7 +2791,7 @@
     <string name="crews_scope_admin">管理コンソール</string>
     <string name="crews_grant">自分でリクエストした場合のみ、このパスを発行してください。</string>
     <string name="crews_noprofile_title">先にリーダーボードに参加してください</string>
-    <string name="crews_noprofile_body">パスにはランキングのプロフィールが必要ですが、このスマートフォンにはまだありません。%1$s で参加してから、もう一度スキャンしてください。</string>
+    <string name="crews_noprofile_body">パスにはリーダーボードのプロフィールが必要ですが、このスマホにはまだありません。%1$s で参加してから、もう一度スキャンしてください。</string>
     <string name="crews_issue">許可</string>
     <string name="crews_notme">拒否</string>
     <string name="crews_ratelimited">試行回数が多すぎます。1 分ほど待ってからもう一度お試しください。</string>
@@ -2915,7 +2915,7 @@
     <string name="offline_data_update_all">すべて更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">毎週 Wi-Fi で更新</string>
-    <string name="offline_data_check_now">アップデートを確認</string>
+    <string name="offline_data_check_now">更新を確認</string>
     <string name="offline_data_all_current">すべてのエリアが最新です。</string>
     <plurals name="offline_data_updates_found">
         <item quantity="other">%1$d 件のエリアを更新できます。</item>

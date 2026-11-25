@@ -1363,8 +1363,8 @@
     <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\nFahrer-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Akku-Optimierung ist aktiv</string>
     <string name="warnings_battery_opt_body">Android kann EUC Planet im Hintergrund beenden und eine Aufnahme mitten in der Fahrt abbrechen. Lass die App uneingeschränkt laufen.</string>
-    <string name="warnings_storage_full_title">Telefonspeicher ist voll</string>
-    <string name="warnings_storage_full_body">Fahrten können nicht aufgezeichnet und Änderungen nicht gespeichert werden. Bisherige Fahrten sind sicher. Gib Speicher frei, um fortzufahren.</string>
+    <string name="warnings_storage_full_title">Handyspeicher ist voll</string>
+    <string name="warnings_storage_full_body">Fahrten können nicht aufgezeichnet und Änderungen nicht gespeichert werden. Bisherige Fahrten sind sicher. Gib Speicherplatz frei, um fortzufahren.</string>
     <string name="warnings_hud_blocked_title">Handy-HUD kann nichts anzeigen</string>
     <string name="warnings_hud_blocked_body">Die Berechtigung zum Einblenden über anderen Apps wurde entzogen, daher erscheint das Overlay nicht über Karten oder Musik.</string>
     <string name="warnings_no_backup_title">Fahrten werden nicht gesichert</string>
@@ -2812,7 +2812,7 @@
     <string name="crews_scope_admin">Admin-Konsole</string>
     <string name="crews_grant">Stelle diesen Pass nur aus, wenn du die Anfrage selbst gestellt hast.</string>
     <string name="crews_noprofile_title">Tritt erst der Bestenliste bei</string>
-    <string name="crews_noprofile_body">Pässe brauchen ein Bestenlisten-Profil, und dieses Telefon hat noch keins. Tritt unter %1$s bei und scanne dann erneut.</string>
+    <string name="crews_noprofile_body">Pässe brauchen ein Bestenlisten-Profil, und dieses Handy hat noch keins. Tritt unter %1$s bei und scanne dann erneut.</string>
     <string name="crews_issue">Erlauben</string>
     <string name="crews_notme">Ablehnen</string>
     <string name="crews_ratelimited">Zu viele Versuche. Warte eine Minute und probiere es noch mal.</string>

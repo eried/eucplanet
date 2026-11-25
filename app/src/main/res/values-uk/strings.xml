@@ -1368,7 +1368,7 @@
     <string name="online_rejoin_body">У папці резервних копій є профіль, який використовувався для таблиці лідерів.\n\nID райдера: %1$s</string>
     <string name="warnings_battery_opt_title">Оптимізацію батареї увімкнено</string>
     <string name="warnings_battery_opt_body">Android може зупинити EUC Planet у фоні та обірвати запис посеред поїздки. Дозвольте роботу без обмежень.</string>
-    <string name="warnings_storage_full_title">Пам\'ять телефону заповнена</string>
+    <string name="warnings_storage_full_title">Пам\'ять телефона заповнена</string>
     <string name="warnings_storage_full_body">Поїздки не записуються, а зміни не зберігаються. Попередні поїздки в безпеці. Звільніть місце, щоб продовжити.</string>
     <string name="warnings_hud_blocked_title">HUD на телефоні заблоковано</string>
     <string name="warnings_hud_blocked_body">Дозвіл малювати поверх інших застосунків відкликано, тому оверлей не з\'явиться поверх карт чи музики.</string>
@@ -2780,7 +2780,7 @@
     <string name="crews_type_instead">Ввести вручну</string>
     <string name="crews_code_label">Код пропуску</string>
     <string name="crews_foreign_title">Цей код не з eucstats</string>
-    <string name="crews_foreign_body">Цей запит надійшов з %1$s, а не з eucstats. Видача пропуску дасть цьому серверу доступ до вашого облікового запису в рейтингу.\n\nЩоб використовувати власний сервер, спершу увімкніть режим розробника в налаштуваннях.</string>
+    <string name="crews_foreign_body">Цей запит надійшов з %1$s, а не з eucstats. Видача пропуску дасть цьому серверу доступ до вашого акаунта в таблиці лідерів.\n\nЩоб використовувати власний сервер, спершу увімкніть режим розробника в налаштуваннях.</string>
     <string name="crews_scan_switch">Краще сканувати</string>
     <string name="crews_close">Закрити</string>
     <string name="crews_opensettings">Налаштування</string>
@@ -2793,7 +2793,7 @@
     <string name="crews_scope_admin">Консоль адміністратора</string>
     <string name="crews_grant">Видавайте цей пропуск, лише якщо запит зробили ви самі.</string>
     <string name="crews_noprofile_title">Спершу приєднайтеся до таблиці лідерів</string>
-    <string name="crews_noprofile_body">Для пропусків потрібен профіль у рейтингу, а на цьому телефоні його ще немає. Приєднайтеся в розділі %1$s і відскануйте знову.</string>
+    <string name="crews_noprofile_body">Для пропусків потрібен профіль у таблиці лідерів, а на цьому телефоні його ще немає. Приєднайтеся в розділі %1$s і відскануйте знову.</string>
     <string name="crews_issue">Дозволити</string>
     <string name="crews_notme">Відхилити</string>
     <string name="crews_ratelimited">Забагато спроб. Зачекайте хвилину й спробуйте ще раз.</string>

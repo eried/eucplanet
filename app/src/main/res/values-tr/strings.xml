@@ -2776,7 +2776,7 @@
     <string name="crews_type_instead">Elle gir</string>
     <string name="crews_code_label">Kart kodu</string>
     <string name="crews_foreign_title">Bu kod eucstats\'tan değil</string>
-    <string name="crews_foreign_body">Bu istek eucstats\'tan değil, %1$s adresinden geliyor. Kart vermek o sunucuya sıralama hesabınıza erişim verir.\n\nKendi sunucunuzu kullanmak için önce Ayarlar\'dan geliştirici modunu açın.</string>
+    <string name="crews_foreign_body">Bu istek eucstats\'tan değil, %1$s adresinden geliyor. Kart verirseniz o sunucu lider tablosu hesabınıza erişebilir.\n\nKendi sunucunuzu kullanmak için önce Ayarlar\'dan geliştirici modunu açın.</string>
     <string name="crews_scan_switch">Bunun yerine tara</string>
     <string name="crews_close">Kapat</string>
     <string name="crews_opensettings">Ayarları aç</string>
@@ -2789,7 +2789,7 @@
     <string name="crews_scope_admin">Yönetim konsolu</string>
     <string name="crews_grant">Bu kartı yalnızca isteği kendiniz yaptıysanız verin.</string>
     <string name="crews_noprofile_title">Önce lider tablosuna katılın</string>
-    <string name="crews_noprofile_body">Kartlar için bir sıralama profili gerekir ve bu telefonda henüz yok. %1$s bölümünden katılın, sonra yeniden tarayın.</string>
+    <string name="crews_noprofile_body">Kartlar için bir lider tablosu profili gerekir ve bu telefonda henüz yok. %1$s bölümünden katılın, sonra yeniden tarayın.</string>
     <string name="crews_issue">İzin ver</string>
     <string name="crews_notme">Reddet</string>
     <string name="crews_ratelimited">Çok fazla deneme. Bir dakika bekleyip tekrar deneyin.</string>

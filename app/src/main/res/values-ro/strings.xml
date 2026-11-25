@@ -2361,7 +2361,7 @@
     <string name="warnings_battery_opt_title">Optimizarea bateriei este activată</string>
     <string name="warnings_battery_opt_body">Android poate opri EUC Planet în fundal și poate întrerupe o înregistrare în mijlocul cursei. Permite rularea fără restricții.</string>
     <string name="warnings_storage_full_title">Memoria telefonului este plină</string>
-    <string name="warnings_storage_full_body">Traseele nu pot fi înregistrate, iar modificările nu pot fi salvate. Traseele de până acum sunt în siguranță. Eliberează spațiu pentru a continua.</string>
+    <string name="warnings_storage_full_body">Cursele nu pot fi înregistrate, iar modificările nu pot fi salvate. Cursele de până acum sunt în siguranță. Eliberează spațiu pentru a continua.</string>
     <string name="warnings_hud_blocked_title">HUD-ul de pe telefon nu se poate afișa</string>
     <string name="warnings_hud_blocked_body">Permisiunea de afișare peste alte aplicații a fost retrasă, așa că suprapunerea nu va apărea peste hărți sau muzică.</string>
     <string name="warnings_no_backup_title">Cursele nu au copie de rezervă</string>
@@ -2585,14 +2585,14 @@
     <string name="crews_type_instead">Introdu manual</string>
     <string name="crews_code_label">Cod de acces</string>
     <string name="crews_foreign_title">Codul nu este de la eucstats</string>
-    <string name="crews_foreign_body">Această cerere vine de la %1$s, nu de la eucstats. Emiterea accesului ar da acelui server acces la contul tău din clasament.\n\nCa să folosești propriul server, activează mai întâi modul dezvoltator din Setări.</string>
+    <string name="crews_foreign_body">Această cerere vine de la %1$s, nu de la eucstats. Dacă emiți accesul, acel server va putea intra în contul tău din clasament.\n\nCa să folosești propriul server, activează mai întâi modul dezvoltator din Setări.</string>
     <string name="crews_scan_switch">Scanează codul</string>
     <string name="crews_close">Închide</string>
     <string name="crews_opensettings">Deschide setările</string>
     <string name="crews_dev_title">Mod dezvoltator</string>
     <string name="crews_dev_body">Vorbește cu %1$s, nu cu serverul obișnuit.</string>
     <string name="crews_request_title">Cerere de acces</string>
-    <string name="crews_request_from">%1$s cere un acces.</string>
+    <string name="crews_request_from">%1$s cere acces.</string>
     <string name="crews_access">Acces: %1$s</string>
     <string name="crews_scope_crew">Crews</string>
     <string name="crews_scope_admin">Consola de administrare</string>

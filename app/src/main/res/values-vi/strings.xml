@@ -1639,7 +1639,7 @@
     <string name="alarm_section_voice">Giọng nói</string>
     <string name="alarm_enable_voice">Bật giọng nói</string>
     <string name="alarm_voice_template">Mẫu văn bản</string>
-    <string name="alarm_voice_template_help">Biến: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Biến: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_voice_default">Cảnh báo! {metric} ở mức {value}</string>
     <string name="alarm_section_vibrate">Rung</string>
     <string name="alarm_enable_vibrate">Bật rung</string>
@@ -2617,14 +2617,14 @@
     <string name="crews_opensettings">Mở cài đặt</string>
     <string name="crews_dev_title">Chế độ nhà phát triển</string>
     <string name="crews_dev_body">Đang kết nối với %1$s thay vì máy chủ thông thường.</string>
-    <string name="crews_request_title">Yêu cầu thẻ</string>
-    <string name="crews_request_from">%1$s đang yêu cầu một thẻ.</string>
+    <string name="crews_request_title">Yêu cầu cấp thẻ</string>
+    <string name="crews_request_from">%1$s đang yêu cầu cấp thẻ.</string>
     <string name="crews_access">Quyền truy cập: %1$s</string>
     <string name="crews_scope_crew">Đội</string>
     <string name="crews_scope_admin">Bảng điều khiển quản trị</string>
     <string name="crews_grant">Chỉ cấp thẻ này nếu chính bạn đã gửi yêu cầu.</string>
     <string name="crews_noprofile_title">Hãy tham gia bảng xếp hạng trước</string>
-    <string name="crews_noprofile_body">Thẻ cần hồ sơ trên bảng xếp hạng, và điện thoại này chưa có. Hãy tham gia tại %1$s rồi quét lại.</string>
+    <string name="crews_noprofile_body">Cần có hồ sơ bảng xếp hạng mới cấp được thẻ, nhưng điện thoại này chưa có. Hãy tham gia tại %1$s rồi quét lại.</string>
     <string name="crews_issue">Cho phép</string>
     <string name="crews_notme">Từ chối</string>
     <string name="crews_ratelimited">Quá nhiều lần thử. Hãy đợi một phút rồi thử lại.</string>
@@ -2713,7 +2713,7 @@
     <string name="offline_data_update">Cập nhật</string>
     <string name="offline_data_wifi_updates">Cập nhật hằng tuần qua Wi-Fi</string>
     <string name="offline_data_check_now">Kiểm tra cập nhật</string>
-    <string name="offline_data_all_current">Mọi khu vực của bạn đều đã mới nhất.</string>
+    <string name="offline_data_all_current">Mọi khu vực của bạn đều đã là bản mới nhất.</string>
     <plurals name="offline_data_updates_found">
         <item quantity="other">Có thể cập nhật %1$d khu vực.</item>
     </plurals>

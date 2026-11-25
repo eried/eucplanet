@@ -2587,7 +2587,7 @@
     <string name="crews_type_instead">Zadat ručně</string>
     <string name="crews_code_label">Kód průkazu</string>
     <string name="crews_foreign_title">Tento kód není z eucstats</string>
-    <string name="crews_foreign_body">Tato žádost pochází z %1$s, ne z eucstats. Vydáním průkazu byste tomuto serveru dali přístup k vašemu účtu v žebříčku.\n\nChcete-li použít vlastní server, nejprve zapněte v Nastavení režim pro vývojáře.</string>
+    <string name="crews_foreign_body">Tato žádost pochází z %1$s, ne z eucstats. Vydáním průkazu byste tomuto serveru dali přístup ke svému účtu v žebříčku.\n\nChcete-li použít vlastní server, nejprve zapněte v Nastavení vývojářský režim.</string>
     <string name="crews_scan_switch">Raději naskenovat</string>
     <string name="crews_close">Zavřít</string>
     <string name="crews_opensettings">Otevřít nastavení</string>
@@ -2600,7 +2600,7 @@
     <string name="crews_scope_admin">Administrátorská konzole</string>
     <string name="crews_grant">Vydejte tento průkaz jen tehdy, pokud jste žádost podali sami.</string>
     <string name="crews_noprofile_title">Nejdřív se připojte k žebříčku</string>
-    <string name="crews_noprofile_body">Průkazy potřebují profil v žebříčku a tento telefon ho zatím nemá. Připojte se v sekci %1$s a naskenujte znovu.</string>
+    <string name="crews_noprofile_body">Průkazy potřebují profil v žebříčku a tento telefon ho zatím nemá. Připojte se v části %1$s a naskenujte znovu.</string>
     <string name="crews_issue">Povolit</string>
     <string name="crews_notme">Zamítnout</string>
     <string name="crews_ratelimited">Příliš mnoho pokusů. Počkejte minutu a zkuste to znovu.</string>

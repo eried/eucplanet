@@ -794,7 +794,7 @@
     <string name="watch_hardware_button_1">Κουμπί 1</string>
     <string name="watch_hardware_button_2">Κουμπί 2</string>
     <string name="watch_hardware_button_3">Κουμπί 3</string>
-    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: πορτοκαλί κουμπί Action · Amazfit: Select.</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: πορτοκαλί κουμπί Action · Amazfit: Select</string>
     <string name="watch_hardware_button_2_subtitle">Garmin: Up · Galaxy Watch Ultra: κάτω πλαϊνό κουμπί · Amazfit: Up.</string>
     <string name="watch_hardware_button_3_subtitle">Garmin: Down · Amazfit: Down · όχι σε ρολόγια Wear OS.</string>
 
@@ -1487,7 +1487,7 @@
     <string name="widget_weather_question">Βόλτα;</string>
     <string name="widget_weather_score_desc">Ο καιρός για βόλτα, αυτή τη στιγμή.</string>
     <string name="widget_weather_compact_desc">Πόσο καλός είναι ο καιρός για βόλτα, τώρα και τις επόμενες ώρες.</string>
-    <string name="widget_weather_graph_desc">Πόσο καλός είναι ο καιρός για βόλτα, σε όλο το διάστημα της πρόγνωσης.</string>
+    <string name="widget_weather_graph_desc">Πόσο καλός είναι ο καιρός για βόλτα, σε όλο το διάστημα της πρόγνωσης</string>
     <string name="widget_weather_refresh_desc">Ανανέωση της πρόγνωσης.</string>
     <string name="widget_weather_never">Δεν υπάρχει πρόγνωση ακόμα. Ανοίξτε την εφαρμογή μία φορά ή πατήστε ανανέωση.</string>
     <string name="widget_weather_never_short">Ποτέ</string>
@@ -1496,11 +1496,11 @@
     <string name="widget_weather_min_fmt">πριν από %1$d λεπ.</string>
     <string name="widget_weather_hour_fmt">πριν από %1$d ώρ.</string>
     <string name="widget_weather_window_fmt">επόμενες %1$d ώρ.</string>
-    <string name="widget_act_1_desc">Ορίστε την ενέργειά του στην εφαρμογή.</string>
-    <string name="widget_act_2_desc">Ορίστε την ενέργειά του στην εφαρμογή.</string>
-    <string name="widget_act_3_desc">Ορίστε την ενέργειά του στην εφαρμογή.</string>
-    <string name="widget_act_12_desc">Ορίστε τις ενέργειές τους στην εφαρμογή.</string>
-    <string name="widget_act_23_desc">Ορίστε τις ενέργειές τους στην εφαρμογή.</string>
+    <string name="widget_act_1_desc">Ορίστε την ενέργειά του στην εφαρμογή</string>
+    <string name="widget_act_2_desc">Ορίστε την ενέργειά του στην εφαρμογή</string>
+    <string name="widget_act_3_desc">Ορίστε την ενέργειά του στην εφαρμογή</string>
+    <string name="widget_act_12_desc">Ορίστε τις ενέργειές τους στην εφαρμογή</string>
+    <string name="widget_act_23_desc">Ορίστε τις ενέργειές τους στην εφαρμογή</string>
     <string name="widget_button_unset">Ορίστε ένα κουμπί στις Ρυθμίσεις</string>
     <string name="widget_speed">Ταχύτητα</string>
     <string name="widget_distance">Διαδρομή</string>
@@ -1687,7 +1687,7 @@
     <string name="alarm_section_voice">Φωνή</string>
     <string name="alarm_enable_voice">Ενεργοποίηση φωνής</string>
     <string name="alarm_voice_template">Πρότυπο κειμένου</string>
-    <string name="alarm_voice_template_help">Μεταβλητές: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Μεταβλητές: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_voice_default">Προσοχή! {metric} στο {value}</string>
     <string name="alarm_section_vibrate">Δόνηση</string>
     <string name="alarm_enable_vibrate">Ενεργοποίηση δόνησης</string>
@@ -2515,7 +2515,7 @@
     <string name="warnings_battery_opt_title">Η βελτιστοποίηση μπαταρίας είναι ενεργή</string>
     <string name="warnings_battery_opt_body">Το Android μπορεί να κλείσει το EUC Planet στο παρασκήνιο και να κόψει την εγγραφή στη μέση της βόλτας. Αφήστε το να τρέχει χωρίς περιορισμούς.</string>
     <string name="warnings_storage_full_title">Ο χώρος αποθήκευσης του τηλεφώνου είναι γεμάτος</string>
-    <string name="warnings_storage_full_body">Οι διαδρομές δεν μπορούν να καταγραφούν και οι αλλαγές δεν μπορούν να αποθηκευτούν. Οι διαδρομές μέχρι τώρα είναι ασφαλείς. Ελευθερώστε χώρο για να συνεχίσετε.</string>
+    <string name="warnings_storage_full_body">Οι διαδρομές δεν μπορούν να καταγραφούν και οι αλλαγές δεν μπορούν να αποθηκευτούν. Όσες διαδρομές έχουν ήδη καταγραφεί δεν χάνονται. Ελευθερώστε χώρο για να συνεχίσετε.</string>
     <string name="warnings_hud_blocked_title">Το HUD τηλεφώνου δεν μπορεί να εμφανιστεί</string>
     <string name="warnings_hud_blocked_body">Η άδεια εμφάνισης πάνω από άλλες εφαρμογές ανακλήθηκε, οπότε η επικάλυψη δεν θα εμφανίζεται πάνω από χάρτες ή μουσική.</string>
     <string name="warnings_no_backup_title">Δεν υπάρχει αντίγραφο ασφαλείας των διαδρομών</string>
@@ -2710,7 +2710,7 @@
     <string name="crews_grant">Εκδώστε αυτό το πάσο μόνο αν κάνατε εσείς το αίτημα.</string>
     <string name="crews_noprofile_title">Συμμετάσχετε πρώτα στην κατάταξη</string>
     <string name="crews_noprofile_body">Τα πάσα χρειάζονται προφίλ στην κατάταξη, και αυτό το τηλέφωνο δεν έχει ακόμη. Εγγραφείτε στο %1$s και σαρώστε ξανά.</string>
-    <string name="crews_issue">Επιτρέπεται</string>
+    <string name="crews_issue">Να επιτραπεί</string>
     <string name="crews_notme">Απόρριψη</string>
     <string name="crews_ratelimited">Πάρα πολλές προσπάθειες. Περιμένετε ένα λεπτό και δοκιμάστε ξανά.</string>
     <string name="crews_unreachable">Δεν ήταν δυνατή η σύνδεση με %1$s.</string>
