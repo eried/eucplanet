@@ -439,6 +439,21 @@ class WheelRepository(
     // PREDICTION_LOG_INTERVAL_MS while a charge session is active so the
     // chart can visualise how the prediction drifted over the session.
     private val predictionHistory = ArrayDeque<PredictionSample>()
+
+    // What the last snapshot published of the histories above. A snapshot goes
+    // out on every wheel frame, and it used to copy all seven histories each
+    // time (up to a thousand points each), though they gain a point every 15
+    // or 30 seconds. The copies are now made when [chargeHistChanged] says one
+    // of them moved, and handed out again as they are until the next change.
+    // Guarded by [chargeLock] like the histories themselves.
+    private var chargeHistChanged = true
+    private var pubChargeHist: List<MetricSample> = emptyList()
+    private var pubVoltHist: List<MetricSample> = emptyList()
+    private var pubTempHist: List<MetricSample> = emptyList()
+    private var pubPredictionHist: List<PredictionSample> = emptyList()
+    private var pubPackMin: List<List<MetricSample>> = emptyList()
+    private var pubPackMax: List<List<MetricSample>> = emptyList()
+    private var pubPackAvg: List<List<MetricSample>> = emptyList()
     private var lastPredictionLogMs = 0L
     // Trapezoidal energy integral for the session, signed by
     // ChargeEnergy.stepWh: positive is into the battery.
@@ -1150,6 +1165,7 @@ class WheelRepository(
                 committedFullEtaMs = null
                 committedFullAnchorMs = 0L
                 predictionHistory.clear()
+                chargeHistChanged = true
                 lastPredictionLogMs = 0L
                 sessionEnergyWh = 0f
                 sessionEnergyInWh = 0f
@@ -1228,22 +1244,33 @@ class WheelRepository(
             while (predictionHistory.size > PREDICTION_LOG_MAX_ENTRIES) {
                 predictionHistory.removeFirst()
             }
+            chargeHistChanged = true
+        }
+        if (chargeHistChanged) {
+            chargeHistChanged = false
+            pubChargeHist = chargePctHist.toList()
+            pubVoltHist = chargeVoltHist.toList()
+            pubTempHist = chargeTempHist.toList()
+            pubPredictionHist = predictionHistory.toList()
+            pubPackMin = packMinHist.map { it.toList() }
+            pubPackMax = packMaxHist.map { it.toList() }
+            pubPackAvg = packAvgHist.map { it.toList() }
         }
         _chargingSnapshot.value = ChargingSnapshot(
             estimate = est,
-            chargeHistory = chargePctHist.toList(),
-            voltageHistory = chargeVoltHist.toList(),
-            tempHistory = chargeTempHist.toList(),
+            chargeHistory = pubChargeHist,
+            voltageHistory = pubVoltHist,
+            tempHistory = pubTempHist,
             targetEtaMs = committedTargetEtaMs,
             fullEtaMs = committedFullEtaMs,
-            predictionHistory = predictionHistory.toList(),
+            predictionHistory = pubPredictionHist,
             sessionEnergyWh = sessionEnergyWh,
             sessionEnergyInWh = sessionEnergyInWh,
             sessionEnergyOutWh = sessionEnergyOutWh,
             estimatedChargedWh = estimatedChargedWh(est),
-            packMinHistory = packMinHist.map { it.toList() },
-            packMaxHistory = packMaxHist.map { it.toList() },
-            packAvgHistory = packAvgHist.map { it.toList() },
+            packMinHistory = pubPackMin,
+            packMaxHistory = pubPackMax,
+            packAvgHistory = pubPackAvg,
             packSeriesUnit = packHistUnit,
         )
     }
@@ -1254,6 +1281,7 @@ class WheelRepository(
         packMaxHist.clear()
         packAvgHist.clear()
         packHistUnit = "%"
+        chargeHistChanged = true
     }
 
     /**
@@ -1367,6 +1395,7 @@ class WheelRepository(
     private fun pushHist(dq: ArrayDeque<MetricSample>, t: Long, v: Float) {
         dq.addLast(MetricSample(t, v))
         while (dq.size > 1000) dq.removeFirst()
+        chargeHistChanged = true
     }
 
     /**
