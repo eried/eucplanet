@@ -131,21 +131,34 @@ class SettingsStore(
         return DefaultUnits.pick(network, java.util.Locale.getDefault().country)
     }
 
+    // The last blob read and what it parsed to. Every read used to parse the
+    // whole blob again, some three hundred fields, and there are well over a
+    // hundred places that read: a dozen of them in the first seconds of a
+    // start, then every upload pass and every return to the app. The blob only
+    // changes when a setting is saved, and then it is another string.
+    // AppSettings is immutable, so one instance can be handed to everyone.
+    @Volatile private var lastRead: Pair<String, AppSettings>? = null
+
     private fun readSettings(prefs: Preferences): AppSettings {
         val json = prefs[KEY_JSON] ?: return AppSettings()
-        return runCatching {
+        lastRead?.let { (text, parsed) -> if (text == json) return parsed }
+        val parsed = runCatching {
             SettingsJson.fromJson(JSONObject(json))
         }.getOrElse { AppSettings() }
+        lastRead = json to parsed
+        return parsed
     }
 
     companion object {
+        /** The DataStore's name, so the start can ask whether its file exists. */
+        const val FILE_NAME = "eucplanet_settings"
         private val KEY_JSON = stringPreferencesKey("app_settings_json")
     }
 }
 
 private val Context.settingsDataStore: DataStore<Preferences>
         by preferencesDataStore(
-            name = "eucplanet_settings",
+            name = SettingsStore.FILE_NAME,
             // A damaged file (failing storage, a power cut mid-swap) made
             // every read throw, and the app crashed on each start. Start
             // from defaults instead; the rider can restore a backup.
