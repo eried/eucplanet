@@ -2126,12 +2126,66 @@ class SyncManager(
     fun listFolderTripSizes(settings: AppSettings): Map<String, Long>? {
         val root = getSyncFolder(settings) ?: return null
         val trips = root.findFile(TRIPS_SUBFOLDER) ?: return emptyMap()
+        return listTripSizesInOneQuery(trips) ?: listTripSizesFileByFile(trips)
+    }
+
+    /**
+     * Name and size of every trip file, from one query to the storage
+     * provider. Null when the provider would not answer it, and the caller
+     * asks file by file as before.
+     *
+     * Asking file by file is three calls to the provider for each file (its
+     * name, whether it is a file, its size), so a library of a few hundred
+     * trips was about a thousand calls, on every backup pass.
+     */
+    internal fun listTripSizesInOneQuery(trips: DocumentFile): Map<String, Long>? {
+        val doc = android.provider.DocumentsContract.Document.COLUMN_DISPLAY_NAME
+        val size = android.provider.DocumentsContract.Document.COLUMN_SIZE
+        val mime = android.provider.DocumentsContract.Document.COLUMN_MIME_TYPE
+        return try {
+            val children = android.provider.DocumentsContract.buildChildDocumentsUriUsingTree(
+                trips.uri, android.provider.DocumentsContract.getDocumentId(trips.uri))
+            context.contentResolver.query(children, arrayOf(doc, size, mime), null, null, null)?.use { c ->
+                val out = LinkedHashMap<String, Long>()
+                while (c.moveToNext()) {
+                    val name = c.getString(0) ?: continue
+                    // A file, as DocumentFile.isFile means it: it has a type
+                    // and the type is not "folder".
+                    val type = c.getString(2)
+                    if (type.isNullOrEmpty() ||
+                        type == android.provider.DocumentsContract.Document.MIME_TYPE_DIR) continue
+                    if (!name.endsWith(".csv", ignoreCase = true)) continue
+                    // No size given reads as 0, as DocumentFile.length() does.
+                    out[name] = if (c.isNull(1)) 0L else c.getLong(1)
+                }
+                out
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "One-query listing of the trips folder failed, asking file by file", e)
+            null
+        }
+    }
+
+    /** The same listing asked file by file. Slow, but every provider answers it. */
+    internal fun listTripSizesFileByFile(trips: DocumentFile): Map<String, Long> {
         val out = LinkedHashMap<String, Long>()
         for (doc in trips.listFiles()) {
             val name = doc.name ?: continue
             if (doc.isFile && name.endsWith(".csv", ignoreCase = true)) out[name] = doc.length()
         }
         return out
+    }
+
+    /** Debug check: both listings of the configured folder, timed. */
+    internal fun timeFolderListings(settings: AppSettings): String {
+        val root = getSyncFolder(settings) ?: return "no folder"
+        val trips = root.findFile(TRIPS_SUBFOLDER) ?: return "no trips subfolder"
+        val t0 = System.nanoTime()
+        val slow = listTripSizesFileByFile(trips)
+        val t1 = System.nanoTime()
+        val fast = listTripSizesInOneQuery(trips)
+        val t2 = System.nanoTime()
+        return "entries=${slow.size} file_by_file_ms=${(t1 - t0) / 1_000_000} one_query_ms=${(t2 - t1) / 1_000_000} same=${fast == slow}"
     }
 
     /**

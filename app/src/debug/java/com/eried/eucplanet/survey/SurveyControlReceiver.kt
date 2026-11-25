@@ -70,6 +70,10 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
             ACTION_SURVEY_SET -> set(context, intent)
             ACTION_SURVEY_IMPORT_SQUARE -> importSquare(intent.getStringExtra(EXTRA_FILE).orEmpty())
             ACTION_SURVEY_STATS -> stats(intent.getStringExtra(EXTRA_KIND).orEmpty())
+            ACTION_SURVEY_FOLDER -> scope.launch {
+                val sync = get<com.eried.eucplanet.data.sync.SyncManager>()
+                Log.i(TAG, "SURVEY_FOLDER " + sync.timeFolderListings(settingsRepository.get()))
+            }
             ACTION_SURVEY_DISCONNECT -> {
                 Log.i(TAG, "SURVEY_DISCONNECT")
                 get<com.eried.eucplanet.data.repository.WheelRepository>().disconnect()
@@ -243,6 +247,8 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
     companion object {
         const val ACTION_SURVEY_IMPORT_SQUARE = "com.eried.eucplanet.SURVEY_IMPORT_SQUARE"
         const val ACTION_SURVEY_STATS = "com.eried.eucplanet.SURVEY_STATS"
+        /** Times the backup folder listing both ways and logs the two. */
+        const val ACTION_SURVEY_FOLDER = "com.eried.eucplanet.SURVEY_FOLDER"
         const val ACTION_SURVEY_DISCONNECT = "com.eried.eucplanet.SURVEY_DISCONNECT"
         const val EXTRA_FILE = "file"
         private const val TAG = "SurveyReceiver"
