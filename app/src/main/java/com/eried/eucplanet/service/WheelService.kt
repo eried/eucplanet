@@ -376,7 +376,7 @@ class WheelService : LifecycleService() {
         }
         wearMapBridge.onServiceStarted()
 
-        voiceService.initialize()
+        voiceService.acquire("service")
 
         // Update the notification, widget, Phone HUD and automations on telemetry
         // updates. Alarms are evaluated in WheelRepository.
@@ -917,7 +917,7 @@ class WheelService : LifecycleService() {
         automationManager.resetMediaControl()
         automationManager.resetProximityLock()
         shareSession.leave()
-        voiceService.shutdown()
+        voiceService.release("service")
         wearMapBridge.onServiceStopped()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }
