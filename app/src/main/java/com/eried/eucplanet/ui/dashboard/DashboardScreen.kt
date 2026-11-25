@@ -229,7 +229,10 @@ fun DashboardScreen(
     }
     // The wheel-rate flows stop while the app is in the background: collected
     // plainly, every frame recomposed a dashboard nobody could see.
-    val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
+    // The wheel's data reaches the screen on the dashboard's 30-a-second
+    // clock, the same one the dial glides on, so the two repaint together.
+    val stepClock = rememberStepClock()
+    val wheelData by rememberPaced(viewModel.wheelData, stepClock)
     val connectionState by viewModel.connectionState.collectAsState()
     // Quake-style console cheat (set via Settings search-bar). Multiplies ONLY the
     // displayed speed on the gauge, the underlying wheelData.speed stays accurate
@@ -985,16 +988,15 @@ fun DashboardScreen(
                 // (~4-5 Hz) so the dial arc and the big number track
                 // continuously instead of snapping. ~250 ms linear ≈ one
                 // update interval: no lag, no stutter. When telemetry goes
-                // stale and speed is forced to 0, the animation to 0 is fine.
+                // stale and speed is forced to 0, the glide to 0 is fine.
+                // On the dashboard's clock, thirty steps a second.
                 //
                 // Held as a State and read only by the dial's draw and by the
                 // number's own small composable. Read here with `by`, it changed
                 // on every display frame of a ride and recomposed this whole
                 // block (dial, icons, menus) sixty or more times a second.
-                val animatedSpeedState = animateFloatAsState(
-                    targetValue = wheelData.speed.absoluteValue * cheatSpeedMult,
-                    animationSpec = tween(durationMillis = 250, easing = LinearEasing),
-                    label = "dashSpeed"
+                val animatedSpeedState = rememberGlidingSpeed(
+                    wheelData.speed.absoluteValue * cheatSpeedMult, stepClock
                 )
                 val animatedSpeed = remember(animatedSpeedState) { { animatedSpeedState.value } }
                 // Gauge style key for this surface. Unknown keys fall back to
