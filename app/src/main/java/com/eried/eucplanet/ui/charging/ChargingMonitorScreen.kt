@@ -119,6 +119,12 @@ import org.koin.compose.viewmodel.koinViewModel
 // How far the animated % may run ahead of the last reading.
 private const val MAX_LEAD = 1.2f
 private const val FLUID_COLS = 40
+/** The smallest change of tilt worth a repaint, about a third of a degree. */
+private const val TILT_STEP = 0.005f
+/** Gyroscope readings below this (rad/s) are the sensor at rest, not a shake. */
+private const val GYRO_REST = 0.02f
+/** Below this the fading shake is over. */
+private const val KICK_REST = 0.01f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -748,7 +754,8 @@ private fun BatteryFillGraphic(
     val dlife = remember { FloatArray(maxDrops) }
     val geo = remember { FloatArray(3) }   // [w, h, yTop] published by the Canvas
     val rnd = remember { java.util.Random() }
-    DisposableEffect(Unit) {
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
         val sm = ctx.getSystemService(android.content.Context.SENSOR_SERVICE) as? android.hardware.SensorManager
         val listener = object : android.hardware.SensorEventListener {
             override fun onSensorChanged(e: android.hardware.SensorEvent) {
@@ -763,21 +770,53 @@ private fun BatteryFillGraphic(
                             Surface.ROTATION_270 -> e.values[1]
                             else -> e.values[0]
                         }
-                        tiltX.floatValue = (horiz / 9.81f).coerceIn(-1f, 1f)
+                        // Only a tilt the eye could see. A phone lying still
+                        // reports a slightly different value fifty times a
+                        // second, and each one repainted the whole liquid.
+                        val tilt = (horiz / 9.81f).coerceIn(-1f, 1f)
+                        if (kotlin.math.abs(tilt - tiltX.floatValue) >= TILT_STEP) tiltX.floatValue = tilt
                     }
                     android.hardware.Sensor.TYPE_GYROSCOPE ->
-                        gyroKick.floatValue = (gyroKick.floatValue - e.values[1]).coerceIn(-12f, 12f)
+                        // The same for the gyroscope at rest: its noise is not a
+                        // shake. A real one is far above this.
+                        if (kotlin.math.abs(e.values[1]) >= GYRO_REST) {
+                            gyroKick.floatValue = (gyroKick.floatValue - e.values[1]).coerceIn(-12f, 12f)
+                        }
                 }
             }
             override fun onAccuracyChanged(s: android.hardware.Sensor?, a: Int) {}
         }
-        sm?.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)?.let {
-            sm.registerListener(listener, it, android.hardware.SensorManager.SENSOR_DELAY_GAME)
+        // On while this screen is in front, off when the app is left with it
+        // open: the sensors used to keep running behind the home screen for as
+        // long as the charge lasted.
+        var on = false
+        fun sensors(wanted: Boolean) {
+            if (wanted == on) return
+            on = wanted
+            if (wanted) {
+                sm?.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)?.let {
+                    sm.registerListener(listener, it, android.hardware.SensorManager.SENSOR_DELAY_GAME)
+                }
+                sm?.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE)?.let {
+                    sm.registerListener(listener, it, android.hardware.SensorManager.SENSOR_DELAY_GAME)
+                }
+            } else {
+                sm?.unregisterListener(listener)
+            }
         }
-        sm?.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE)?.let {
-            sm.registerListener(listener, it, android.hardware.SensorManager.SENSOR_DELAY_GAME)
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            when (event) {
+                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> sensors(true)
+                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> sensors(false)
+                else -> {}
+            }
         }
-        onDispose { sm?.unregisterListener(listener) }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) sensors(true)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            sensors(false)
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -788,7 +827,9 @@ private fun BatteryFillGraphic(
                     val dt = ((now - prev) / 1_000_000_000f).coerceIn(0f, 0.05f)
                     val tilt = tiltX.floatValue
                     val kick = gyroKick.floatValue
-                    gyroKick.floatValue = kick * 0.86f
+                    // Fades out, and ends: left to itself the fade never quite
+                    // reaches zero, and every step of it is a repaint.
+                    gyroKick.floatValue = if (kotlin.math.abs(kick) < KICK_REST) 0f else kick * 0.86f
                     val cx = FLUID_COLS / 2f
                     // Surface: spring toward the gravity-tilt line + neighbour
                     // coupling (travelling waves) + damping; the gyro injects slosh.
