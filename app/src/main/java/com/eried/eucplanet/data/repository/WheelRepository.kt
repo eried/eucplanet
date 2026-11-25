@@ -2009,8 +2009,8 @@ class WheelRepository(
                 // First-connect priming for wheels that silently drop control
                 // commands pre-auth (P6). Mark done even on failure so we don't
                 // loop forever; the periodic re-prime below will retry.
-                runConnectAuthHandshake()
-                initialAuthDone = true
+                // Skipped while a Lock tap runs the same exchange: next cycle.
+                if (runConnectAuthHandshake()) initialAuthDone = true
             } else {
                 // Periodic re-prime for the P6: the wheel's "control endpoint
                 // primed" state expires shortly after the handshake. The
@@ -2018,7 +2018,11 @@ class WheelRepository(
                 // light/horn/max-speed writes keep working through a session.
                 if (needsConnectAuth && realtimeCycle > 0 &&
                     realtimeCycle % CONNECT_AUTH_REFRESH_INTERVAL == 0) {
-                    runConnectAuthHandshake()
+                    // A Lock tap in progress re-primes the wheel itself; keep
+                    // the telemetry coming this cycle.
+                    if (!runConnectAuthHandshake()) {
+                        bleManager.writeCommand(wheelAdapter.pollRealtime(), POLL)
+                    }
                 } else if (realtimeCycle > 0 &&
                     realtimeCycle % STATS_REFRESH_INTERVAL == 0) {
                     wheelAdapter.pollStats()?.let { bleManager.writeCommand(it, POLL) }
@@ -2044,7 +2048,25 @@ class WheelRepository(
      * auth steps but stops after the verify ACK, there is no lock packet
      * to send. Failure is logged and ignored; the user keeps their telemetry.
      */
-    private suspend fun runConnectAuthHandshake() {
+    private suspend fun runConnectAuthHandshake(): Boolean {
+        // Under the same lock as a Lock tap ([authenticateAndLock]). Both wait
+        // for the wheel's key on the same pending field, so a tap during the
+        // handshake took the field over and one of the two gave up after four
+        // seconds. A tap now waits for a handshake in progress. The other way
+        // round this does not wait: it is called from the poll loop, and a
+        // loop parked behind a Lock tap would stop the telemetry. The tap does
+        // the same exchange with the wheel anyway, so this turn is skipped.
+        if (!authMutex.tryLock()) return false
+        try {
+            connectAuthHandshakeLocked()
+        } finally {
+            authMutex.unlock()
+        }
+        return true
+    }
+
+    /** Call with [authMutex] held. */
+    private suspend fun connectAuthHandshakeLocked() {
         val authReqPacket = wheelAdapter.requestAuthKey() ?: return
         val keyDeferred = CompletableDeferred<ByteArray>()
         pendingAuthKeyDeferred = keyDeferred
