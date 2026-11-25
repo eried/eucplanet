@@ -81,6 +81,49 @@ class Glide(
     }
 }
 
+/**
+ * The dial, frame by frame: it follows the wheel's speed and moves on the
+ * steps of the dashboard's clock.
+ *
+ * A new speed starts a new glide from where the dial is, in the frame it
+ * arrives in. The first version spent a frame of its own on that, to read the
+ * glide's start time, and whenever that frame was the one due for a step the
+ * step slipped to the next: with a wheel reporting twenty times a second about
+ * every third repaint came a frame late, which is a dial that stutters.
+ *
+ * Main thread only (frame callbacks).
+ */
+class DialGlide(private val clock: StepClock, start: Float) {
+    var shown: Float = start
+        private set
+    private var glide: Glide? = null
+    private var glideTo = start
+    private var movedAtMs = Long.MIN_VALUE / 2
+
+    /** One display frame. False once the dial has arrived and can rest. */
+    fun frame(frameMs: Long, target: Float): Boolean {
+        if (glide == null || target != glideTo) {
+            glideTo = target
+            // A dial on the move keeps moving: the new glide counts from the
+            // step it last moved on, so the frame the new speed arrives in
+            // already carries it on. Counted from this frame it would stand
+            // still for that one, which looks like a missed frame.
+            val since = if (frameMs - movedAtMs <= 2 * StepClock.STEP_MS) movedAtMs else frameMs
+            glide = if (target == shown) null else Glide(shown, target, startMs = since)
+        }
+        val g = glide ?: return false
+        if (!clock.isStep(frameMs)) return true
+        movedAtMs = frameMs
+        shown = g.valueAt(frameMs)
+        // The glide ends exactly on the wheel's value, on a step.
+        if (g.isOver(frameMs)) {
+            glide = null
+            return false
+        }
+        return true
+    }
+}
+
 /** The dashboard's clock, one for the screen. */
 @Composable
 fun rememberStepClock(): StepClock = remember { StepClock() }
@@ -96,13 +139,17 @@ fun <T> rememberPaced(flow: StateFlow<T>, clock: StepClock): State<T> {
     LaunchedEffect(flow, clock, owner) {
         owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             // collectLatest: a newer value takes over the wait of an older
-            // one, so what is shown on the step is always the newest.
-            flow.collectLatest { value ->
-                while (true) {
-                    val frameMs = withFrameNanos { it } / 1_000_000L
-                    if (clock.isStep(frameMs)) {
-                        shown.value = value
-                        break
+            // one. The value is written inside the frame callback, so it is
+            // composed and drawn in that same frame; written after it, it
+            // only reached the screen one frame later.
+            flow.collectLatest {
+                var handed = false
+                while (!handed) {
+                    withFrameNanos { nanos ->
+                        if (clock.isStep(nanos / 1_000_000L)) {
+                            shown.value = flow.value
+                            handed = true
+                        }
                     }
                 }
             }
@@ -119,17 +166,18 @@ fun <T> rememberPaced(flow: StateFlow<T>, clock: StepClock): State<T> {
 fun rememberGlidingSpeed(target: Float, clock: StepClock): State<Float> {
     val shown = remember { mutableFloatStateOf(target) }
     val latest = rememberUpdatedState(target)
-    LaunchedEffect(clock) {
-        snapshotFlow { latest.value }.collectLatest { to ->
-            val from = shown.floatValue
-            if (from == to) return@collectLatest
-            val glide = Glide(from, to, startMs = withFrameNanos { it } / 1_000_000L)
-            while (true) {
-                val frameMs = withFrameNanos { it } / 1_000_000L
-                if (!clock.isStep(frameMs)) continue
-                shown.floatValue = glide.valueAt(frameMs)
-                // The glide ends exactly on the wheel's value, on a step.
-                if (glide.isOver(frameMs)) break
+    val dial = remember(clock) { DialGlide(clock, target) }
+    LaunchedEffect(dial) {
+        // A new speed only wakes the loop. The dial itself carries on from
+        // where it is, see DialGlide, and is moved inside the frame callback
+        // so the move is drawn in that same frame.
+        snapshotFlow { latest.value }.collectLatest {
+            var moving = true
+            while (moving) {
+                withFrameNanos { nanos ->
+                    moving = dial.frame(nanos / 1_000_000L, latest.value)
+                    shown.floatValue = dial.shown
+                }
             }
         }
     }
