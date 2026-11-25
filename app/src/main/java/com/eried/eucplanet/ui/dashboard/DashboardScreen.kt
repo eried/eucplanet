@@ -986,11 +986,17 @@ fun DashboardScreen(
                 // continuously instead of snapping. ~250 ms linear ≈ one
                 // update interval: no lag, no stutter. When telemetry goes
                 // stale and speed is forced to 0, the animation to 0 is fine.
-                val animatedSpeed by animateFloatAsState(
+                //
+                // Held as a State and read only by the dial's draw and by the
+                // number's own small composable. Read here with `by`, it changed
+                // on every display frame of a ride and recomposed this whole
+                // block (dial, icons, menus) sixty or more times a second.
+                val animatedSpeedState = animateFloatAsState(
                     targetValue = wheelData.speed.absoluteValue * cheatSpeedMult,
                     animationSpec = tween(durationMillis = 250, easing = LinearEasing),
                     label = "dashSpeed"
                 )
+                val animatedSpeed = remember(animatedSpeedState) { { animatedSpeedState.value } }
                 // Gauge style key for this surface. Unknown keys fall back to
                 // the dial so future styles (PWM-primary etc.) degrade safely
                 // on older builds.
@@ -1003,25 +1009,18 @@ fun DashboardScreen(
                     // NUMBER: the plain speed value, no gauge ring. Compact
                     // default; opt-in for landscape. Same colour rule as the
                     // dial: band tiers win when the band is on.
-                    val speedFrac = (animatedSpeed / gaugeMax).coerceIn(0f, 1f)
-                    val numberColor = when {
-                        showGaugeColorBand && speedFrac >= gaugeRedPct / 100f ->
-                            MaterialTheme.appColors.gaugeDanger
-                        showGaugeColorBand && speedFrac >= gaugeOrangePct / 100f ->
-                            MaterialTheme.appColors.statusWarn
-                        else -> MaterialTheme.appColors.gaugeFill
-                    }
-                    Text(
-                        text = "%.0f".format(
-                            com.eried.eucplanet.util.Units.speed(animatedSpeed, speedUnit)
-                        ),
-                        color = numberColor,
+                    SpeedNumber(
+                        speed = animatedSpeed,
+                        gaugeMax = gaugeMax,
+                        speedUnit = speedUnit,
+                        showColorBand = showGaugeColorBand,
+                        orangePct = gaugeOrangePct,
+                        redPct = gaugeRedPct,
                         // Bigger than the dial's centre number and nudged up:
                         // with no ring the number owns the whole box, only the
                         // unit label below needs clearance. Scale is an
                         // Advanced registry knob.
                         fontSize = (dialW.value * advancedVars.simpleSpeedoScalePct / 100f).sp,
-                        fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .align(Alignment.Center)
                             .offset(y = (-(dialW.value * 0.06f)).dp)
@@ -3596,11 +3595,87 @@ fun DashboardScreen(
     }
 }
 
+/**
+ * The plain speed number of the NUMBER speedometer style. Its own composable so
+ * that the gliding [speed] recomposes these few lines and nothing around them,
+ * and only when the digits or the colour tier actually change.
+ */
+@Composable
+private fun SpeedNumber(
+    speed: () -> Float,
+    gaugeMax: Float,
+    speedUnit: String,
+    showColorBand: Boolean,
+    orangePct: Int,
+    redPct: Int,
+    fontSize: androidx.compose.ui.unit.TextUnit,
+    modifier: Modifier = Modifier,
+) {
+    val text by remember(speed, speedUnit) {
+        androidx.compose.runtime.derivedStateOf {
+            "%.0f".format(com.eried.eucplanet.util.Units.speed(speed(), speedUnit))
+        }
+    }
+    // 0 safe, 1 approaching, 2 over: the same rule as the dial, band tiers win
+    // when the band is on.
+    val tier by remember(speed, gaugeMax, showColorBand, orangePct, redPct) {
+        androidx.compose.runtime.derivedStateOf {
+            val frac = (speed() / gaugeMax).coerceIn(0f, 1f)
+            when {
+                showColorBand && frac >= redPct / 100f -> 2
+                showColorBand && frac >= orangePct / 100f -> 1
+                else -> 0
+            }
+        }
+    }
+    Text(
+        text = text,
+        color = when (tier) {
+            2 -> MaterialTheme.appColors.gaugeDanger
+            1 -> MaterialTheme.appColors.statusWarn
+            else -> MaterialTheme.appColors.gaugeFill
+        },
+        fontSize = fontSize,
+        fontWeight = FontWeight.Bold,
+        modifier = modifier,
+    )
+}
+
 // --- Speed gauge: thick arc dial, no needle, centered speed ---
 
+/** The dial for a speed that is simply a value: Legal mode and the floating window. */
 @Composable
 internal fun SpeedGauge(
     speed: Float,
+    maxSpeed: Float,
+    speedUnit: String,
+    showColorBand: Boolean = false,
+    orangeThresholdPct: Int = 65,
+    redThresholdPct: Int = 85,
+    safeBandColor: Color = MaterialTheme.appColors.gaugeFill,
+    externalSpeed: Float? = null,
+    externalAccentColor: Color = MaterialTheme.appColors.metricPosition,
+    modifier: Modifier = Modifier
+) = SpeedGauge(
+    speed = { speed },
+    maxSpeed = maxSpeed,
+    speedUnit = speedUnit,
+    showColorBand = showColorBand,
+    orangeThresholdPct = orangeThresholdPct,
+    redThresholdPct = redThresholdPct,
+    safeBandColor = safeBandColor,
+    externalSpeed = externalSpeed,
+    externalAccentColor = externalAccentColor,
+    modifier = modifier,
+)
+
+/**
+ * The dial. [speed] is read while drawing, so a speed that glides from frame to
+ * frame repaints the dial and recomposes nothing.
+ */
+@Composable
+internal fun SpeedGauge(
+    speed: () -> Float,
     maxSpeed: Float,
     speedUnit: String,
     showColorBand: Boolean = false,
@@ -3618,29 +3693,33 @@ internal fun SpeedGauge(
     //  - Color band OFF → the gaugeFill token.
     val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
     val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
-    val speedFraction = (speed / maxSpeed).coerceIn(0f, 1f)
     // Gauge band tier colors. Captured into vals here (composable scope) so the
     // Canvas DrawScope below, which can't read MaterialTheme, can still use them.
     // The "orange" approaching tier maps to statusWarn (defaults to AccentOrange,
     // pixel-identical); the "red" tier maps to gaugeDanger.
     val bandWarnColor = MaterialTheme.appColors.statusWarn
     val bandDangerColor = MaterialTheme.appColors.gaugeDanger
-    val speedColor = when {
-        showColorBand && speedFraction >= redFrac    -> bandDangerColor
-        showColorBand && speedFraction >= orangeFrac -> bandWarnColor
-        showColorBand                                -> safeBandColor
-        else                                         -> safeBandColor
-    }
     val trackColor = MaterialTheme.appColors.gaugeTrack
     val dimColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
 
-    val displaySpeed = com.eried.eucplanet.util.Units.speed(speed, speedUnit)
     val displayMax = com.eried.eucplanet.util.Units.speed(maxSpeed, speedUnit)
     val maxInt = displayMax.toInt()
     val step = (maxInt / 3f).toInt().coerceAtLeast(5)
     val scaleLabels = listOf(0, step, step * 2, maxInt)
     Canvas(modifier = modifier) {
+        // The one read of the speed, here in the draw. Everything that follows
+        // from it (the sweep, the tier colour, the number) is worked out in
+        // the same pass, so the arc and the number can never drift apart.
+        val speedNow = speed()
+        val speedFraction = (speedNow / maxSpeed).coerceIn(0f, 1f)
+        val speedColor = when {
+            showColorBand && speedFraction >= redFrac    -> bandDangerColor
+            showColorBand && speedFraction >= orangeFrac -> bandWarnColor
+            else                                         -> safeBandColor
+        }
+        val displaySpeed = com.eried.eucplanet.util.Units.speed(speedNow, speedUnit)
+
         val dim = size.minDimension
         val arcThickness = dim * 0.07f
         val arcRadius = dim / 2f - arcThickness - dim * 0.06f
@@ -3648,8 +3727,6 @@ internal fun SpeedGauge(
 
         val startAngle = 140f
         val sweepTotal = 260f
-        // speedFraction is computed at the top of the composable (for speedColor),
-        // so the band-drawing branch reuses it.
         val speedSweep = sweepTotal * speedFraction
 
         // Background arc
