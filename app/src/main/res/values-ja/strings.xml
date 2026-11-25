@@ -2276,6 +2276,8 @@
     <string name="adv_phone_gps_idle_interval_desc">記録もナビもしていないときの GPS 更新間隔です。ナビゲーターを開いたときやホイールをつないだときにすぐ使えるよう、GPS を動かしたままにします。大きいほどバッテリーを節約できます。</string>
     <string name="adv_gps_idle_off_delay">アイドル時に GPS を切る</string>
     <string name="adv_gps_idle_off_delay_desc">アプリがバックグラウンドにあり、ホイールが未接続で記録もしていないときは、GPS を切ってバッテリーを節約します。0 にするとすぐに切ります。大きくすると、その時間だけ低電力で測位を続けるので、アプリを少し切り替えただけでは GPS が途切れません。</string>
+    <string name="adv_gps_parked_delay">駐輪中は GPS を遅くする</string>
+    <string name="adv_gps_parked_delay_desc">ホイールを接続したままアプリがバックグラウンドにあるとき、ホイールがこの時間止まっているか充電中であれば、GPS をアイドル間隔に落とします。動き出すとすぐに元の間隔に戻ります。0 にすると遅くしません。</string>
     <string name="adv_gps_fix_max_age">GPS 測位の最大経過時間</string>
     <string name="adv_gps_fix_max_age_desc">これより古い位置は測位なしとして扱います。GPS の準備ができる前に記録を始めても、古い地点から始まることがなくなります。</string>
     <string name="adv_pushonly_note">一部のデバイスは独自の固定レートで送信するため、これらの設定は適用されません: プッシュ専用のホイール（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox、Dragy）、レーダー、Flic ボタン。</string>

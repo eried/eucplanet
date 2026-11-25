@@ -585,6 +585,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Laju GPS siaga saat tidak merekam atau bernavigasi, agar Navigator dan koneksi EUC baru tetap siap. Lebih tinggi menghemat baterai.</string>
     <string name="adv_gps_idle_off_delay">GPS mati setelah diam</string>
     <string name="adv_gps_idle_off_delay_desc">Saat aplikasi di latar belakang tanpa EUC terhubung dan tanpa perekaman, GPS mati untuk menghemat baterai. 0 langsung mematikannya; nilai lebih tinggi mempertahankan posisi hemat daya selama itu dulu, agar pindah aplikasi sebentar tidak memutus GPS.</string>
+    <string name="adv_gps_parked_delay">GPS lambat saat parkir</string>
+    <string name="adv_gps_parked_delay_desc">Saat EUC terhubung dan aplikasi di latar belakang, GPS turun ke interval saat diam begitu EUC diam selama ini, atau langsung selama mengisi daya. Gerakan pertama mengembalikan laju penuh. 0 tidak pernah melambatkannya.</string>
     <string name="adv_gps_fix_max_age">Usia maks posisi GPS</string>
     <string name="adv_gps_fix_max_age_desc">Posisi yang lebih lama dari ini dianggap tidak ada, agar perekaman yang dimulai sebelum GPS siap tidak diawali titik usang.</string>
     <string name="adv_hud_report_interval">Laju laporan HUD</string>

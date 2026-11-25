@@ -543,6 +543,8 @@
     <string name="adv_phone_gps_idle_interval_desc">GPS:n ylläpitotahti, kun ei tallenneta eikä navigoida, jotta navigointi ja uusi yhteys yksipyöräiseen ovat valmiina. Suurempi säästää akkua.</string>
     <string name="adv_gps_idle_off_delay">GPS pois levon jälkeen</string>
     <string name="adv_gps_idle_off_delay_desc">Kun sovellus on taustalla, yksipyöräistä ei ole yhdistetty eikä mitään tallenneta, GPS sammuu akun säästämiseksi. 0 sammuttaa heti; suurempi pitää ensin vähävirtaisen paikannuksen päällä sen ajan, jotta nopea sovellusvaihto ei katkaise GPS:ää.</string>
+    <string name="adv_gps_parked_delay">Hitaampi GPS pysäköitynä</string>
+    <string name="adv_gps_parked_delay_desc">Kun yksipyöräinen on yhdistetty ja sovellus on taustalla, GPS siirtyy lepoväliin, kun pyörä on seissyt paikallaan näin kauan, tai heti latauksen ajaksi. Ensimmäinen liike palauttaa täyden tahdin. 0 ei hidasta koskaan.</string>
     <string name="adv_gps_fix_max_age">GPS-paikannuksen enimmäisikä</string>
     <string name="adv_gps_fix_max_age_desc">Tätä vanhempi sijainti lasketaan puuttuvaksi paikannukseksi, jotta ennen GPS:n valmistumista aloitettu tallennus ei ala vanhentuneesta pisteestä.</string>
     <string name="adv_hud_report_interval">HUDin raportointitiheys</string>

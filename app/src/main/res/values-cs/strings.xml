@@ -543,6 +543,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Udržovací frekvence GPS, když se nenahrává ani nenaviguje, aby navigace a nové připojení monokola byly připraveny. Vyšší hodnota šetří baterii.</string>
     <string name="adv_gps_idle_off_delay">Vypnout GPS po nečinnosti</string>
     <string name="adv_gps_idle_off_delay_desc">Když je aplikace na pozadí, není připojeno monokolo a nic se nenahrává, GPS se vypne, aby šetřila baterii. 0 ji vypne hned; vyšší hodnota ještě tak dlouho drží úsporné určování polohy, takže rychlé přepnutí aplikace GPS neshodí.</string>
+    <string name="adv_gps_parked_delay">Pomalejší GPS při stání</string>
+    <string name="adv_gps_parked_delay_desc">Když je připojeno monokolo a aplikace je na pozadí, GPS přejde na klidový interval, jakmile monokolo stojí takto dlouho, nebo hned, když se nabíjí. První pohyb vrátí plnou rychlost. 0 ji nezpomalí nikdy.</string>
     <string name="adv_gps_fix_max_age">Maximální stáří polohy GPS</string>
     <string name="adv_gps_fix_max_age_desc">Starší poloha se bere, jako by žádná nebyla, takže nahrávání spuštěné dřív, než je GPS připravená, nezačne starým bodem.</string>
     <string name="adv_hud_report_interval">Frekvence hlášení do HUD</string>

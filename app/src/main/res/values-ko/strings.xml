@@ -2274,6 +2274,8 @@
     <string name="adv_phone_gps_idle_interval_desc">기록이나 내비게이션을 하지 않을 때 GPS를 미리 켜 두는 간격입니다. 내비게이터와 새 휠 연결이 바로 준비됩니다. 값이 클수록 배터리가 절약됩니다.</string>
     <string name="adv_gps_idle_off_delay">대기 시 GPS 끄기</string>
     <string name="adv_gps_idle_off_delay_desc">앱이 백그라운드에 있고 휠이 연결되지 않았으며 기록도 없을 때, GPS를 꺼 배터리를 아낍니다. 0은 즉시 끄고, 값이 클수록 그 시간만큼 먼저 저전력 측위를 유지하므로 빠르게 앱을 전환해도 GPS가 끊기지 않습니다.</string>
+    <string name="adv_gps_parked_delay">주차 중 GPS 느리게</string>
+    <string name="adv_gps_parked_delay_desc">휠이 연결되어 있고 앱이 백그라운드에 있을 때, 휠이 이 시간 동안 멈춰 있거나 충전 중이면 GPS를 대기 간격으로 낮춥니다. 움직이기 시작하면 바로 원래 간격으로 돌아갑니다. 0이면 낮추지 않습니다.</string>
     <string name="adv_gps_fix_max_age">GPS 측위 유효 시간</string>
     <string name="adv_gps_fix_max_age_desc">이보다 오래된 위치는 측위 없음으로 처리하므로, GPS가 준비되기 전에 시작한 기록이 오래된 지점에서 시작되지 않습니다.</string>
     <string name="adv_pushonly_note">일부 기기는 자체 고정 속도로 데이터를 보내며 이 설정을 무시합니다: 푸시 전용 휠(Begode, Gotway, Veteran, KingSong), 외부 GPS(RaceBox, Dragy), 레이더, Flic 버튼.</string>

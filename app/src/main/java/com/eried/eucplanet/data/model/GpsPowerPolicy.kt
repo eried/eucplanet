@@ -4,7 +4,20 @@ package com.eried.eucplanet.data.model
  * GPS power tiers, from most to least battery-hungry. Mapped to a fused
  * LocationRequest priority + interval by [com.eried.eucplanet.data.repository.TripRepository].
  */
-enum class GpsTier { HIGH, BALANCED, LOW, OFF }
+enum class GpsTier {
+    HIGH,
+
+    /**
+     * Still satellite GPS, at the slow idle interval. For a connected wheel
+     * that is standing still or charging with the app hidden: the receiver
+     * stays warm, so the full rate is back within a fix of the first
+     * movement, and it is not asked for a position every second for hours.
+     */
+    PARKED,
+    BALANCED,
+    LOW,
+    OFF,
+}
 
 /**
  * A GENUINE GPS signal transition (satellites actually lost / regained while GPS
@@ -31,6 +44,8 @@ enum class GpsSignalEvent { ACQUIRED, LOST }
  *    moment the rider left the app with no wheel connected.
  *  - App not visible (screen off / backgrounded): high accuracy only while a
  *    wheel is connected (riding with the phone pocketed); otherwise fully OFF.
+ *    A connected wheel that is parked (see [ParkedDetector]) only needs the
+ *    slow [GpsTier.PARKED] stream: nothing is recording, navigating or shared.
  *    Background + disconnected + not recording/navigating/sharing and no
  *    visible watch map is the pure-idle state that should cost nothing.
  *  - App visible but idle: balanced is enough to show a position and keep a fix
@@ -49,9 +64,14 @@ object GpsPowerPolicy {
         sharing: Boolean = false,
         watchMapVisible: Boolean = false,
         hudMapLinked: Boolean = false,
+        parked: Boolean = false,
     ): GpsTier = when {
         recording || navigating || sharing || watchMapVisible || hudMapLinked -> GpsTier.HIGH
-        !appVisible -> if (connected) GpsTier.HIGH else GpsTier.OFF
+        !appVisible -> when {
+            !connected -> GpsTier.OFF
+            parked -> GpsTier.PARKED
+            else -> GpsTier.HIGH
+        }
         else -> GpsTier.BALANCED
     }
 }

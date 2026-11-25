@@ -543,6 +543,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Cât de des e ținut treaz GPS-ul când nu înregistrezi și nu navighezi, ca Navigatorul și o conectare nouă la monociclu să fie gata. O valoare mai mare economisește bateria.</string>
     <string name="adv_gps_idle_off_delay">Oprire GPS după inactivitate</string>
     <string name="adv_gps_idle_off_delay_desc">Când aplicația este în fundal, niciun monociclu nu este conectat și nu se înregistrează nimic, GPS-ul se oprește pentru a economisi bateria. 0 îl oprește imediat; o valoare mai mare ține întâi atâta timp o poziție cu consum redus, ca să nu pierzi GPS-ul când schimbi rapid aplicația.</string>
+    <string name="adv_gps_parked_delay">GPS mai rar la staționare</string>
+    <string name="adv_gps_parked_delay_desc">Cu un monociclu conectat și aplicația în fundal, GPS-ul trece la intervalul de repaus după ce monociclul a stat pe loc atât timp, sau imediat cât se încarcă. Prima mișcare readuce ritmul complet. 0 nu îl rărește niciodată.</string>
     <string name="adv_gps_fix_max_age">Vechimea maximă a poziției GPS</string>
     <string name="adv_gps_fix_max_age_desc">O poziție mai veche de atât nu se mai ia în calcul, ca o înregistrare pornită înainte ca GPS-ul să fie gata să nu înceapă cu un punct vechi.</string>
     <string name="adv_hud_report_interval">Raportare HUD</string>

@@ -620,6 +620,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Ako často sa GPS obnovuje, keď sa nenahráva ani nenaviguje, aby boli Navigátor aj čerstvo pripojené koleso hneď pripravené. Vyššia hodnota šetrí batériu.</string>
     <string name="adv_gps_idle_off_delay">Vypnúť GPS po nečinnosti</string>
     <string name="adv_gps_idle_off_delay_desc">Keď je aplikácia na pozadí, koleso nie je pripojené a nič sa nenahráva, GPS sa vypne, aby šetrila batériu. 0 ju vypne hneď, vyššia hodnota ju ešte tak dlho nechá bežať v úspornom režime, aby ste o GPS neprišli pri krátkom prepnutí do inej aplikácie.</string>
+    <string name="adv_gps_parked_delay">Pomalšia GPS pri státí</string>
+    <string name="adv_gps_parked_delay_desc">Keď je koleso pripojené a aplikácia je na pozadí, GPS prejde na interval v nečinnosti, keď koleso stojí takto dlho, alebo hneď počas nabíjania. Prvý pohyb vráti plnú rýchlosť. 0 ju nespomalí nikdy.</string>
     <string name="adv_gps_fix_max_age">Max. vek polohy GPS</string>
     <string name="adv_gps_fix_max_age_desc">Staršia poloha sa neráta, takže nahrávanie spustené skôr, než je GPS pripravená, nezačne starým bodom.</string>
     <string name="adv_hud_report_interval">Frekvencia hlásení HUD</string>

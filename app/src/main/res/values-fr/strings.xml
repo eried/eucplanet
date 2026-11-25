@@ -2283,6 +2283,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Cadence du GPS gardé en veille hors enregistrement et navigation, pour que le Navigateur et une roue tout juste connectée soient prêts tout de suite. Une valeur plus élevée économise la batterie.</string>
     <string name="adv_gps_idle_off_delay">GPS coupé au repos</string>
     <string name="adv_gps_idle_off_delay_desc">Quand l\'application est en arrière-plan sans roue connectée et sans enregistrement, le GPS s\'éteint pour économiser la batterie. 0 l\'éteint aussitôt ; une valeur plus élevée garde d\'abord le GPS en basse consommation pendant ce temps, pour qu\'un passage rapide à une autre application ne coupe pas le GPS.</string>
+    <string name="adv_gps_parked_delay">GPS ralenti à l\'arrêt</string>
+    <string name="adv_gps_parked_delay_desc">Avec une roue connectée et l\'application en arrière-plan, le GPS passe à l\'intervalle au repos quand la roue est immobile depuis ce délai, ou aussitôt pendant la charge. Le premier mouvement rétablit le rythme complet. 0 ne le ralentit jamais.</string>
     <string name="adv_gps_fix_max_age">Âge max. du point GPS</string>
     <string name="adv_gps_fix_max_age_desc">Une position plus ancienne est considérée comme absente, pour qu\'un enregistrement lancé avant que le GPS soit prêt ne commence pas par un point périmé.</string>
     <string name="adv_pushonly_note">Certains appareils diffusent à leur propre cadence fixe et ignorent ces réglages : roues en diffusion seule (Begode, Gotway, Veteran, KingSong), GPS externe (RaceBox, Dragy), radar et boutons Flic.</string>

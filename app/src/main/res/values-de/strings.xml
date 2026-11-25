@@ -2298,6 +2298,8 @@
     <string name="adv_phone_gps_idle_interval_desc">GPS-Rate, wenn weder aufgenommen noch navigiert wird, damit der Navigator und eine frische Wheel-Verbindung startklar bleiben. Höher spart Akku.</string>
     <string name="adv_gps_idle_off_delay">GPS aus bei Leerlauf</string>
     <string name="adv_gps_idle_off_delay_desc">Wenn die App im Hintergrund ist, kein Wheel verbunden ist und nichts aufgenommen wird, schaltet sich das GPS aus, um Akku zu sparen. 0 schaltet es sofort aus; ein höherer Wert hält das GPS erst noch so lange stromsparend bereit, damit es bei einem kurzen App-Wechsel nicht abreißt.</string>
+    <string name="adv_gps_parked_delay">GPS langsamer beim Parken</string>
+    <string name="adv_gps_parked_delay_desc">Ist ein Wheel verbunden und die App im Hintergrund, wechselt das GPS auf das Leerlauf-Intervall, sobald das Wheel so lange stillsteht, oder sofort, während es lädt. Die erste Bewegung bringt die volle Rate zurück. 0 verlangsamt es nie.</string>
     <string name="adv_gps_fix_max_age">Max. Alter GPS-Fix</string>
     <string name="adv_gps_fix_max_age_desc">Ist die Position älter, zählt sie nicht. So beginnt eine Aufnahme, die du startest, bevor das GPS bereit ist, nicht mit einem veralteten Punkt.</string>
     <string name="adv_pushonly_note">Manche Geräte senden mit ihrer eigenen festen Rate und ignorieren diese Einstellungen: Push-only-Wheels (Begode, Gotway, Veteran, KingSong), externes GPS (RaceBox, Dragy), Radar und Flic-Tasten.</string>

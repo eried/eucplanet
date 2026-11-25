@@ -543,6 +543,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Ilyen ütemben tartja melegen a GPS-t, amikor nem rögzítesz és nem navigálsz, hogy a navigáció és egy frissen csatlakozó egykerekű azonnal kész legyen. A magasabb érték kíméli az akkumulátort.</string>
     <string name="adv_gps_idle_off_delay">GPS kikapcsolása tétlenség után</string>
     <string name="adv_gps_idle_off_delay_desc">Amikor az alkalmazás a háttérben van, nincs csatlakoztatott egykerekű és nem fut rögzítés, a GPS kikapcsol, hogy kímélje az akkumulátort. A 0 azonnal kikapcsolja; a magasabb érték előbb ennyi ideig kis fogyasztáson melegen tartja a GPS-t, így egy gyors alkalmazásváltás nem szakítja meg.</string>
+    <string name="adv_gps_parked_delay">Lassabb GPS álló keréknél</string>
+    <string name="adv_gps_parked_delay_desc">Ha egykerekű csatlakozik és az alkalmazás a háttérben van, a GPS a tétlen időközre vált, amint a kerék ennyi ideje áll, vagy azonnal, amíg tölt. Az első mozdulat visszaadja a teljes ütemet. A 0 soha nem lassítja.</string>
     <string name="adv_gps_fix_max_age">GPS-pozíció maximális kora</string>
     <string name="adv_gps_fix_max_age_desc">Az ennél régebbi pozíció úgy számít, mintha nem lenne GPS-jel, így ha a rögzítés előbb indul, mint hogy a GPS kész lenne, nem elavult ponttal kezdődik.</string>
     <string name="adv_hud_report_interval">HUD jelentési gyakorisága</string>

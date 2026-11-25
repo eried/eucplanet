@@ -92,6 +92,8 @@ val ADVANCED_SPECS: List<AdvancedSpec> = listOf(
         2000..120000, 1000, get = { it.phoneGpsIdleIntervalMs }, set = { s, v -> s.copy(phoneGpsIdleIntervalMs = v) }),
     AdvancedSpec("gpsIdleOffDelaySec", AdvGroup.RATES, R.string.adv_gps_idle_off_delay, R.string.adv_gps_idle_off_delay_desc,
         0..300, 15, unit = "s", get = { it.gpsIdleOffDelaySec }, set = { s, v -> s.copy(gpsIdleOffDelaySec = v) }),
+    AdvancedSpec("gpsParkedDelaySec", AdvGroup.RATES, R.string.adv_gps_parked_delay, R.string.adv_gps_parked_delay_desc,
+        0..1800, 30, unit = "s", get = { it.gpsParkedDelaySec }, set = { s, v -> s.copy(gpsParkedDelaySec = v) }),
     AdvancedSpec("gpsFixMaxAgeSec", AdvGroup.RATES, R.string.adv_gps_fix_max_age, R.string.adv_gps_fix_max_age_desc,
         3..30, 1, unit = "s", get = { it.gpsFixMaxAgeSec }, set = { s, v -> s.copy(gpsFixMaxAgeSec = v) }),
     AdvancedSpec("hudReportIntervalMs", AdvGroup.RATES, R.string.adv_hud_report_interval, R.string.adv_hud_report_interval_desc,

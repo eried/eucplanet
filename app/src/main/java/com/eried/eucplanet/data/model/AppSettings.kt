@@ -946,6 +946,7 @@ data class AppSettings(
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
     val phoneGpsIdleIntervalMs: Int get() = advanced.phoneGpsIdleIntervalMs
     val gpsIdleOffDelaySec: Int get() = advanced.gpsIdleOffDelaySec
+    val gpsParkedDelaySec: Int get() = advanced.gpsParkedDelaySec
     val gpsFixMaxAgeSec: Int get() = advanced.gpsFixMaxAgeSec
     val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
     val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
@@ -1634,6 +1635,10 @@ data class AdvancedSettings(
     // recording/navigating) before the GPS is fully released. 0 = immediately;
     // during the grace GPS holds a cheap low-power fix, then goes off.
     val gpsIdleOffDelaySec: Int = 30,
+    // Seconds a connected wheel has to stand still, app hidden, before GPS
+    // slows to the idle interval (a charging wheel counts at once). 0 = never.
+    // See ParkedDetector and GpsTier.PARKED.
+    val gpsParkedDelaySec: Int = 120,
     // A GPS fix older than this (seconds) counts as "no fix", so a recording
     // that starts before GPS is ready never opens with a stale last-known point.
     val gpsFixMaxAgeSec: Int = 10,

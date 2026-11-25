@@ -585,6 +585,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Tần suất giữ GPS sẵn sàng khi không ghi hay dẫn đường, để Dẫn đường và lúc xe vừa kết nối đều dùng được ngay. Giá trị cao tiết kiệm pin.</string>
     <string name="adv_gps_idle_off_delay">Tắt GPS sau khi rảnh</string>
     <string name="adv_gps_idle_off_delay_desc">Khi ứng dụng chạy nền, không kết nối xe và không ghi gì, GPS sẽ tắt để tiết kiệm pin. 0 là tắt ngay; giá trị cao hơn thì giữ định vị ở mức tiết kiệm pin thêm chừng đó thời gian, để chuyển nhanh sang ứng dụng khác không làm mất GPS.</string>
+    <string name="adv_gps_parked_delay">GPS chậm khi đỗ xe</string>
+    <string name="adv_gps_parked_delay_desc">Khi xe đang kết nối và ứng dụng chạy nền, GPS giảm xuống khoảng khi rảnh sau khi xe đứng yên chừng này thời gian, hoặc ngay lập tức trong lúc sạc. Xe vừa lăn bánh là trở lại tốc độ đầy đủ. 0 là không bao giờ giảm.</string>
     <string name="adv_gps_fix_max_age">Độ cũ tối đa của định vị GPS</string>
     <string name="adv_gps_fix_max_age_desc">Vị trí cũ hơn mức này được coi là chưa có định vị, để khi bạn bắt đầu ghi lúc GPS chưa sẵn sàng, chuyến đi không mở đầu bằng một điểm cũ.</string>
     <string name="adv_hud_report_interval">Tần suất gửi HUD</string>

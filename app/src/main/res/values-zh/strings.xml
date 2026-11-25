@@ -2143,6 +2143,8 @@
     <string name="adv_phone_gps_idle_interval_desc">未记录或导航时的 GPS 更新间隔，让导航和重新连接随时就绪。数值越大越省电。</string>
     <string name="adv_gps_idle_off_delay">闲置后关闭 GPS</string>
     <string name="adv_gps_idle_off_delay_desc">当应用在后台运行、未连接独轮车且未在记录时，GPS 会关闭以省电。0 表示立即关闭；大于 0 则先保持低功耗定位这么久，这样快速切换应用时 GPS 不会断。</string>
+    <string name="adv_gps_parked_delay">停放时降低 GPS 频率</string>
+    <string name="adv_gps_parked_delay_desc">连接独轮车且应用在后台运行时，独轮车静止这么久后，或在充电时立即，GPS 会降到空闲间隔。一开始移动就恢复全速。0 表示从不降低。</string>
     <string name="adv_gps_fix_max_age">GPS 定位最长时效</string>
     <string name="adv_gps_fix_max_age_desc">超过这个时长的位置算作没有定位，这样在 GPS 就绪前开始的记录不会以过期的点开头。</string>
     <string name="adv_pushonly_note">部分设备以自身固定频率推送数据，会忽略这些设置：仅推送型独轮车（Begode、Gotway、Veteran、KingSong）、外置 GPS（RaceBox、Dragy）、雷达和 Flic 按钮。</string>

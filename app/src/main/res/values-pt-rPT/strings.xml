@@ -604,6 +604,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Taxa a que o GPS se mantém ativo quando não está a gravar nem a navegar, para o Navegador e uma nova ligação à roda estarem prontos. Mais alto poupa bateria.</string>
     <string name="adv_gps_idle_off_delay">GPS desligado após inatividade</string>
     <string name="adv_gps_idle_off_delay_desc">Quando a app está em segundo plano sem roda ligada e sem gravar, o GPS desliga-se para poupar bateria. 0 desliga-o logo; mais alto mantém primeiro um sinal de baixo consumo durante esse tempo, para uma troca rápida de app não perder o GPS.</string>
+    <string name="adv_gps_parked_delay">GPS mais lento com a roda parada</string>
+    <string name="adv_gps_parked_delay_desc">Com uma roda ligada e a app em segundo plano, o GPS passa para o intervalo em repouso quando a roda está parada há este tempo, ou logo enquanto carrega. O primeiro movimento repõe o ritmo completo. 0 nunca o abranda.</string>
     <string name="adv_gps_fix_max_age">Idade máxima do sinal GPS</string>
     <string name="adv_gps_fix_max_age_desc">Uma posição mais antiga do que isto conta como sem sinal, para uma gravação iniciada antes de o GPS estar pronto não começar com um ponto antigo.</string>
     <string name="adv_hud_report_interval">Taxa de envio para o HUD</string>

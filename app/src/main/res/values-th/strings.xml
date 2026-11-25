@@ -585,6 +585,8 @@
     <string name="adv_phone_gps_idle_interval_desc">อัตรา GPS ที่เปิดเลี้ยงไว้ตอนไม่ได้บันทึกหรือนำทาง ให้ตัวนำทางและล้อที่เพิ่งเชื่อมต่อพร้อมใช้ทันที ค่าสูงช่วยประหยัดแบตเตอรี่</string>
     <string name="adv_gps_idle_off_delay">ปิด GPS หลังว่าง</string>
     <string name="adv_gps_idle_off_delay_desc">เมื่อแอปอยู่ในเบื้องหลังโดยไม่ได้เชื่อมต่อล้อและไม่ได้บันทึกอะไร GPS จะปิดเพื่อประหยัดแบตเตอรี่ 0 คือปิดทันที ค่าสูงจะคงตำแหน่งแบบประหยัดพลังงานไว้ตามเวลานั้นก่อน เพื่อให้การสลับแอปสั้นๆ ไม่ทำให้ GPS หลุด</string>
+    <string name="adv_gps_parked_delay">GPS ช้าลงเมื่อจอด</string>
+    <string name="adv_gps_parked_delay_desc">เมื่อเชื่อมต่อล้ออยู่และแอปอยู่ในเบื้องหลัง GPS จะลดลงเป็นช่วงขณะว่างเมื่อล้อหยุดนิ่งนานเท่านี้ หรือทันทีขณะชาร์จ เมื่อเริ่มเคลื่อนที่จะกลับเป็นอัตราเต็ม 0 คือไม่ลดเลย</string>
     <string name="adv_gps_fix_max_age">อายุสูงสุดของตำแหน่ง GPS</string>
     <string name="adv_gps_fix_max_age_desc">ตำแหน่งที่เก่ากว่านี้จะถือว่าไม่มีสัญญาณ การบันทึกที่เริ่มก่อน GPS จะพร้อมจึงไม่เริ่มด้วยจุดเก่า</string>
     <string name="adv_hud_report_interval">อัตรารายงาน HUD</string>

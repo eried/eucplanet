@@ -2163,6 +2163,8 @@
     <string name="adv_phone_gps_idle_interval_desc">GPS-frekvens når du ikke tar opp eller navigerer, så Navigatoren og en ny hjultilkobling er klare. Høyere sparer batteri.</string>
     <string name="adv_gps_idle_off_delay">GPS av i hvile</string>
     <string name="adv_gps_idle_off_delay_desc">Når appen er i bakgrunnen uten tilkoblet hjul og uten opptak, slås GPS av for å spare batteri. 0 slår den av med en gang. Høyere holder GPS varm med lavt strømforbruk så lenge først, slik at et raskt appbytte ikke kutter GPS.</string>
+    <string name="adv_gps_parked_delay">Tregere GPS ved parkering</string>
+    <string name="adv_gps_parked_delay_desc">Med et hjul tilkoblet og appen i bakgrunnen går GPS ned til hvileintervallet når hjulet har stått stille så lenge, eller med en gang mens det lader. Første bevegelse gir full takt igjen. 0 senker den aldri.</string>
     <string name="adv_gps_fix_max_age">Maks. alder på GPS-posisjon</string>
     <string name="adv_gps_fix_max_age_desc">En posisjon eldre enn dette teller som ingen posisjon, slik at et opptak som startes før GPS er klar, ikke begynner med et utdatert punkt.</string>
     <string name="adv_pushonly_note">Noen enheter sender med sin egen faste frekvens og ignorerer disse innstillingene: hjul som bare sender selv (Begode, Gotway, Veteran, KingSong), ekstern GPS (RaceBox, Dragy), radar og Flic-knapper.</string>
