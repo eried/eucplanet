@@ -1,8 +1,6 @@
 package com.eried.eucplanet.ui.dashboard
 
-import android.graphics.ImageDecoder
-import android.graphics.drawable.AnimatedImageDrawable
-import android.widget.ImageView
+import android.view.TextureView
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -77,12 +75,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedSwitchColors
-import java.nio.ByteBuffer
 
 /**
  * First-launch coach-mark tour of the dashboard. A self-contained spotlight
@@ -222,27 +223,31 @@ private fun annotateRiedLinks(text: String): androidx.compose.ui.text.AnnotatedS
     }
 }
 
-/** A small looping, soundless animated clip decoded from an asset. */
+/**
+ * A small looping, soundless clip played from a video asset.
+ *
+ * It was an animated image of 4.4 MB, in every install for a page shown once.
+ * The same clip as H.264 is a tenth of that. The player is the one the Overlay
+ * Studio already brings, drawing into a TextureView so the rounded corners of
+ * the caller's clip apply. It is muted and the file has no sound track, so it
+ * never takes the audio from music or the voice.
+ */
 @Composable
 private fun LoopingClip(assetName: String, modifier: Modifier) {
+    val context = LocalContext.current
+    val player = remember(assetName) {
+        ExoPlayer.Builder(context).build().apply {
+            volume = 0f
+            repeatMode = Player.REPEAT_MODE_ONE
+            setMediaItem(MediaItem.fromUri("asset:///$assetName"))
+            prepare()
+            playWhenReady = true
+        }
+    }
+    DisposableEffect(player) { onDispose { player.release() } }
     AndroidView(
         modifier = modifier,
-        factory = { ctx ->
-            ImageView(ctx).apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                runCatching {
-                    val bytes = ctx.assets.open(assetName).use { it.readBytes() }
-                    val drawable = ImageDecoder.decodeDrawable(
-                        ImageDecoder.createSource(ByteBuffer.wrap(bytes))
-                    )
-                    setImageDrawable(drawable)
-                    (drawable as? AnimatedImageDrawable)?.apply {
-                        repeatCount = AnimatedImageDrawable.REPEAT_INFINITE
-                        start()
-                    }
-                }
-            }
-        }
+        factory = { ctx -> TextureView(ctx).also { player.setVideoTextureView(it) } },
     )
 }
 
@@ -448,7 +453,7 @@ fun WelcomeTutorialOverlay(
                             // Outro: clip, a title and bulleted tips.
                             Spacer(Modifier.height(12.dp))
                             LoopingClip(
-                                assetName = "welcome_clip.webp",
+                                assetName = "welcome_clip.mp4",
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
                                     .size(230.dp)
