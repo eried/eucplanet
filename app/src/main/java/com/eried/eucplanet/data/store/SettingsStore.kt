@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.emptyPreferences
@@ -119,6 +120,17 @@ class SettingsStore(
                     unitAltitude = units.altitude
                 )
                 prefs[KEY_JSON] = SettingsJson.toJson(seeded).toString()
+                // A fresh install starts on the current defaults.
+                prefs[KEY_DEFAULTS_REV] = NewDefaults.REV
+            }
+            // A default that changed reaches an existing install once, here,
+            // in the transaction the start already runs. See NewDefaults.
+            val rev = prefs[KEY_DEFAULTS_REV] ?: 0
+            if (rev < NewDefaults.REV) {
+                val before = readSettings(prefs)
+                val after = NewDefaults.upgrade(before, rev)
+                if (after != before) prefs[KEY_JSON] = SettingsJson.toJson(after).toString()
+                prefs[KEY_DEFAULTS_REV] = NewDefaults.REV
             }
         }
     }
@@ -153,6 +165,8 @@ class SettingsStore(
         /** The DataStore's name, so the start can ask whether its file exists. */
         const val FILE_NAME = "eucplanet_settings"
         private val KEY_JSON = stringPreferencesKey("app_settings_json")
+        /** Which revision of [NewDefaults] this install has taken. */
+        private val KEY_DEFAULTS_REV = intPreferencesKey("defaults_rev")
     }
 }
 

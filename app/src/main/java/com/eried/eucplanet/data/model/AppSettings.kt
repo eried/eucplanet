@@ -1613,7 +1613,10 @@ data class AdvancedSettings(
     val tripRecordIntervalMs: Int = 1000,
     // Background safety-net interval for retrying trips left pending (e.g. app
     // closed mid-sync). Minutes -- 15 is Android's WorkManager periodic floor.
-    val pendingUploadIntervalMin: Int = 15,
+    // Six hours: trip end, app start and return to the app each start a pass
+    // of their own, so this only catches what all of those missed. It was 15,
+    // see NewDefaults for the installs that had that stored.
+    val pendingUploadIntervalMin: Int = 360,
     // Grace after a recording stops before the trip is finalized and synced.
     val tripFinalizeGraceMs: Int = 15000,
     // Speed (km/h) above which a lock command is refused, for safety.

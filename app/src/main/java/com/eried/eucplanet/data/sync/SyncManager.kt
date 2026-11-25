@@ -104,6 +104,14 @@ class SyncManager(
         const val WATCHDOG_ATTEMPT = 8
         private const val BACKOFF_BASE_SECONDS = 15L
         private const val BACKOFF_MAX_SECONDS = 300L
+        // After this many attempts the outage is a long one (a server down for
+        // the night, a folder on a card that was taken out), about an hour and
+        // a half of trying every five minutes. From there on it is tried twice
+        // an hour, so it does not keep the phone busy for as long as it lasts.
+        // The five minute ceiling above still holds for everything before, so
+        // a trip that waited for the home Wi-Fi still lands within minutes.
+        private const val LONG_OUTAGE_ATTEMPT = 25
+        private const val LONG_OUTAGE_SECONDS = 1800L
 
         /**
          * How long to leave Dropbox alone after it refuses us outright.
@@ -115,6 +123,7 @@ class SyncManager(
 
         fun delayForAttempt(attempt: Int): Long {
             if (attempt <= 0) return 0L
+            if (attempt >= LONG_OUTAGE_ATTEMPT) return LONG_OUTAGE_SECONDS
             val shift = (attempt - 1).coerceAtMost(20)
             val raw = BACKOFF_BASE_SECONDS * (1L shl shift)
             return raw.coerceAtMost(BACKOFF_MAX_SECONDS)
