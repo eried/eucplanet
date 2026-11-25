@@ -845,24 +845,34 @@ class WheelRepository(
         // is recording (see the gate below); with it stopped the IMU flow goes
         // quiet and this merge stops re-emitting frames for nobody.
         scope.launch {
+            // A reading that says what the wheel data already says is not
+            // published: see ImuPublishGate. Only this collector uses the gate.
+            val gate = com.eried.eucplanet.data.model.ImuPublishGate()
             phoneSensorRepository.imu.collect { s ->
                 val ext = externalGpsRepository.currentSample.value
                 val useExt = prioritizeExternalGps &&
                     externalGpsRepository.connectionState.value == ConnectionState.CONNECTED &&
                     ext?.accelXG != null
-                _wheelData.value = if (useExt) {
-                    val ax = ext!!.accelXG ?: 0f
-                    val ay = ext.accelZG ?: 0f
-                    _wheelData.value.copy(
-                        gForce = kotlin.math.sqrt(ax * ax + ay * ay),
-                        accelX = ax,
-                        accelY = ay
+                val ax: Float
+                val ay: Float
+                val g: Float
+                if (useExt) {
+                    ax = ext!!.accelXG ?: 0f
+                    ay = ext.accelZG ?: 0f
+                    g = kotlin.math.sqrt(ax * ax + ay * ay)
+                } else {
+                    g = s?.magnitude ?: 0f
+                    ax = s?.xG ?: 0f
+                    ay = s?.zG ?: 0f
+                }
+                val shown = _wheelData.value
+                if (gate.shouldPublish(
+                        android.os.SystemClock.elapsedRealtime(),
+                        shown.gForce, shown.accelX, shown.accelY, g, ax, ay,
                     )
-                } else _wheelData.value.copy(
-                    gForce = s?.magnitude ?: 0f,
-                    accelX = s?.xG ?: 0f,
-                    accelY = s?.zG ?: 0f
-                )
+                ) {
+                    _wheelData.value = _wheelData.value.copy(gForce = g, accelX = ax, accelY = ay)
+                }
                 kotlinx.coroutines.delay(IMU_FRAME_MS)
             }
         }
