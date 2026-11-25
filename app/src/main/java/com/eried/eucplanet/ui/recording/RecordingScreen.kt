@@ -655,7 +655,9 @@ private fun TripCard(
     onRetryBackup: (TripRecord) -> Unit = {},
 ) {
     val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
-    val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
+    val dateFormat = remember(androidx.compose.ui.platform.LocalConfiguration.current) {
+        java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
+    }
     val disabledColor = MaterialTheme.appColors.textDisabled
 
     // Live ticking elapsed time for the recording trip

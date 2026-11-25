@@ -326,9 +326,9 @@ class InMotionV1Adapter : WheelAdapter {
         return when (canId) {
             InMotionV1Protocol.CanId.FAST_INFO -> {
                 val payload = InMotionV1Parser.extPayload(unwrapped)
-                DiagnosticsLogger.note(
+                DiagnosticsLogger.note {
                     "InMotion V1 realtime len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
-                )
+                }
                 val telem = InMotionV1Parser.parseFastInfo(payload, detectedModel)
                 // A real reply means the wheel accepted the PIN and is streaming;
                 // stop the poll loop's PIN re-sends.
@@ -341,9 +341,9 @@ class InMotionV1Adapter : WheelAdapter {
             }
             InMotionV1Protocol.CanId.SLOW_INFO -> {
                 val payload = InMotionV1Parser.extPayload(unwrapped)
-                DiagnosticsLogger.note(
+                DiagnosticsLogger.note {
                     "InMotion V1 slow-info len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
-                )
+                }
                 val info = InMotionV1Parser.parseSlowInfo(payload) ?: return emptyList()
                 streamStarted = true
                 // The wheel's own headlight state, unless a light command is

@@ -73,7 +73,8 @@ class EngoHudRenderer(
                     // next screen is worked out against the last one queued.
                     adapter.send(emptyList())
                 } else if (connected) {
-                    val settings = settingsRepository.get()
+                    // The warm copy: this loop runs a few times a second.
+                    val settings = settingsRepository.currentOrLoad()
                     val page = buildPage(settings)
                     // The glasses say whether their display is colour; a grey
                     // pair never gets the colour commands it cannot draw.

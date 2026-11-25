@@ -494,7 +494,9 @@ fun TripDetailScreen(
         }
     }
 
-    val dateFormat = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
+    val dateFormat = remember(LocalConfiguration.current) {
+        java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, Locale.getDefault())
+    }
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     // Trip metrics and the header date range (start -> end) are hoisted so the

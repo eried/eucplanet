@@ -2424,8 +2424,11 @@ class WheelRepository(
             }
             is DecodeResult.Settings -> {
                 val ws = result.data
+                val settingsChanged = _wheelSettings.value != ws
                 _wheelSettings.value = ws
-                Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
+                if (settingsChanged) {
+                    Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
+                }
 
                 // Settings frames arrive on every poll cycle: read the warm copy, and
                 // the store itself only for the reconcile, which may write back.

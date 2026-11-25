@@ -497,8 +497,11 @@ fun SettingsScreen(
     //
     // Aiming again puts the match back where it was, so leaving the app and
     // returning lands on the same place rather than the bottom.
-    val imeVisible = WindowInsets.ime
-        .getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
+    val imeInsets = WindowInsets.ime
+    val imeDensity = androidx.compose.ui.platform.LocalDensity.current
+    val imeVisible by remember(imeInsets, imeDensity) {
+        androidx.compose.runtime.derivedStateOf { imeInsets.getBottom(imeDensity) > 0 }
+    }
     val searchLandingGapPx = with(androidx.compose.ui.platform.LocalDensity.current) { 24.dp.roundToPx() }
     LaunchedEffect(searchScrollTrigger, imeVisible) {
         searchScroller.query = searchScrollTrigger

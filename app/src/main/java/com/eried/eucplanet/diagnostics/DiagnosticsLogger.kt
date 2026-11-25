@@ -194,7 +194,8 @@ object DiagnosticsLogger {
 
     // Raw BLE traffic. The hex formatting is the expensive part, and it used
     // to run for every packet even with service mode off, so the check comes
-    // first. note / info / comment hand over a ready string and stay as is.
+    // first. note / info / comment hand over a ready string and stay as is;
+    // a note that has to format a frame uses the lazy form below.
     fun rx(bytes: ByteArray) {
         if (!_enabled.value) return
         append(Kind.RECV, "${bytes.size}  ${hex(bytes)}")
@@ -204,6 +205,15 @@ object DiagnosticsLogger {
         append(Kind.SEND, "${bytes.size}  ${hex(bytes)}")
     }
     fun note(msg: String) = append(Kind.NOTE, msg)
+
+    /**
+     * A note whose text costs something to build, a hex dump of a frame above
+     * all. [build] runs only with service mode on, so the adapters can describe
+     * every frame the wheel sends without paying for it on every ride.
+     */
+    inline fun note(build: () -> String) {
+        if (enabled.value) note(build())
+    }
     fun info(msg: String) = append(Kind.INFO, msg)
     fun comment(msg: String) = append(Kind.USER, msg)
 

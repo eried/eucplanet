@@ -190,7 +190,8 @@ class AmazfitBridge(
     }
 
     private fun buildSnapshot(nowMs: Long): Map<String, Any> {
-        val s: AppSettings = runBlocking { settingsRepository.get() }
+        // The warm copy: the watch polls this several times a second.
+        val s: AppSettings = runBlocking { settingsRepository.currentOrLoad() }
         // Same gauge-max rule as the dashboard and the other two bridges.
         val effTilt = if (wheelRepository.safetySpeedActive.value) s.safetyTiltbackKmh else s.tiltbackSpeedKmh
         val gaugeMax = (((effTilt / 10f).toInt() + 1) * 10f).coerceAtLeast(30f)

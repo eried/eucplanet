@@ -1160,12 +1160,16 @@ class WheelService : LifecycleService() {
         }
     }
 
-    private fun buildNotification(data: WheelData?): Notification {
-        val intent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
+    /** Opens the app from the notification. Built once: it never changes. */
+    private val openAppIntent: PendingIntent by lazy {
+        PendingIntent.getActivity(
+            this, 0, Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+    }
+
+    private fun buildNotification(data: WheelData?): Notification {
+        val pendingIntent = openAppIntent
 
         val nav = navigationEngine.navState.value
         val text = if (nav.active) {

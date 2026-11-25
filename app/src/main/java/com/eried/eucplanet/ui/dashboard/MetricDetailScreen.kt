@@ -403,9 +403,15 @@ private fun MetricDetailBody(
 
     val needsConvert = isTempMetric || isSpeedMetric || isDistanceMetric ||
         isPressureMetric || isAltitudeMetric
+    // Keyed on the history list, which is a new instance once per history
+    // tick, and on what the conversion depends on. Telemetry recomposes this
+    // screen several times a second; without the key every pass converted the
+    // buffer again and handed the chart a new list to redraw.
     val samples: List<MetricSample> =
-        if (needsConvert) rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
-        else rawSamples
+        remember(rawSamples, key, speedUnit, tempUnit, distanceUnit, pressureUnit, altitudeUnit) {
+            if (needsConvert) rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
+            else rawSamples
+        }
 
     val unitLabel = when {
         isTempMetric -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
@@ -466,23 +472,31 @@ private fun MetricDetailBody(
     // Row 1 = central tendency + extremes; row 2 = percentiles + count
     // + window time. Cells render `--` when the buffer is empty so the
     // layout stays stable.
-    val values = samples.map { it.value }
-    val hasBuffer = values.size >= 2
+    val hasBuffer = samples.size >= 2
     val placeholderStat = "--"
-    val minStr = if (hasBuffer) statFmt.format(values.min()) else placeholderStat
-    val maxStr = if (hasBuffer) statFmt.format(values.max()) else placeholderStat
-    val avgStr = if (hasBuffer) statFmt.format(values.average()) else placeholderStat
-    val medStr = if (hasBuffer) statFmt.format(
-        com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-            com.eried.eucplanet.ui.settings.DashboardStat.MEDIAN, samples, currentValue
-        ) ?: 0f
-    ) else placeholderStat
-    val p95Str = if (hasBuffer) statFmt.format(
-        com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-            com.eried.eucplanet.ui.settings.DashboardStat.P95, samples, currentValue
-        ) ?: 0f
-    ) else placeholderStat
-    val countStr = if (samples.isNotEmpty()) values.size.toString() else placeholderStat
+    // None of these depend on the live value (the median and the percentile
+    // ignore their fallback), so they follow the history, once per tick.
+    val (minStr, maxStr, avgStr, medStr, p95Str) = remember(samples, statFmt) {
+        if (samples.size < 2) List(5) { placeholderStat } else {
+            val values = samples.map { it.value }
+            listOf(
+                statFmt.format(values.min()),
+                statFmt.format(values.max()),
+                statFmt.format(values.average()),
+                statFmt.format(
+                    com.eried.eucplanet.ui.settings.computeDashboardStatValue(
+                        com.eried.eucplanet.ui.settings.DashboardStat.MEDIAN, samples, 0f
+                    ) ?: 0f
+                ),
+                statFmt.format(
+                    com.eried.eucplanet.ui.settings.computeDashboardStatValue(
+                        com.eried.eucplanet.ui.settings.DashboardStat.P95, samples, 0f
+                    ) ?: 0f
+                ),
+            )
+        }
+    }
+    val countStr = if (samples.isNotEmpty()) samples.size.toString() else placeholderStat
     val durationStr = if (hasBuffer) {
         formatDuration((samples.last().timestampMs - samples.first().timestampMs) / 1000)
     } else placeholderStat
@@ -869,7 +883,7 @@ internal fun MetricGraph(
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
     val axisLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
-    val values = samples.map { it.value }
+    val values = remember(samples) { samples.map { it.value } }
     val minRaw = values.min()
     val maxRaw = values.max()
     val bounds = boundsFor(minRaw, maxRaw)
