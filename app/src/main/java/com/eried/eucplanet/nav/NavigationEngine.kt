@@ -239,6 +239,8 @@ class NavigationEngine(
     // standing still.
     private var preMoveCueSpoken = false
     private var rerouteInFlight = false
+    /** Guidance writes and Stop take turns through this. See [GuidanceGate]. */
+    private val gate = GuidanceGate()
     private val rerouteGate = RerouteGate()
     private var waypointAlongM: List<Double> = emptyList()
 
@@ -303,6 +305,7 @@ class NavigationEngine(
             )
         }
         stop()
+        val session = gate.begin()
         // Guidance is starting: hold GPS at 1 Hz even with no wheel connected.
         tripRepository.setNavigating(true)
         initJob = scope.launch {
@@ -315,6 +318,9 @@ class NavigationEngine(
             valhallaUrl = RoutingService.effectiveValhallaUrl(s.navValhallaUrl)
             avoidances = RouteAvoidances.from(s)
 
+            // Stop, or a newer start, while the settings loaded: this start
+            // is over and must not publish a route nobody is following.
+            val started = gate.ifSession(session) {
             activeRoute = route
             _activeLeg.value = route
             navMode = mode
@@ -338,6 +344,8 @@ class NavigationEngine(
                 goalCount = (route.waypoints.size - 1).coerceAtLeast(1),
                 nextStop = route.waypoints.getOrNull(1)?.point()
             )
+            }
+            if (!started) return@launch
 
             if (voiceEnabled) {
                 voiceService.announceEvent(context.getString(R.string.voice_nav_start_riding))
@@ -367,6 +375,7 @@ class NavigationEngine(
                     "first=${newRoute.waypoints.firstOrNull()?.point()} " +
                     "last=${newRoute.waypoints.lastOrNull()?.point()}"
             )
+            gate.ifGuiding {
             activeRoute = newRoute
             _activeLeg.value = newRoute
             resetRuntimeState()
@@ -405,6 +414,7 @@ class NavigationEngine(
                 nextStop = goal,
                 popupTick = _navState.value.popupTick + 1
             )
+            }
         }
     }
 
@@ -414,16 +424,20 @@ class NavigationEngine(
         collectJob?.cancel(); collectJob = null
         rerouteJob?.cancel(); rerouteJob = null
         arrivalJob?.cancel(); arrivalJob = null
-        activeRoute = null
-        _activeLeg.value = null
-        // Preserve the arrival frame's visible content while flipping `active`
-        // off -- the popup's fade-out reads navState during the animation,
-        // and nuking to NavState(active=false) would visibly swap the Flag
-        // icon back to a Navigation arrow mid-fade as `arrived` and
-        // `primaryText` cleared underneath. Only `active` matters for
-        // gating; the rest naturally resets on the next start().
-        _navState.value = _navState.value.copy(active = false)
-        scope.launch { _navState.value = _navState.value.copy(active = false) }
+        // One step with the gate closed, so a fix that is being worked on
+        // right now cannot write the old turn back after it. (A second,
+        // delayed "active = false" used to sit here to paper over that.)
+        gate.end {
+            activeRoute = null
+            _activeLeg.value = null
+            // Preserve the arrival frame's visible content while flipping `active`
+            // off -- the popup's fade-out reads navState during the animation,
+            // and nuking to NavState(active=false) would visibly swap the Flag
+            // icon back to a Navigation arrow mid-fade as `arrived` and
+            // `primaryText` cleared underneath. Only `active` matters for
+            // gating; the rest naturally resets on the next start().
+            _navState.value = _navState.value.copy(active = false)
+        }
         // Guidance ended: drop the navigation GPS hold (tier falls back to idle
         // unless recording / connected still need it).
         tripRepository.setNavigating(false)
@@ -431,12 +445,12 @@ class NavigationEngine(
     }
 
     fun setMinimized(minimized: Boolean) {
-        _navState.value = _navState.value.copy(minimized = minimized)
+        gate.always { _navState.value = _navState.value.copy(minimized = minimized) }
     }
 
     /** Mirrors whether the centred popup is on screen, for the watch bridge. */
     fun setCueVisible(visible: Boolean) {
-        _navState.value = _navState.value.copy(cueVisible = visible)
+        gate.always { _navState.value = _navState.value.copy(cueVisible = visible) }
     }
 
     /**
@@ -444,7 +458,7 @@ class NavigationEngine(
      * guidance is running so the rider can act on it (e.g. end navigation).
      * Un-minimizes and bumps [NavState.popupTick] to restart the show/timeout.
      */
-    fun requestPopup() {
+    fun requestPopup() = gate.always {
         _navState.value = _navState.value.copy(
             minimized = false,
             popupTick = _navState.value.popupTick + 1
@@ -589,7 +603,7 @@ class NavigationEngine(
             // Mirror currentGoal into navState so the builder drops a stop
             // already advanced past.
             val goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
-            _navState.value = _navState.value.copy(
+            gate.ifGuiding { _navState.value = _navState.value.copy(
                 waiting = true,
                 arrow = ArrowDir.STRAIGHT,
                 primaryText = context.getString(R.string.nav_start_riding),
@@ -602,7 +616,7 @@ class NavigationEngine(
                 goalIndex = currentGoal.coerceIn(1, goalCount),
                 goalCount = goalCount,
                 nextStop = goal?.point()
-            )
+            ) }
             syncBuilderRoute((currentGoal - 1).coerceAtLeast(0))
             if (voiceEnabled && !preMoveCueSpoken && !distToGoal.isNaN()) {
                 preMoveCueSpoken = true
@@ -724,7 +738,7 @@ class NavigationEngine(
             }
         }
 
-        _navState.value = _navState.value.copy(
+        gate.ifGuiding { _navState.value = _navState.value.copy(
             waiting = false,
             arrived = false,
             mode = NavMode.TURN_BY_TURN,
@@ -745,7 +759,7 @@ class NavigationEngine(
             // The stop the countdown runs to; the builder ticks off the ones
             // before it, since Full path raises no arrival for them.
             nextStop = route.waypoints.getOrNull(reached + 1)?.point()
-        )
+        ) }
     }
 
     /** Speaks the prepare ("in X, turn left") then execute ("turn left now") cues. */
@@ -784,7 +798,7 @@ class NavigationEngine(
                 backOnRouteSinceMs = 0L
                 rerouteGate.reset()
                 if (_navState.value.offRoute) {
-                    _navState.value = _navState.value.copy(offRoute = false)
+                    gate.ifGuiding { _navState.value = _navState.value.copy(offRoute = false) }
                 }
             }
             return
@@ -795,7 +809,7 @@ class NavigationEngine(
         if (offFor < offRouteGraceMs) return
 
         if (!_navState.value.offRoute) {
-            _navState.value = _navState.value.copy(offRoute = true)
+            gate.ifGuiding { _navState.value = _navState.value.copy(offRoute = true) }
             Log.i(TAG, "off-route declared (offFor=${offFor}ms)")
         }
         // The spoken off-route cue waits well past the visual flag, so a
@@ -838,7 +852,7 @@ class NavigationEngine(
                     // we are still navigating the very same route.
                     if (fresh != null && activeRoute === route) {
                         activeRoute = fresh
-                        _activeLeg.value = fresh
+                        gate.ifGuiding { _activeLeg.value = fresh }
                         waypointAlongM = fresh.waypoints.mapNotNull {
                             GeoMath.nearestOnPolyline(it.point(), fresh.geometry)?.alongM
                         }
@@ -890,7 +904,7 @@ class NavigationEngine(
             return
         }
         val rel = GeoMath.relativeBearing(heading, GeoMath.bearingDeg(point, target))
-        _navState.value = _navState.value.copy(
+        gate.ifGuiding { _navState.value = _navState.value.copy(
             waiting = false,
             arrived = false,
             mode = NavMode.TURN_BY_TURN,
@@ -910,7 +924,7 @@ class NavigationEngine(
             // single leg names its stop; a multi-stop fallback ticks them all
             // off at arrival instead.
             nextStop = if (route.waypoints.size == 2) target else null
-        )
+        ) }
     }
 
     // --- treasure hunt -----------------------------------------------------------
@@ -961,7 +975,7 @@ class NavigationEngine(
             else -> lastProximity ?: Proximity.WARM
         }
 
-        _navState.value = _navState.value.copy(
+        gate.ifGuiding { _navState.value = _navState.value.copy(
             waiting = false,
             arrived = false,
             mode = NavMode.TREASURE_HUNT,
@@ -984,7 +998,7 @@ class NavigationEngine(
             goalIndex = currentGoal,
             goalCount = (goals.size - 1).coerceAtLeast(1),
             nextStop = target.point()
-        )
+        ) }
 
         // Voice cadence: speak on a fresh goal or every HUNT_VOICE_INTERVAL
         // while moving -- BUT suppress when the rider has barely moved since
@@ -1110,8 +1124,8 @@ class NavigationEngine(
                 // scheduleRecompute or on a fragile local VM rebuild that
                 // bails when currentLocation briefly reports null.
                 val nextLeg = buildNextLeg(info.nextStop, info.routeForLeg)
-                if (nextLeg != null) _activeLeg.value = nextLeg
-                _navState.value = _navState.value.copy(
+                if (nextLeg != null) gate.ifGuiding { _activeLeg.value = nextLeg }
+                gate.ifGuiding { _navState.value = _navState.value.copy(
                     waiting = false,
                     arrived = true,
                     offRoute = false,
@@ -1134,7 +1148,7 @@ class NavigationEngine(
                     goalCount = info.totalGoals,
                     nextStop = justArrivedGoal,
                     popupTick = _navState.value.popupTick + 1
-                )
+                ) }
                 if (voiceEnabled) {
                     voiceService.announceEvent(
                         context.getString(R.string.voice_nav_goal_reached)
@@ -1152,7 +1166,7 @@ class NavigationEngine(
                 }
                 return@launch
             }
-            _navState.value = _navState.value.copy(
+            gate.ifGuiding { _navState.value = _navState.value.copy(
                 waiting = false,
                 arrived = true,
                 offRoute = false,
@@ -1166,7 +1180,7 @@ class NavigationEngine(
                 proximity = null,
                 nextStop = justArrivedGoal,
                 popupTick = _navState.value.popupTick + 1
-            )
+            ) }
             if (voiceEnabled) {
                 voiceService.announceEvent(context.getString(R.string.voice_nav_arrived))
             }
