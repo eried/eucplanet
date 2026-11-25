@@ -1053,7 +1053,7 @@ class WheelRepository(
                         invalidateHeadlightReadback()
                         // Cut any constant alarm tone immediately (telemetry stops now,
                         // so the engine won't get another tick to clear it itself).
-                        alarmEngine.stopConstantTone()
+                        alarmEngine.wheelDisconnected()
                         initState = 0
                         pendingAuthKeyDeferred = null
                         pendingAuthConfirmDeferred = null

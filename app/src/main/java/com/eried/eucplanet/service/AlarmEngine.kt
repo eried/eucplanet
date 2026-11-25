@@ -145,6 +145,14 @@ class AlarmEngine(
             // Persisted session mute, set by the dashboard's MUTE_ALARMS action.
             // Read inside the launch so we always see the latest store value.
             if (settingsRepository.currentOrLoad().alarmsMuted) { stopConstantTone(); return@withLock }
+            // A frame whose turn comes after the disconnect speaks for a wheel
+            // that is gone. Starting its tone now would leave it sounding with
+            // no further frame to stop it.
+            if (bleConnectionManager.connectionState.value ==
+                com.eried.eucplanet.ble.ConnectionState.DISCONNECTED) {
+                stopConstantTone()
+                return@withLock
+            }
             // Rules bound to a specific wheel only run while THAT wheel is the
             // connected one; unbound rules always run.
             val pass = AlarmWheelPass.evaluate(
@@ -221,6 +229,17 @@ class AlarmEngine(
         } else {
             tonePlayer.updateStream(freq, rule.beepDurationMs, rule.beepGapMs, vol, trans, rule.beepWaveform, rule.beepEffect)
         }
+    }
+
+    /**
+     * The wheel disconnected. The tone stops now, and once more after whatever
+     * evaluation is still running: each frame is evaluated on its own
+     * coroutine, and one that was already past its checks could start the tone
+     * again a moment after the first stop, for good.
+     */
+    fun wheelDisconnected() {
+        stopConstantTone()
+        scope.launch { evalMutex.withLock { stopConstantTone() } }
     }
 
     /** Stop the constant tone immediately (condition cleared, disconnect, mute, or
