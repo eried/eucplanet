@@ -970,12 +970,14 @@ internal fun MetricGraph(
             val h = size.height
             val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
 
+            // Worked out for the whole axis at once: a narrow range printed
+            // in whole numbers showed the same number on two lines.
+            val leftLabels = axisLabels((0..4).map { bounds.min + padded * it / 4f }, leftLabelFormat)
             for (i in 0..4) {
                 val y = h - h * i / 4f
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
-                val value = bounds.min + padded * i / 4f
                 val label = textMeasurer.measure(
-                    leftLabelFormat(value), TextStyle(fontSize = 10.sp, color = axisLabelColor)
+                    leftLabels[i], TextStyle(fontSize = 10.sp, color = axisLabelColor)
                 )
                 drawText(label, topLeft = Offset(-label.size.width - 6f, y - label.size.height / 2f))
                 // Right axis = secondary series (e.g. voltage) on its own scale.
