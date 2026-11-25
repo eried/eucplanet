@@ -226,6 +226,12 @@ class WheelService : LifecycleService() {
      */
     private val phoneHudHistory =
         ArrayDeque<com.eried.eucplanet.ui.studio.StudioSample>()
+    // How often it takes a sample for the preset on show, and the copy last
+    // handed to the overlay, reused until the next sample. See
+    // OverlayHistoryNeed. Guarded by phoneHudHistory, like the deque.
+    @Volatile private var phoneHudHistoryEveryMs = OverlayHistoryNeed.TRAIL_MS
+    private var phoneHudHistoryAtMs = 0L
+    private var phoneHudHistoryShown: List<com.eried.eucplanet.ui.studio.StudioSample> = emptyList()
 
     /**
      * Never opened. StudioElementData requires a hub, and the offscreen
@@ -895,7 +901,11 @@ class WheelService : LifecycleService() {
         try { renderWidget(null) } catch (_: Exception) {}
         // The window belongs to this service; nothing else would remove it.
         try { phoneHudWindow.hide() } catch (_: Exception) {}
-        synchronized(phoneHudHistory) { phoneHudHistory.clear() }
+        synchronized(phoneHudHistory) {
+            phoneHudHistory.clear()
+            phoneHudHistoryShown = emptyList()
+            phoneHudHistoryAtMs = 0L
+        }
         try { hudServer.stop() } catch (_: Exception) {}
         try { engoHudRenderer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
@@ -1380,6 +1390,7 @@ class WheelService : LifecycleService() {
             com.eried.eucplanet.data.store.OverlayPresetJson
                 .fromJson(org.json.JSONObject(phoneHudJsonCached))
         }.getOrNull() ?: return
+        phoneHudHistoryEveryMs = OverlayHistoryNeed.sampleIntervalMs(preset.elements.map { it.type })
         phoneHudWindow.show(preset.elements)
     }
 
@@ -1451,15 +1462,22 @@ class WheelService : LifecycleService() {
         //
         // Locked because onDestroy clears the deque from the main thread while
         // this runs on the collector's worker thread.
-        val history = synchronized(phoneHudHistory) {
-            phoneHudHistory.addLast(com.eried.eucplanet.ui.studio.StudioSample(now, data))
-            val cutoff = now - PHONE_HUD_HISTORY_MS
-            while (phoneHudHistory.isNotEmpty() && phoneHudHistory.first().timeMs < cutoff) {
-                phoneHudHistory.removeFirst()
+        val every = phoneHudHistoryEveryMs
+        val history = if (every == OverlayHistoryNeed.NONE) emptyList() else synchronized(phoneHudHistory) {
+            // A sample, and a new copy, only when one is due for what the
+            // preset draws. Between samples the last copy goes out again.
+            if (phoneHudHistoryAtMs == 0L || now - phoneHudHistoryAtMs >= every || now < phoneHudHistoryAtMs) {
+                phoneHudHistoryAtMs = now
+                phoneHudHistory.addLast(com.eried.eucplanet.ui.studio.StudioSample(now, data))
+                val cutoff = now - PHONE_HUD_HISTORY_MS
+                while (phoneHudHistory.isNotEmpty() && phoneHudHistory.first().timeMs < cutoff) {
+                    phoneHudHistory.removeFirst()
+                }
+                // Copied, not handed over: Compose needs a stable snapshot, and
+                // the deque keeps mutating underneath on the next sample.
+                phoneHudHistoryShown = phoneHudHistory.toList()
             }
-            // Copied, not handed over: Compose needs a stable snapshot, and
-            // the deque keeps mutating underneath on the next frame.
-            phoneHudHistory.toList()
+            phoneHudHistoryShown
         }
         phoneHudWindow.update(
             com.eried.eucplanet.ui.studio.StudioElementData(
