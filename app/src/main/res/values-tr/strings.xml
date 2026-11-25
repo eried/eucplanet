@@ -871,13 +871,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dizel kamyon</string>
     <string name="engine_preset_sampled_motorcycle">Küçük arazi motosikleti</string>
     <string name="engine_preset_sampled_city_car">Şehir aracı</string>
-    <string name="engine_preset_sampled_tractor">Traktör</string>
-    <string name="engine_preset_sampled_lawnmower">Çim biçme makinesi</string>
     <string name="engine_preset_sampled_steam_loco">Buharlı lokomotif</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Büyük dizel</string>
     <string name="engine_preset_sampled_broken_exhaust">Arızalı egzoz</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Periyodik</string>
     <string name="col_trigger">Tetikleyici</string>

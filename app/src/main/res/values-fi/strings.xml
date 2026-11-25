@@ -1081,13 +1081,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dieselrekka</string>
     <string name="engine_preset_sampled_motorcycle">Pieni crossipyörä</string>
     <string name="engine_preset_sampled_city_car">Kaupunkiauto</string>
-    <string name="engine_preset_sampled_tractor">Traktori</string>
-    <string name="engine_preset_sampled_lawnmower">Ruohonleikkuri</string>
     <string name="engine_preset_sampled_steam_loco">Höyryveturi</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Iso diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Rikkinäinen pakoputki</string>
-    <string name="engine_preset_sampled_quad_atv">Mönkijä ATV</string>
     <string name="col_periodic">Säännöllinen</string>
     <string name="col_trigger">Laukaisin</string>
     <string name="voice_trigger_reset_after">Nollaa mittarit laukaistun raportin jälkeen</string>

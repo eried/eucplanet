@@ -1172,13 +1172,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Дизелов камион</string>
     <string name="engine_preset_sampled_motorcycle">Малък крос мотор</string>
     <string name="engine_preset_sampled_city_car">Градски автомобил</string>
-    <string name="engine_preset_sampled_tractor">Трактор</string>
-    <string name="engine_preset_sampled_lawnmower">Косачка</string>
     <string name="engine_preset_sampled_steam_loco">Парен локомотив</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Голям дизел</string>
     <string name="engine_preset_sampled_broken_exhaust">Счупен ауспух</string>
-    <string name="engine_preset_sampled_quad_atv">ATV</string>
 
     <string name="col_periodic">Периодично</string>
     <string name="col_trigger">При задействане</string>

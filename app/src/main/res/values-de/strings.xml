@@ -871,13 +871,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesel-LKW</string>
     <string name="engine_preset_sampled_motorcycle">Kleine Crossmaschine</string>
     <string name="engine_preset_sampled_city_car">Kleinwagen</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Rasenmäher</string>
     <string name="engine_preset_sampled_steam_loco">Dampflok</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Großer Diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Kaputter Auspuff</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Regelmäßig</string>
     <string name="col_trigger">Ereignis</string>

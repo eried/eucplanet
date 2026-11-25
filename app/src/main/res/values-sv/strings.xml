@@ -871,13 +871,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesellastbil</string>
     <string name="engine_preset_sampled_motorcycle">Liten crosshoj</string>
     <string name="engine_preset_sampled_city_car">Stadsbil</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Gräsklippare</string>
     <string name="engine_preset_sampled_steam_loco">Ånglok</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Stor diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Trasigt avgasrör</string>
-    <string name="engine_preset_sampled_quad_atv">Fyrhjuling</string>
 
     <string name="col_periodic">Regelbunden</string>
     <string name="col_trigger">Utlöst</string>

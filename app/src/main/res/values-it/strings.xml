@@ -751,12 +751,8 @@
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
     <string name="engine_preset_sampled_motorcycle">Piccola moto da cross</string>
     <string name="engine_preset_sampled_city_car">Utilitaria</string>
-    <string name="engine_preset_sampled_tractor">Trattore</string>
-    <string name="engine_preset_sampled_lawnmower">Tagliaerba</string>
     <string name="engine_preset_sampled_steam_loco">Locomotiva a vapore</string>
-    <string name="engine_preset_sampled_big_diesel">Grosso diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Marmitta rotta</string>
-    <string name="engine_preset_sampled_quad_atv">Quad</string>
 
     <string name="external_gps_autodetect_forward_capture">Lettura della camminata…</string>
     <string name="external_gps_autodetect_lateral_capture">Lettura del movimento laterale…</string>

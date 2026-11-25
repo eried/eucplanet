@@ -160,7 +160,7 @@ data class EngineProfile(
                 key = "QUAD_BIKE",
                 displayName = "Quad bike",
                 kind = Kind.ICE,
-                // Synthesised: the recording (SAMPLED_QUAD_ATV) only revs to 1.7 times idle
+                // Synthesised: the recording (the removed SAMPLED_QUAD_ATV) only revs to 1.7 times idle
                 // and the tester preferred this one.
                 idleRpm = 850, maxRpm = 6200,
                 gearless = true,
@@ -295,7 +295,7 @@ data class EngineProfile(
                 key = "TRACTOR",
                 displayName = "Tractor",
                 kind = Kind.ICE, gearless = true,
-                // Synthesised: the recording (SAMPLED_TRACTOR) only idles and the tester
+                // Synthesised: the recording (the removed SAMPLED_TRACTOR) only idles and the tester
                 // found this one more powerful.
                 idleRpm = 450, maxRpm = 2400,
                 cylinderCount = 1,
@@ -448,25 +448,6 @@ data class EngineProfile(
                 cylinderCount = 2, firingAngles = floatArrayOf(0f, 360f),
                 pipeHz = 220f, pipeQ = 1f, gainTrim = 1.2f
             ),
-            // Hidden: thin recordings, kept for riders who picked them before.
-            EngineProfile(
-                key = "SAMPLED_LAWNMOWER", preview = true,
-                displayName = "Lawn mower",
-                kind = Kind.ICE, gearless = true,
-                grainAsset = "grain_lawnmower",
-                idleRpm = 2300, maxRpm = 4600,
-                cylinderCount = 1, firingAngles = floatArrayOf(0f),
-                pipeHz = 260f, pipeQ = 0.8f, gainTrim = 2.2f
-            ),
-            EngineProfile(
-                key = "SAMPLED_BIG_DIESEL", preview = true,
-                displayName = "Big diesel",
-                kind = Kind.ICE,
-                grainAsset = "grain_big_diesel",
-                idleRpm = 600, maxRpm = 1800,
-                cylinderCount = 6, firingAngles = FloatArray(6) { i -> i * 120f },
-                pipeHz = 150f, pipeQ = 0.7f, gainTrim = 1.3f
-            ),
             // Hidden: the old "sampled" keys, each the same recording as a listed engine,
             // so a rider who picked one keeps their sound.
             EngineProfile(key = "SAMPLED_V8_COBRA", preview = true, displayName = "V8 Cobra", kind = Kind.ICE,
@@ -478,23 +459,32 @@ data class EngineProfile(
             EngineProfile(key = "SAMPLED_CITY_CAR", preview = true, displayName = "City car", kind = Kind.ICE,
                 grainAsset = "grain_inline_4", idleRpm = 900, maxRpm = 4000,
                 cylinderCount = 4, firingAngles = floatArrayOf(0f, 180f, 360f, 540f), pipeHz = 230f),
-            EngineProfile(key = "SAMPLED_TRACTOR", preview = true, displayName = "Tractor", kind = Kind.ICE, gearless = true,
-                grainAsset = "grain_tractor", idleRpm = 450, maxRpm = 1500,
-                cylinderCount = 1, firingAngles = floatArrayOf(0f), pipeHz = 230f, pulseMs = 6f, gainTrim = 1.9f),
             EngineProfile(key = "SAMPLED_STEAM_LOCO", preview = true, displayName = "Steam locomotive", kind = Kind.ICE, gearless = true,
                 grainAsset = "grain_steam_loco", whistle = true, idleRpm = 50, maxRpm = 220, decelPopProbability = 0.35f,
                 cylinderCount = 2, firingAngles = floatArrayOf(0f, 180f), twoStroke = true, pipeHz = 320f, pulseMs = 160f, gainTrim = 2f),
             EngineProfile(key = "SAMPLED_ASTON_MARTIN", preview = true, displayName = "Aston Martin", kind = Kind.ICE,
                 grainAsset = "grain_v12_italian", idleRpm = 900, maxRpm = 4000,
-                cylinderCount = 12, firingAngles = FloatArray(12) { i -> i * 60f }, pipeHz = 240f),
-            EngineProfile(key = "SAMPLED_QUAD_ATV", preview = true, displayName = "Quad ATV", kind = Kind.ICE, gearless = true,
-                grainAsset = "grain_quad_bike", idleRpm = 1000, maxRpm = 3600,
-                cylinderCount = 1, firingAngles = floatArrayOf(0f), pipeHz = 170f, pulseMs = 4.5f, gainTrim = 1.3f)
+                cylinderCount = 12, firingAngles = FloatArray(12) { i -> i * 60f }, pipeHz = 240f)
+        )
+
+        /**
+         * Engines that are gone, each with the listed engine closest to it.
+         * They were hidden recordings with a sound bank of their own; the
+         * banks left with them. A rider who had picked one keeps an engine of
+         * the same kind and does not drop to the default.
+         */
+        val REMOVED: Map<String, String> = mapOf(
+            "SAMPLED_TRACTOR" to "TRACTOR",
+            "SAMPLED_QUAD_ATV" to "QUAD_BIKE",
+            "SAMPLED_LAWNMOWER" to "FOUR_STROKE_SINGLE",
+            "SAMPLED_BIG_DIESEL" to "SAMPLED_DIESEL_IVECO",
         )
 
         /** Returns the profile for [key] or the default 4-stroke single if unknown. */
-        fun byKey(key: String): EngineProfile =
-            PROFILES.firstOrNull { it.key == key } ?: PROFILES.first { it.key == "FOUR_STROKE_SINGLE" }
+        fun byKey(key: String): EngineProfile {
+            val live = REMOVED[key] ?: key
+            return PROFILES.firstOrNull { it.key == live } ?: PROFILES.first { it.key == "FOUR_STROKE_SINGLE" }
+        }
     }
 
     // data class equality on FloatArray would compare by reference; we never compare profiles,

@@ -1123,13 +1123,9 @@
     <string name="engine_preset_sampled_diesel_iveco">รถบรรทุกดีเซล</string>
     <string name="engine_preset_sampled_motorcycle">รถวิบากเล็ก</string>
     <string name="engine_preset_sampled_city_car">ซิตี้คาร์</string>
-    <string name="engine_preset_sampled_tractor">รถแทรกเตอร์</string>
-    <string name="engine_preset_sampled_lawnmower">เครื่องตัดหญ้า</string>
     <string name="engine_preset_sampled_steam_loco">หัวรถจักรไอน้ำ</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">ดีเซลใหญ่</string>
     <string name="engine_preset_sampled_broken_exhaust">ท่อแตก</string>
-    <string name="engine_preset_sampled_quad_atv">รถ ATV</string>
     <string name="col_periodic">ตามรอบ</string>
     <string name="col_trigger">ตามเหตุการณ์</string>
     <string name="voice_trigger_reset_after">รีเซ็ตค่าหลังรายงานตามเหตุการณ์</string>

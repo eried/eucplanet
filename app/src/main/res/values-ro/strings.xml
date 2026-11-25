@@ -1081,13 +1081,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
     <string name="engine_preset_sampled_motorcycle">Moto de cross mică</string>
     <string name="engine_preset_sampled_city_car">Mașină de oraș</string>
-    <string name="engine_preset_sampled_tractor">Tractor</string>
-    <string name="engine_preset_sampled_lawnmower">Mașină de tuns iarba</string>
     <string name="engine_preset_sampled_steam_loco">Locomotivă cu abur</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Diesel mare</string>
     <string name="engine_preset_sampled_broken_exhaust">Eșapament spart</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Declanșator</string>
     <string name="voice_trigger_reset_after">Resetează indicatorii după raportul declanșat</string>

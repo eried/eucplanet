@@ -1123,13 +1123,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Xe tải diesel</string>
     <string name="engine_preset_sampled_motorcycle">Xe cào cào nhỏ</string>
     <string name="engine_preset_sampled_city_car">Ô tô đô thị</string>
-    <string name="engine_preset_sampled_tractor">Máy kéo</string>
-    <string name="engine_preset_sampled_lawnmower">Máy cắt cỏ</string>
     <string name="engine_preset_sampled_steam_loco">Đầu máy hơi nước</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Diesel lớn</string>
     <string name="engine_preset_sampled_broken_exhaust">Ống xả thủng</string>
-    <string name="engine_preset_sampled_quad_atv">Xe ATV</string>
     <string name="col_periodic">Định kỳ</string>
     <string name="col_trigger">Kích hoạt</string>
     <string name="voice_trigger_reset_after">Đặt lại chỉ số sau báo cáo kích hoạt</string>

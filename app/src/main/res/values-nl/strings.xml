@@ -875,13 +875,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dieseltruck</string>
     <string name="engine_preset_sampled_motorcycle">Kleine crossmotor</string>
     <string name="engine_preset_sampled_city_car">Stadsauto</string>
-    <string name="engine_preset_sampled_tractor">Tractor</string>
-    <string name="engine_preset_sampled_lawnmower">Grasmaaier</string>
     <string name="engine_preset_sampled_steam_loco">Stoomlocomotief</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Grote diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Kapotte uitlaat</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Periodiek</string>
     <string name="col_trigger">Trigger</string>

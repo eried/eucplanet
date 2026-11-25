@@ -875,13 +875,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Camión diésel</string>
     <string name="engine_preset_sampled_motorcycle">Moto de cross pequeña</string>
     <string name="engine_preset_sampled_city_car">Auto urbano</string>
-    <string name="engine_preset_sampled_tractor">Tractor</string>
-    <string name="engine_preset_sampled_lawnmower">Cortadora de césped</string>
     <string name="engine_preset_sampled_steam_loco">Locomotora a vapor</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Diésel grande</string>
     <string name="engine_preset_sampled_broken_exhaust">Escape roto</string>
-    <string name="engine_preset_sampled_quad_atv">Cuatrimoto</string>
 
     <string name="col_periodic">Periódico</string>
     <string name="col_trigger">Evento</string>

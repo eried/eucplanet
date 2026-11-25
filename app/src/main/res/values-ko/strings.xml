@@ -871,13 +871,9 @@
     <string name="engine_preset_sampled_diesel_iveco">디젤 트럭</string>
     <string name="engine_preset_sampled_motorcycle">소형 더트바이크</string>
     <string name="engine_preset_sampled_city_car">시티카</string>
-    <string name="engine_preset_sampled_tractor">트랙터</string>
-    <string name="engine_preset_sampled_lawnmower">잔디깎이</string>
     <string name="engine_preset_sampled_steam_loco">증기 기관차</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">대형 디젤</string>
     <string name="engine_preset_sampled_broken_exhaust">터진 머플러</string>
-    <string name="engine_preset_sampled_quad_atv">쿼드 ATV</string>
 
     <string name="col_periodic">주기적</string>
     <string name="col_trigger">트리거</string>

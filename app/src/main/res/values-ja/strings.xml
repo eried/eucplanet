@@ -871,13 +871,9 @@
     <string name="engine_preset_sampled_diesel_iveco">ディーゼルトラック</string>
     <string name="engine_preset_sampled_motorcycle">小型ダートバイク</string>
     <string name="engine_preset_sampled_city_car">シティカー</string>
-    <string name="engine_preset_sampled_tractor">トラクター</string>
-    <string name="engine_preset_sampled_lawnmower">芝刈り機</string>
     <string name="engine_preset_sampled_steam_loco">蒸気機関車</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">大型ディーゼル</string>
     <string name="engine_preset_sampled_broken_exhaust">壊れたマフラー</string>
-    <string name="engine_preset_sampled_quad_atv">ATV バギー</string>
 
     <string name="col_periodic">定期</string>
     <string name="col_trigger">トリガー</string>

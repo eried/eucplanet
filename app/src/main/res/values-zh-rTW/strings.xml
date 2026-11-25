@@ -871,13 +871,9 @@
     <string name="engine_preset_sampled_diesel_iveco">柴油卡車</string>
     <string name="engine_preset_sampled_motorcycle">小型越野機車</string>
     <string name="engine_preset_sampled_city_car">城市小車</string>
-    <string name="engine_preset_sampled_tractor">曳引機</string>
-    <string name="engine_preset_sampled_lawnmower">割草機</string>
     <string name="engine_preset_sampled_steam_loco">蒸汽火車</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">大型柴油</string>
     <string name="engine_preset_sampled_broken_exhaust">破損排氣管</string>
-    <string name="engine_preset_sampled_quad_atv">ATV 沙灘車</string>
 
     <string name="col_periodic">定期</string>
     <string name="col_trigger">觸發</string>

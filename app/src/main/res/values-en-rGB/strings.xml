@@ -1211,13 +1211,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesel truck</string>
     <string name="engine_preset_sampled_motorcycle">Small dirt bike</string>
     <string name="engine_preset_sampled_city_car">City car</string>
-    <string name="engine_preset_sampled_tractor">Tractor</string>
-    <string name="engine_preset_sampled_lawnmower">Lawn mower</string>
     <string name="engine_preset_sampled_steam_loco">Steam locomotive</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Big diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Broken exhaust</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Trigger</string>

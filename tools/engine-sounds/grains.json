@@ -94,29 +94,6 @@
       "average": 3
     },
     {
-      "key": "QUAD_BIKE",
-      "sources": [
-        "src_bsb_0712.ogg"
-      ],
-      "idleRpmHint": 1200,
-      "maxRpmHint": 4500,
-      "firingsPerRev": 0.5,
-      "startup": [
-        "src_bsb_0712.ogg",
-        0,
-        1449
-      ],
-      "exclude": [
-        [
-          "src_bsb_0712.ogg",
-          30230,
-          33312
-        ]
-      ],
-      "rumbleHz": 170,
-      "speakerLift": 1.0
-    },
-    {
       "key": "DIESEL_TRUCK",
       "sources": [
         "src_bsb_1146.ogg",
@@ -145,28 +122,6 @@
         ]
       ],
       "asset": "grain_diesel_truck"
-    },
-    {
-      "key": "TRACTOR",
-      "sources": [
-        "engine_tractor.ogg"
-      ],
-      "idleRpmHint": 450,
-      "maxRpmHint": 1800,
-      "firingsPerRev": 1,
-      "startup": [
-        "engine_tractor.ogg",
-        0,
-        1776
-      ],
-      "exclude": [
-        [
-          "engine_tractor.ogg",
-          41695,
-          46648
-        ]
-      ],
-      "grainsPerBand": 16
     },
     {
       "key": "STEAM_LOCO",
@@ -232,30 +187,6 @@
       "average": 3,
       "rumbleHz": 130,
       "speakerLift": 1.0
-    },
-    {
-      "key": "LAWNMOWER",
-      "sources": [
-        "src_bsb_0763.ogg"
-      ],
-      "idleRpmHint": 1900,
-      "maxRpmHint": 3600,
-      "firingsPerRev": 0.5,
-      "startup": [
-        "src_bsb_0763.ogg",
-        0,
-        2498
-      ]
-    },
-    {
-      "key": "BIG_DIESEL",
-      "sources": [
-        "engine_big_diesel.ogg"
-      ],
-      "idleRpmHint": 600,
-      "maxRpmHint": 2000,
-      "firingsPerRev": 2,
-      "grainsPerBand": 16
     }
   ]
 }

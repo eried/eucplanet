@@ -875,13 +875,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Дизельный грузовик</string>
     <string name="engine_preset_sampled_motorcycle">Питбайк</string>
     <string name="engine_preset_sampled_city_car">Городское авто</string>
-    <string name="engine_preset_sampled_tractor">Трактор</string>
-    <string name="engine_preset_sampled_lawnmower">Газонокосилка</string>
     <string name="engine_preset_sampled_steam_loco">Паровоз</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Большой дизель</string>
     <string name="engine_preset_sampled_broken_exhaust">Дырявый глушитель</string>
-    <string name="engine_preset_sampled_quad_atv">Квадроцикл</string>
 
     <string name="col_periodic">Регулярно</string>
     <string name="col_trigger">По запросу</string>
