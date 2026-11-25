@@ -51,6 +51,8 @@ class WearBridge(
 ) {
     companion object {
         private const val TAG = "WearBridge"
+        /** How old the phone's battery reading on the watch may be. */
+        private const val PHONE_BATTERY_MAX_AGE_MS = 30_000L
         // The watch feed follows the rider's watchUpdateRate tier and is now fully
         // independent of the wheel BLE poll rate (AppSettings.wheelPollIntervalMs).
         // The watch can't show data fresher than the poll delivers; when the
@@ -363,7 +365,7 @@ class WearBridge(
                 // The watch only renders telemetry, doesn't record, so faking here is safe.
                 dataMap.putFloat(K_SPEED, data.speed * cheatState.speedDisplayMultiplier.value)
                 dataMap.putInt(K_BATTERY, data.batteryPercent)
-                dataMap.putInt(K_PHONE_BATT, readPhoneBatteryPercent())
+                dataMap.putInt(K_PHONE_BATT, phoneBattery.get(android.os.SystemClock.elapsedRealtime()))
                 dataMap.putFloat(K_VOLTAGE, data.voltage)
                 dataMap.putFloat(K_CURRENT, data.current)
                 dataMap.putFloat(K_PWM, data.pwm)
@@ -395,9 +397,7 @@ class WearBridge(
                 // and text follow the rider's custom theme, not just the accent.
                 dataMap.putString(
                     K_THEME,
-                    com.eried.eucplanet.ui.theme.ThemeAccent.packForWatch(
-                        themeController.activeColors.value
-                    )
+                    packedTheme.get(themeController.activeColors.value)
                 )
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
                 dataMap.putBoolean(
@@ -489,6 +489,18 @@ class WearBridge(
             else -> null
         }
     }
+
+    // Both go out with every state push, four or more times a second, and
+    // neither changes at anything like that rate. The battery is a call into
+    // the system, so it is asked for twice a minute. The theme is seventeen
+    // colours turned to text and joined, so it is packed once per palette.
+    private val phoneBattery = com.eried.eucplanet.util.AgedValue(PHONE_BATTERY_MAX_AGE_MS) {
+        readPhoneBatteryPercent()
+    }
+    private val packedTheme =
+        com.eried.eucplanet.util.ByInstance<com.eried.eucplanet.ui.theme.AppThemeColors, String> {
+            com.eried.eucplanet.ui.theme.ThemeAccent.packForWatch(it)
+        }
 
     private fun readPhoneBatteryPercent(): Int {
         val bm = context.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager

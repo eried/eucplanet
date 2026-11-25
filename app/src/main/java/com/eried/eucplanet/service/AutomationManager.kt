@@ -30,6 +30,8 @@ class AutomationManager(
         /** Walking pace, the headlight's own default for the same idea. */
         const val BEEP_STOPPED_BELOW_KMH = 5f
         private const val TAG = "AutomationManager"
+        /** How often auto volume looks at the system volume and the speed. */
+        private const val VOLUME_LOOK_MS = 250L
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -41,6 +43,10 @@ class AutomationManager(
     // Track the system music volume we last wrote so we can distinguish our own writes
     // from a user moving the slider. -1 = we have not written anything yet this session.
     private var lastWrittenSystemVol: Int = -1
+    private val volumeLook = com.eried.eucplanet.util.EveryMs(VOLUME_LOOK_MS)
+    // The curve as the settings hold it is text; parsed once per text.
+    private val volumeCurve =
+        com.eried.eucplanet.util.ByInstance<String, List<Pair<Float, Float>>> { parseVolumeCurve(it) }
 
     // The rider's baseline volume % (the level before speed-scaling), cached from
     // evaluateVolume so restoreBaselineVolume() can put it back without suspending.
@@ -307,13 +313,17 @@ class AutomationManager(
      */
     private suspend fun evaluateVolume(settings: AppSettings) {
         if (!applyWhenAllows(settings.autoVolumeApplyWhen)) return
+        // This runs on every update of the wheel data, twenty-odd a second,
+        // and each run asks the system for the volume. Four looks a second
+        // follow the speed just as well.
+        if (!volumeLook.due(android.os.SystemClock.elapsedRealtime())) return
         val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         if (maxVol <= 0) return
 
         val systemVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         val systemPercent = (systemVol * 100f / maxVol)
 
-        val curve = parseVolumeCurve(settings.autoVolumeCurve)
+        val curve = volumeCurve.get(settings.autoVolumeCurve)
         val speed = wheelRepository.wheelData.value.speed.absoluteValue
         // Boost-only: never below 1x, so auto-volume can only raise the rider's
         // baseline with speed, never lower it (that was the volume-sinking bug).
