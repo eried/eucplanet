@@ -1560,6 +1560,8 @@ fun DashboardScreen(
             // placeholder dash, that way the rider sees confirmation the
             // setting took effect on the tile, with the value filling in
             // once samples start flowing.
+            // Each chip's stat is kept until the history gives it a new list.
+            val statCache = remember { com.eried.eucplanet.ui.settings.DashboardStatCache() }
             fun cornerStatValueFor(
                 key: String,
                 stat: com.eried.eucplanet.ui.settings.DashboardStat
@@ -1588,9 +1590,7 @@ fun DashboardScreen(
                     else -> statHistory.extras[key].orEmpty()
                 }
                 if (samples.isEmpty()) return placeholder
-                val raw = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-                    stat, samples, fallbackCurrent = samples.last().value
-                ) ?: return placeholder
+                val raw = statCache.value(key, stat, samples) ?: return placeholder
                 return formatMetricStatValue(
                     key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel,
                     distanceUnit, pressureUnit, altitudeUnit
@@ -1972,9 +1972,8 @@ fun DashboardScreen(
                                             // standalone chip showed a value on the same buffer.
                                             if (buf.isEmpty()) return@cellRenderer placeholder
                                             // buf is already List<MetricSample> from the full window.
-                                            val value = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-                                                stat, buf, fallbackCurrent = buf.last().value
-                                            ) ?: return@cellRenderer placeholder
+                                            val value = statCache.value("cell/$metricKey", stat, buf)
+                                                ?: return@cellRenderer placeholder
                                             // Same unit-correct formatting the
                                             // standalone corner chip uses so a
                                             // composite MAX/AVG cell reads right.

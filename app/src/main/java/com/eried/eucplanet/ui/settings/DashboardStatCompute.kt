@@ -22,19 +22,59 @@ fun computeDashboardStatValue(
         return samples.lastOrNull()?.value ?: fallbackCurrent
     }
     if (samples.isEmpty()) return null
-    val values = samples.map { it.value }
+    // Straight over the samples. Each stat used to start by copying every
+    // value into a list of boxed floats, and this runs for every stat chip on
+    // the dashboard.
     return when (stat) {
         DashboardStat.NONE, DashboardStat.EMPTY -> null
         DashboardStat.CURRENT -> fallbackCurrent
-        DashboardStat.MIN -> values.min()
-        DashboardStat.MAX -> values.max()
+        DashboardStat.MIN -> {
+            var m = samples[0].value
+            for (i in 1 until samples.size) m = minOf(m, samples[i].value)
+            m
+        }
+        DashboardStat.MAX -> {
+            var m = samples[0].value
+            for (i in 1 until samples.size) m = maxOf(m, samples[i].value)
+            m
+        }
         // Highest level HELD for >= 2s, so a momentary spike doesn't count.
         DashboardStat.SUSTAINED_PEAK -> sustainedPeak(samples, windowMs = 2000L)
-        DashboardStat.AVG -> values.average().toFloat()
-        DashboardStat.MEDIAN -> percentileOf(values, 0.50)
-        DashboardStat.P75 -> percentileOf(values, 0.75)
-        DashboardStat.P95 -> percentileOf(values, 0.95)
-        DashboardStat.P99 -> percentileOf(values, 0.99)
+        DashboardStat.AVG -> {
+            var sum = 0.0
+            for (s in samples) sum += s.value
+            (sum / samples.size).toFloat()
+        }
+        DashboardStat.MEDIAN -> percentileOf(samples, 0.50)
+        DashboardStat.P75 -> percentileOf(samples, 0.75)
+        DashboardStat.P95 -> percentileOf(samples, 0.95)
+        DashboardStat.P99 -> percentileOf(samples, 0.99)
+    }
+}
+
+/**
+ * The stat chips of one dashboard, remembered between recompositions.
+ *
+ * The dashboard recomposes many times a second while a wheel talks, and each
+ * pass asked for every chip's stat again: a pass over the whole history, for
+ * the percentiles a sort of it. The history only changes when a sample is
+ * added, and then it is a new list. So a chip's value is kept for as long as
+ * it is asked for with the very same list.
+ *
+ * Used from composition only, so from one thread.
+ */
+class DashboardStatCache {
+    private class Entry(val samples: List<MetricSample>, val value: Float?)
+    private val entries = HashMap<String, Entry>()
+
+    /** [slot] names the chip: one entry per chip. [samples] must not be empty. */
+    fun value(slot: String, stat: DashboardStat, samples: List<MetricSample>): Float? {
+        val key = slot + '/' + stat.name
+        val hit = entries[key]
+        if (hit != null && hit.samples === samples) return hit.value
+        val value = computeDashboardStatValue(stat, samples, fallbackCurrent = samples.last().value)
+        entries[key] = Entry(samples, value)
+        return value
     }
 }
 
@@ -67,8 +107,11 @@ private fun sustainedPeak(samples: List<MetricSample>, windowMs: Long): Float {
     return if (best == Float.NEGATIVE_INFINITY) samples.maxOf { it.value } else best
 }
 
-private fun percentileOf(values: List<Float>, p: Double): Float {
-    val sorted = values.sorted()
+private fun percentileOf(samples: List<MetricSample>, p: Double): Float {
+    // A plain array of floats, sorted in place: same order as sorting the
+    // boxed list did (the total order of Float, NaN last).
+    val sorted = FloatArray(samples.size) { samples[it].value }
+    sorted.sort()
     if (sorted.isEmpty()) return 0f
     val rank = (p * (sorted.size - 1)).coerceIn(0.0, (sorted.size - 1).toDouble())
     val lo = kotlin.math.floor(rank).toInt()
