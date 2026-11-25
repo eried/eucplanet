@@ -231,22 +231,10 @@ class TripRepository(
             // seconds in the background; even thousands stay under a minute.
             runCatching { backfillWheelMetaFromFiles() }
         }
-        // App-start recovery sweep. Both workers also pick up orphaned/failed
-        // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
-        // so this catches anything left behind by a previous session that
-        // couldn't finish its upload.
-        scope.launch {
-            val appSettings = runCatching { settingsRepository.get() }.getOrNull() ?: return@launch
-            if (appSettings.syncFolderUri != null) {
-                syncManager.enqueueTripUpload(appSettings)
-            }
-            if (appSettings.onlineUploadEnabled && syncManager.riderStoreId.value != null) {
-                syncManager.enqueueEucStatsUpload()
-            }
-            if (appSettings.dropboxAccessToken.isNotBlank()) {
-                syncManager.enqueueDropboxSync()
-            }
-        }
+        // The upload passes for trips a previous session left behind are queued
+        // once per start, by SyncManager.reconcileOnStart from EucPlanetApp. A
+        // second sweep used to sit here and queue the same three again, at
+        // once, which is the job-due-during-start-up that reconcile avoids.
     }
 
     // GPS-accumulated distance for the active recording. Reset at start, read at stop.

@@ -198,7 +198,11 @@ class GarminBridge(
                     sdkReady = true
                     Log.i(TAG, "Connect IQ SDK ready")
                     bindKnownDevices()
-                    pingWatchToWake()
+                    // Only with the app on screen. Android also starts the
+                    // process with no screen (an upload job, a reboot), and the
+                    // ping opens the app on the rider's watch: it did that out
+                    // of nowhere. Opening the phone app pings from onResume.
+                    if (com.eried.eucplanet.util.AppForeground.isForeground.value) pingWatchToWake()
                 }
 
                 override fun onInitializeError(status: ConnectIQ.IQSdkErrorStatus) {
