@@ -2452,12 +2452,11 @@ class WheelRepository(
                         // wheel extras above.
                         sampleSourceHistory(now)
                         // Drop anything older than the retention window from every
-                        // buffer in one pass. List.removeAll touches each list
-                        // once so this stays linear in buffer size.
+                        // buffer, from the front: see HistoryWindow.
                         val cutoff = now - historyWindowMs
                         listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
-                            .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
-                        extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                            .forEach { HistoryWindow.dropOlderThan(it, cutoff) }
+                        extrasHist.values.forEach { HistoryWindow.dropOlderThan(it, cutoff) }
                         // The buffers keep at least 5 min so widening the stats
                         // length has data at once, but everything that reads them
                         // (tile stats, sparklines, the detail screen, voice
@@ -2465,7 +2464,7 @@ class WheelRepository(
                         // the whole buffer made 30 s, 1, 2 and 3 min all read as
                         // 5 min.
                         val shownFrom = now - rollingWindowMs
-                        fun List<MetricSample>.shown() = filter { it.timestampMs >= shownFrom }
+                        fun List<MetricSample>.shown() = HistoryWindow.shownFrom(this, shownFrom)
                         _fullHistory.value = FullMetricHistory(
                             battery = battHist.shown(),
                             temperature = tempHist.shown(),
