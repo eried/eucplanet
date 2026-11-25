@@ -180,6 +180,12 @@ data class HudState(
      *  unknown types are silently dropped. */
     val customOverlayJson: String = "",
 
+    /** True in a frame that leaves [customOverlayJson] out because the HUD
+     *  already has it: the overlay is the one of the last frame that carried
+     *  it. See [OverlaySender] and [OverlayKeeper]. Only ever sent to a HUD
+     *  that reported PROTOCOL_MINOR 28 or newer. Added at PROTOCOL_MINOR 28. */
+    val customOverlaySame: Boolean = false,
+
     /** Ordered list of HUD screens the rider has enabled, by stable id
      *  ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam", "CustomMap",
      *  "Map", "Nav", ...). Empty = no list yet, the HUD keeps its
@@ -377,8 +383,14 @@ data class HudState(
          * 26: [HudState.autoStart]. The HUD app opens when the HUD starts,
          *    unless the rider turned it off. An older HUD never does.
          * 27: [HudCommand.Note], the HUD's auto-open steps in the phone's log.
+         * 28: [HudState.customOverlaySame]. The custom overlay used to ride in
+         *    every frame, several kilobytes five times a second. A HUD that
+         *    reports this minor gets it when it changes (and every ten seconds
+         *    as a safeguard) and is told "same as before" in between. An older
+         *    HUD still gets it in every frame; an older phone never sets the
+         *    flag, so a new HUD reads its frames as before.
          */
-        const val PROTOCOL_MINOR: Int = 27
+        const val PROTOCOL_MINOR: Int = 28
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
