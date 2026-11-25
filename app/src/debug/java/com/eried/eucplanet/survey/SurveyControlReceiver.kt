@@ -126,6 +126,11 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
                     hudDiscoveryMode = com.eried.eucplanet.data.model.HudDiscoveryMode.FIXED
                 )
                 intent.getStringExtra(EXTRA_HUD_SCREENS)?.let { n = n.copy(hudScreensEnabled = it) }
+                // How the HUD is found (AUTO, FIXED, BOTH), to exercise the
+                // beacon listener: the rows for it fold away while a HUD is linked.
+                intent.getStringExtra(EXTRA_HUD_MODE)
+                    ?.takeIf { it in com.eried.eucplanet.data.model.HudDiscoveryMode.VALUES }
+                    ?.let { n = n.copy(hudDiscoveryMode = it) }
                 intent.getStringExtra(EXTRA_ADV)?.split(',')?.forEach { pair ->
                     val id = pair.substringBefore('=').trim()
                     val value = pair.substringAfter('=', "").trim().toIntOrNull()
@@ -265,6 +270,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val EXTRA_HUD_IP = "hud_ip"
         const val EXTRA_ADV = "adv"
         const val EXTRA_HUD_SCREENS = "hud_screens"
+        const val EXTRA_HUD_MODE = "hud_mode"
         const val EXTRA_HUD_OVERLAY = "hud_overlay"
         const val EXTRA_ENGO_FAKE_PAIR = "engo_fake_pair"
 
