@@ -340,8 +340,12 @@ fun OverlayStudioScreen(
     // the overlay advances with ss.sss precision while recording.
     var recordingStartMs by remember { mutableStateOf(0L) }
     var stopwatchNowMs by remember { mutableStateOf(0L) }
-    LaunchedEffect(recording) {
-        if (!recording) return@LaunchedEffect
+    // Only for a preset that shows a stopwatch: the tick changes state on
+    // every frame, which recomposes this whole screen for the length of the
+    // take, exactly when the camera and the encoder want the main thread.
+    val needsStopwatchTick = StudioNeeds.stopwatchTick(preset.elements)
+    LaunchedEffect(recording, needsStopwatchTick) {
+        if (!recording || !needsStopwatchTick) return@LaunchedEffect
         while (true) {
             withFrameNanos {}
             stopwatchNowMs = System.currentTimeMillis()
