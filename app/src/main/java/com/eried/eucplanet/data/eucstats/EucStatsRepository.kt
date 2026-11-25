@@ -223,13 +223,7 @@ class EucStatsRepository(
 
         when (val result = doUpload()) {
             is UploadResult.Ok -> {
-                tripDao.update(
-                    trip.copy(
-                        eucstatsStatus = 2,
-                        eucstatsUploadedAt = clock(),
-                        eucstatsValidation = result.validationStatus,
-                    )
-                )
+                tripDao.setEucstatsUploaded(trip.id, 2, clock(), result.validationStatus)
                 refreshCard()
                 Outcome.UPLOADED
             }
@@ -237,7 +231,7 @@ class EucStatsRepository(
                 if (result.code == 400 && Outcome.RIDER_NOT_REGISTERED in result.body) {
                     Outcome.RIDER_UNKNOWN
                 } else {
-                    tripDao.update(trip.copy(eucstatsStatus = 3))
+                    tripDao.setEucstatsStatus(trip.id, 3)
                     Outcome.FAILED_PERMANENT
                 }
             }
@@ -254,13 +248,7 @@ class EucStatsRepository(
                 )
                 when (val result2 = api.uploadTrip(meta.toString(), gz)) {
                     is UploadResult.Ok -> {
-                        tripDao.update(
-                            trip.copy(
-                                eucstatsStatus = 2,
-                                eucstatsUploadedAt = clock(),
-                                eucstatsValidation = result2.validationStatus,
-                            )
-                        )
+                        tripDao.setEucstatsUploaded(trip.id, 2, clock(), result2.validationStatus)
                         refreshCard()
                         Outcome.UPLOADED
                     }
@@ -325,13 +313,13 @@ class EucStatsRepository(
         val status = api.getTripStatus(uuid) ?: return@withContext null
         if (status.gone) {
             if (trip.eucstatsValidation != TripStatus.GONE_VALIDATION) {
-                tripDao.update(trip.copy(eucstatsValidation = TripStatus.GONE_VALIDATION))
+                tripDao.setEucstatsValidation(trip.id, TripStatus.GONE_VALIDATION)
             }
             return@withContext TripStatus.GONE_VALIDATION
         }
         val now = status.validationStatus ?: return@withContext null
         if (now != trip.eucstatsValidation) {
-            tripDao.update(trip.copy(eucstatsValidation = now))
+            tripDao.setEucstatsValidation(trip.id, now)
             refreshCard()          // an approved trip has just joined the rider's totals
         }
         now
