@@ -28,6 +28,15 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Resets: Reset metrics, the trip meter Reset and radar Disconnect can no longer close the app or be undone by an update in progress.
 - Lighter on the battery: less work per wheel frame, and no background upload checks when no backup or leaderboard is set up.
 - The newest strings (storage full, crew pass, offline updates) reread in every language.
+- This build is the shrunk one: about a fifth of the download, and as fast as the Play build.
+- Dashboard: half the drawing while riding, same look. Stat chips and the live trip screen do far less work.
+- Parked or charging: GPS slows down after two minutes, full rate at the first movement (Advanced, Parked GPS delay).
+- Voice keeps speaking when the app is swiped away mid-ride.
+- Helmet HUD: the custom overlay is sent when it changes, not in every frame.
+- Backups: a folder with many trips is checked much faster. The background check runs every six hours.
+- Fixes: alarm tone after a disconnect, navigation after Stop, a leaderboard rename undone by an upload, a quick reconnect dropped, P6 and V6 lock right after connecting, chart axis labels.
+- Engine list: some recorded engines are gone; a rider who had one gets the closest engine.
+- No more silent work when Android starts the app in the background: no map warm-up, no watch app opening by itself.
 
 ## Please test
 
@@ -40,6 +49,14 @@ New features before they settle. Ride it only when you can cut the ride short.
 - **Crew pass:** scan a code from eucstats: does the screen read clearly in your language?
 - **Reset metrics, trip meter Reset:** do the numbers go to zero and stay there?
 - **Backups and leaderboards:** does a trip still upload by itself after a ride, with the app closed?
+- **Dashboard:** does the speed dial still feel smooth? Any tile that lags behind?
+- **After a long stop or a charge:** does the trip record your position from the first metres?
+- **Voice:** swipe the app away mid-ride: do alarms and announcements still speak?
+- **Helmet HUD, custom overlay:** does it show, and follow a change of preset?
+- **P6, V6:** tap Lock right after connecting.
+- **Battery monitor:** does the liquid still move with the phone?
+- **Overlay Studio:** record a take with a stopwatch or G-force element, and one without.
+- **Watch:** the phone battery shown can be half a minute old. Any other value late?
 - **Any wheel:** anything acting differently from the last build is a bug.
 
 ## Reporting back
