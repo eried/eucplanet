@@ -157,6 +157,26 @@ android {
                 signingConfig = signingConfigs.getByName("debug")
             }
         }
+        // What a tester gets from a branch (.github/workflows/branch-apk.yml).
+        // The release build in everything that decides size and speed, R8 and
+        // resource shrinking included, so a tester runs what a Play rider runs
+        // and not a debug build four times the size. Two things stay as in
+        // debug. It is signed with the debug key, which on CI is the shared
+        // branch key, so it installs over the builds testers already have. And
+        // it is still a dev build on a branch, so the dev-only helpers stay.
+        // The debug-only test receiver (src/debug) is not in it.
+        create("branch") {
+            initWith(getByName("release"))
+            matchingFallbacks += "release"
+            signingConfig = signingConfigs.getByName("debug")
+            val branchName = git("rev-parse", "--abbrev-ref", "HEAD")
+            val branchIsDev = branchName.isNotEmpty() && branchName != "main" && branchName != "HEAD" &&
+                !project.hasProperty("prod")
+            buildConfigField("boolean", "IS_DEV", "$branchIsDev")
+            // For a look at this build on the emulator: -PemulatorAbi adds the
+            // x86_64 libraries the release ABI list leaves out.
+            if (project.hasProperty("emulatorAbi")) ndk { abiFilters += "x86_64" }
+        }
     }
 
     compileOptions {

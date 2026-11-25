@@ -67,6 +67,11 @@ android {
             )
             if (keystoreProps.isNotEmpty()) {
                 signingConfig = signingConfigs.getByName("release")
+            } else {
+                // No release keystore here (a workstation, the branch build on
+                // CI): sign with the debug key, as the phone and the HUD do, so
+                // the shrunk watch app can be installed and updates in place.
+                signingConfig = signingConfigs.getByName("debug")
             }
         }
     }
