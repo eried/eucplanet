@@ -2359,6 +2359,8 @@
     <string name="warnings_battery_opt_body">Android voi pysäyttää EUC Planetin taustalla ja katkaista tallennuksen kesken ajon. Salli sovelluksen toimia rajoituksetta.</string>
     <string name="warnings_storage_full_title">Puhelimen tallennustila on täynnä</string>
     <string name="warnings_storage_full_body">Matkoja ja muutoksia ei voi tallentaa. Tähänastiset ajot ovat tallessa. Vapauta tilaa jatkaaksesi.</string>
+    <string name="warnings_settings_reset_title">Asetukset nollattiin</string>
+    <string name="warnings_settings_reset_body">Asetustiedosto oli vioittunut, joten sovellus käynnistyi oletusasetuksilla. Matkat ja hälytykset ovat ennallaan. Palauta asetusten varmuuskopio, jos sinulla on sellainen.</string>
     <string name="warnings_hud_blocked_title">Puhelimen HUD ei näy</string>
     <string name="warnings_hud_blocked_body">Lupa näkyä muiden sovellusten päällä on poistettu, joten peittokuva ei näy karttojen tai musiikin päällä.</string>
     <string name="warnings_no_backup_title">Matkoja ei varmuuskopioida</string>

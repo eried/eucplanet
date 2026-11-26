@@ -2433,6 +2433,8 @@
     <string name="warnings_battery_opt_body">Android อาจหยุด EUC Planet ในเบื้องหลัง ทำให้การบันทึกจบกลางทาง อนุญาตให้ทำงานโดยไม่จำกัด</string>
     <string name="warnings_storage_full_title">พื้นที่เก็บข้อมูลของโทรศัพท์เต็ม</string>
     <string name="warnings_storage_full_body">ไม่สามารถบันทึกทริปและบันทึกการเปลี่ยนแปลงได้ ทริปที่ผ่านมายังปลอดภัย เพิ่มพื้นที่ว่างเพื่อดำเนินการต่อ</string>
+    <string name="warnings_settings_reset_title">การตั้งค่าถูกรีเซ็ต</string>
+    <string name="warnings_settings_reset_body">ไฟล์การตั้งค่าเสียหาย แอปจึงเริ่มด้วยค่าเริ่มต้น ทริปและสัญญาณเตือนไม่ได้รับผลกระทบ กู้คืนข้อมูลสำรองของการตั้งค่าหากคุณมี</string>
     <string name="warnings_hud_blocked_title">HUD บนโทรศัพท์แสดงผลไม่ได้</string>
     <string name="warnings_hud_blocked_body">สิทธิ์แสดงทับแอปอื่นถูกปิดไปแล้ว โอเวอร์เลย์จึงไม่แสดงทับแผนที่หรือเพลง</string>
     <string name="warnings_no_backup_title">ทริปยังไม่ได้สำรอง</string>

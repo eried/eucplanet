@@ -2004,6 +2004,8 @@
     <string name="warnings_battery_opt_body">Android может остановить EUC Planet в фоне и прервать запись посреди поездки. Разрешите работу без ограничений.</string>
     <string name="warnings_storage_full_title">Память телефона заполнена</string>
     <string name="warnings_storage_full_body">Поездки не записываются, а изменения не сохраняются. Прошлые поездки в сохранности. Освободите место, чтобы продолжить.</string>
+    <string name="warnings_settings_reset_title">Настройки сброшены</string>
+    <string name="warnings_settings_reset_body">Файл настроек был повреждён, поэтому приложение запустилось с настройками по умолчанию. Поездки и сигналы не затронуты. Восстановите настройки из резервной копии, если она есть.</string>
     <string name="warnings_hud_blocked_title">HUD на телефоне не показывается</string>
     <string name="warnings_hud_blocked_body">Разрешение на показ поверх других приложений отозвано, поэтому оверлей не появится поверх карт или музыки.</string>
     <string name="warnings_no_backup_title">Нет резервной копии поездок</string>

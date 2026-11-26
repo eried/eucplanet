@@ -2361,6 +2361,8 @@
     <string name="warnings_battery_opt_body">Android může EUC Planet na pozadí zastavit a ukončit nahrávání uprostřed jízdy. Povolte aplikaci běžet bez omezení.</string>
     <string name="warnings_storage_full_title">Úložiště telefonu je plné</string>
     <string name="warnings_storage_full_body">Jízdy nelze nahrávat a změny nelze ukládat. Dosavadní jízdy jsou v bezpečí. Uvolněte místo a pokračujte.</string>
+    <string name="warnings_settings_reset_title">Nastavení se vrátilo na výchozí</string>
+    <string name="warnings_settings_reset_body">Soubor s nastavením byl poškozený, proto aplikace začala s výchozím nastavením. Jízd a alarmů se to netýká. Pokud máte zálohu nastavení, obnovte ji.</string>
     <string name="warnings_hud_blocked_title">HUD v telefonu nemůže kreslit</string>
     <string name="warnings_hud_blocked_body">Oprávnění kreslit přes ostatní aplikace bylo odebráno, takže se překryv nad mapami ani hudbou neobjeví.</string>
     <string name="warnings_no_backup_title">Jízdy nejsou zálohované</string>

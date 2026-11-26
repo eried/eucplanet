@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
@@ -38,7 +39,30 @@ class SettingsStore(
     // Told when a save fails, which in practice means the phone is out of
     // storage.
     private val onWriteFailed: (java.io.IOException) -> Unit = {},
+    // Told, once, when the stored settings could not be read and the app
+    // carries on from the defaults.
+    private val onReset: () -> Unit = {},
 ) {
+
+    private val resetReported = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    private fun reportReset(how: String) {
+        if (!resetReported.compareAndSet(false, true)) return
+        android.util.Log.e("SettingsStore", "Stored settings unreadable ($how), starting from defaults")
+        onReset()
+    }
+
+    // Whether a settings file was there when the app started. A damaged file
+    // does not always fail to read: its bytes can pass for a file with
+    // nothing in it. A file that was there and holds no settings is that
+    // case; on a first install there is no file at all.
+    private val fileWasThere: Boolean = runCatching {
+        context.preferencesDataStoreFile(FILE_NAME).let { it.exists() && it.length() > 0 }
+    }.getOrDefault(false)
+
+    init {
+        whenSettingsFileDamaged = { reportReset("file damaged") }
+    }
 
     private val dataStore: DataStore<Preferences> get() = context.settingsDataStore
 
@@ -96,6 +120,7 @@ class SettingsStore(
     suspend fun seedIfAbsent(imported: AppSettings) {
         write { prefs ->
             if (prefs[KEY_JSON] == null) {
+                if (fileWasThere) reportReset("file held no settings")
                 prefs[KEY_JSON] = SettingsJson.toJson(imported).toString()
             }
         }
@@ -112,6 +137,7 @@ class SettingsStore(
     suspend fun seedDefaultsIfAbsent() {
         write { prefs ->
             if (prefs[KEY_JSON] == null) {
+                if (fileWasThere) reportReset("file held no settings")
                 val units = startingUnits()
                 val seeded = AppSettings(
                     unitSpeed = units.speed,
@@ -156,7 +182,10 @@ class SettingsStore(
         lastRead?.let { (text, parsed) -> if (text == json) return parsed }
         val parsed = runCatching {
             SettingsJson.fromJson(JSONObject(json))
-        }.getOrElse { AppSettings() }
+        }.getOrElse {
+            reportReset("contents damaged")
+            AppSettings()
+        }
         lastRead = json to parsed
         return parsed
     }
@@ -176,5 +205,13 @@ private val Context.settingsDataStore: DataStore<Preferences>
             // A damaged file (failing storage, a power cut mid-swap) made
             // every read throw, and the app crashed on each start. Start
             // from defaults instead; the rider can restore a backup.
-            corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+            corruptionHandler = ReplaceFileCorruptionHandler {
+                // The rider is told: the app otherwise opens on the welcome
+                // tour with every choice gone and no word about why.
+                whenSettingsFileDamaged()
+                emptyPreferences()
+            },
         )
+
+/** Set by the one [SettingsStore]; the file's handler above has no other way to it. */
+@Volatile private var whenSettingsFileDamaged: () -> Unit = {}

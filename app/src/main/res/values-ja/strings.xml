@@ -1998,6 +1998,8 @@
     <string name="warnings_battery_opt_body">Android がバックグラウンドで EUC Planet を停止し、走行中の記録が途切れることがあります。制限なしでの実行を許可してください。</string>
     <string name="warnings_storage_full_title">スマホのストレージがいっぱいです</string>
     <string name="warnings_storage_full_body">トリップを記録できず、変更も保存できません。これまでのトリップは無事です。続けるには空き容量を増やしてください。</string>
+    <string name="warnings_settings_reset_title">設定がリセットされました</string>
+    <string name="warnings_settings_reset_body">設定ファイルが破損していたため、アプリは初期設定で起動しました。トリップとアラームに影響はありません。設定のバックアップがあれば復元してください。</string>
     <string name="warnings_hud_blocked_title">スマホ HUD を描画できません</string>
     <string name="warnings_hud_blocked_body">他のアプリの上に描画する権限が取り消されたため、マップや音楽の上にオーバーレイは表示されません。</string>
     <string name="warnings_no_backup_title">トリップがバックアップされていません</string>

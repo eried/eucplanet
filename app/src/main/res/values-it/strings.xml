@@ -1894,6 +1894,8 @@
     <string name="warnings_battery_opt_body">Android può fermare EUC Planet in background e interrompere una registrazione a metà giro. Lascialo funzionare senza restrizioni.</string>
     <string name="warnings_storage_full_title">La memoria del telefono è piena</string>
     <string name="warnings_storage_full_body">Impossibile registrare i viaggi e salvare le modifiche. I viaggi già registrati sono al sicuro. Libera spazio per continuare.</string>
+    <string name="warnings_settings_reset_title">Le impostazioni sono state azzerate</string>
+    <string name="warnings_settings_reset_body">Il file delle impostazioni era danneggiato, quindi l\'app è partita con i valori predefiniti. Viaggi e allarmi non sono interessati. Ripristina un backup delle impostazioni, se ne hai uno.</string>
     <string name="warnings_hud_blocked_title">L\'HUD del telefono è bloccato</string>
     <string name="warnings_hud_blocked_body">L\'autorizzazione a disegnare sopra le altre app è stata revocata, quindi l\'overlay non comparirà sopra mappe o musica.</string>
     <string name="warnings_no_backup_title">I viaggi non hanno un backup</string>

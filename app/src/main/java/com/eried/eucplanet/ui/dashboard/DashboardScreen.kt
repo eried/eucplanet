@@ -593,6 +593,10 @@ fun DashboardScreen(
                                         val tab = w.settingsTab
                                         if (tab != null) {
                                             showWarningsDialog = false
+                                            // Its own action too: a warning
+                                            // that only needs reading takes
+                                            // itself away here.
+                                            w.fix()
                                             onNavigateToSettings(tab)
                                         } else {
                                             w.fix()

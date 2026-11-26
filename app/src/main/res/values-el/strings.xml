@@ -2514,6 +2514,8 @@
     <string name="warnings_battery_opt_body">Το Android μπορεί να κλείσει το EUC Planet στο παρασκήνιο και να κόψει την εγγραφή στη μέση της βόλτας. Αφήστε το να τρέχει χωρίς περιορισμούς.</string>
     <string name="warnings_storage_full_title">Ο χώρος αποθήκευσης του τηλεφώνου είναι γεμάτος</string>
     <string name="warnings_storage_full_body">Οι διαδρομές δεν μπορούν να καταγραφούν και οι αλλαγές δεν μπορούν να αποθηκευτούν. Όσες διαδρομές έχουν ήδη καταγραφεί δεν χάνονται. Ελευθερώστε χώρο για να συνεχίσετε.</string>
+    <string name="warnings_settings_reset_title">Οι ρυθμίσεις μηδενίστηκαν</string>
+    <string name="warnings_settings_reset_body">Το αρχείο ρυθμίσεων ήταν κατεστραμμένο και η εφαρμογή ξεκίνησε με τις προεπιλογές. Οι διαδρομές και οι συναγερμοί δεν επηρεάζονται. Επαναφέρετε ένα αντίγραφο ασφαλείας των ρυθμίσεων, αν έχετε.</string>
     <string name="warnings_hud_blocked_title">Το HUD τηλεφώνου δεν μπορεί να εμφανιστεί</string>
     <string name="warnings_hud_blocked_body">Η άδεια εμφάνισης πάνω από άλλες εφαρμογές ανακλήθηκε, οπότε η επικάλυψη δεν θα εμφανίζεται πάνω από χάρτες ή μουσική.</string>
     <string name="warnings_no_backup_title">Δεν υπάρχει αντίγραφο ασφαλείας των διαδρομών</string>

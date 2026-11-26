@@ -1365,6 +1365,8 @@
     <string name="warnings_battery_opt_body">Android peut arrêter EUC Planet en arrière-plan et couper un enregistrement en plein trajet. Autorisez-le à fonctionner sans restriction.</string>
     <string name="warnings_storage_full_title">Le stockage du téléphone est plein</string>
     <string name="warnings_storage_full_body">Impossible d\'enregistrer les trajets et les modifications. Les trajets déjà enregistrés sont en sécurité. Libérez de l\'espace pour continuer.</string>
+    <string name="warnings_settings_reset_title">Les paramètres ont été réinitialisés</string>
+    <string name="warnings_settings_reset_body">Le fichier des paramètres était endommagé, l\'appli a donc démarré avec les valeurs par défaut. Les trajets et les alarmes ne sont pas touchés. Restaurez une sauvegarde des paramètres si vous en avez une.</string>
     <string name="warnings_hud_blocked_title">Le HUD du téléphone ne peut pas s\'afficher</string>
     <string name="warnings_hud_blocked_body">L\'autorisation d\'afficher par-dessus les autres applications a été retirée : l\'overlay n\'apparaîtra pas sur les cartes ou la musique.</string>
     <string name="warnings_no_backup_title">Les trajets ne sont pas sauvegardés</string>

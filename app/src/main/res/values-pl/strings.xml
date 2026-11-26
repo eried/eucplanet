@@ -2002,6 +2002,8 @@
     <string name="warnings_battery_opt_body">Android może zatrzymać EUC Planet w tle i przerwać nagrywanie w trakcie jazdy. Zezwól na działanie bez ograniczeń.</string>
     <string name="warnings_storage_full_title">Pamięć telefonu jest pełna</string>
     <string name="warnings_storage_full_body">Nie można nagrywać przejazdów ani zapisywać zmian. Dotychczasowe przejazdy są bezpieczne. Zwolnij miejsce, aby kontynuować.</string>
+    <string name="warnings_settings_reset_title">Ustawienia zostały zresetowane</string>
+    <string name="warnings_settings_reset_body">Plik ustawień był uszkodzony, więc aplikacja uruchomiła się z ustawieniami domyślnymi. Przejazdy i alarmy są nienaruszone. Przywróć kopię zapasową ustawień, jeśli ją masz.</string>
     <string name="warnings_hud_blocked_title">HUD na telefonie nie może się wyświetlać</string>
     <string name="warnings_hud_blocked_body">Cofnięto uprawnienie do wyświetlania nad innymi aplikacjami, więc nakładka nie pojawi się nad mapami ani muzyką.</string>
     <string name="warnings_no_backup_title">Przejazdy nie mają kopii zapasowej</string>

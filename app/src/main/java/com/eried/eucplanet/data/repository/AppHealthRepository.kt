@@ -462,6 +462,25 @@ class AppHealthRepository(
         appNotifier.post(context.getString(R.string.warnings_storage_full_title))
     }
 
+    /**
+     * The settings file could not be read and the app started from the
+     * defaults. Said once, and kept as a card that leads to Backups, where a
+     * settings backup is restored. It goes when the rider has followed it, or
+     * with the app: the next start reads a sound file.
+     */
+    fun noteSettingsReset() {
+        upsert(
+            AppWarning(
+                id = SETTINGS_RESET_ID,
+                titleRes = R.string.warnings_settings_reset_title,
+                bodyRes = R.string.warnings_settings_reset_body,
+                fix = { dismiss(SETTINGS_RESET_ID) },
+                settingsTab = SETTINGS_TAB_BACKUPS,
+            )
+        )
+        appNotifier.postForStart(context.getString(R.string.warnings_settings_reset_title))
+    }
+
     /** The phone's storage settings, for the rider to make room. */
     fun openStorage() = openStorageSettings()
 
@@ -522,6 +541,7 @@ class AppHealthRepository(
         private const val BATTERY_OPT_ID = "power.battery-optimised"
         private const val BACKUP_FOLDER_ID = "backup.folder"
         private const val STORAGE_FULL_ID = "storage.full"
+        private const val SETTINGS_RESET_ID = "settings.reset"
 
         /** Room for hours of trip rows; below this the warning stays. */
         private const val STORAGE_OK_BYTES = 10L * 1024 * 1024

@@ -1364,6 +1364,8 @@
     <string name="warnings_battery_opt_body">Android kan stoppe EUC Planet i baggrunden og afbryde en optagelse midt i turen. Tillad appen at køre uden begrænsninger.</string>
     <string name="warnings_storage_full_title">Telefonens lager er fuldt</string>
     <string name="warnings_storage_full_body">Ture kan ikke optages, og ændringer kan ikke gemmes. Turene indtil nu er i sikkerhed. Frigør plads for at fortsætte.</string>
+    <string name="warnings_settings_reset_title">Indstillingerne blev nulstillet</string>
+    <string name="warnings_settings_reset_body">Indstillingsfilen var beskadiget, så appen startede med standardindstillingerne. Ture og alarmer er ikke berørt. Gendan en backup af indstillingerne, hvis du har en.</string>
     <string name="warnings_hud_blocked_title">Telefon-HUD kan ikke vises</string>
     <string name="warnings_hud_blocked_body">Tilladelsen til at blive vist oven på andre apps blev fjernet, så overlayet vises ikke oven på kort eller musik.</string>
     <string name="warnings_no_backup_title">Ture har ingen backup</string>

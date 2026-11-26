@@ -1361,6 +1361,8 @@
     <string name="warnings_battery_opt_body">Android kann EUC Planet im Hintergrund beenden und eine Aufnahme mitten in der Fahrt abbrechen. Lass die App uneingeschränkt laufen.</string>
     <string name="warnings_storage_full_title">Handyspeicher ist voll</string>
     <string name="warnings_storage_full_body">Fahrten können nicht aufgezeichnet und Änderungen nicht gespeichert werden. Bisherige Fahrten sind sicher. Gib Speicherplatz frei, um fortzufahren.</string>
+    <string name="warnings_settings_reset_title">Einstellungen wurden zurückgesetzt</string>
+    <string name="warnings_settings_reset_body">Die Einstellungsdatei war beschädigt, deshalb ist die App mit den Standardwerten gestartet. Fahrten und Alarme sind nicht betroffen. Stelle ein Backup der Einstellungen wieder her, falls du eines hast.</string>
     <string name="warnings_hud_blocked_title">Handy-HUD kann nichts anzeigen</string>
     <string name="warnings_hud_blocked_body">Die Berechtigung zum Einblenden über anderen Apps wurde entzogen, daher erscheint das Overlay nicht über Karten oder Musik.</string>
     <string name="warnings_no_backup_title">Fahrten werden nicht gesichert</string>

@@ -42,7 +42,11 @@ object AppModule {
     private const val TAG = "AppModule"
 
     fun provideSettingsStore(context: Context, health: AppHealthRepository): SettingsStore {
-        val store = SettingsStore(context) { health.noteSettingNotSaved(it) }
+        val store = SettingsStore(
+            context,
+            onWriteFailed = { health.noteSettingNotSaved(it) },
+            onReset = { health.noteSettingsReset() },
+        )
         // The copy from the old database only matters while there is no
         // settings file yet. The file is written on the first start and is
         // there on every one after it, and the check used to open the database
