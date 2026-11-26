@@ -42,6 +42,8 @@ class EngineSoundEngine(private val context: Context) {
     @Volatile private var running: Boolean = false
 
     @Volatile private var paramsSnapshot: EngineParams = EngineParams.SILENT
+    /** The snapshot is rendered many times between two ticks; a pop must be laid once. */
+    private val pops = PopHandoff()
     private val synth = EngineSynth(sampleRate) { asset -> openBank(asset) }
 
     // Guards the model: pushTelemetry runs on the service's worker thread (and
@@ -194,7 +196,7 @@ class EngineSoundEngine(private val context: Context) {
     private fun pushParamsDirect(rpmFraction: Float, load: Float) {
         synchronized(telemetryLock) {
             val now = System.currentTimeMillis()
-            paramsSnapshot = model.direct(now, rpmFraction, load)
+            paramsSnapshot = pops.post(model.direct(now, rpmFraction, load))
         }
     }
 
@@ -202,7 +204,7 @@ class EngineSoundEngine(private val context: Context) {
     fun pushTelemetry(speedKmh: Float, pwmPercent: Float) {
         synchronized(telemetryLock) {
             val now = System.currentTimeMillis()
-            paramsSnapshot = model.tick(now, speedKmh, pwmPercent)
+            paramsSnapshot = pops.post(model.tick(now, speedKmh, pwmPercent))
         }
     }
 
@@ -214,6 +216,8 @@ class EngineSoundEngine(private val context: Context) {
             return
         }
         running = true
+        // A pop from before the audio ran would go off now.
+        pops.clear()
         requestAudioFocus()
         // A recorded engine's bank is read here, off the audio thread.
         synth.preload(profile)
@@ -272,7 +276,7 @@ class EngineSoundEngine(private val context: Context) {
     private fun runProducer() {
         val buffer = FloatArray(bufferFrames)
         while (running) {
-            val params = paramsSnapshot
+            val params = pops.take(paramsSnapshot)
             synth.render(params, buffer, 0, bufferFrames)
             val written = audioTrack?.write(buffer, 0, bufferFrames, AudioTrack.WRITE_BLOCKING) ?: 0
             if (written < 0) {

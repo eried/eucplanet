@@ -131,7 +131,7 @@ class EngineSynth(
         val profile = params.profile
         // A synthesised engine pops with a burst of noise through its pipe; a recorded one
         // pops with its own recording, or a bang the grain player shapes itself.
-        if (profile.grainAsset == null) repeat(params.pendingPops) { popQueue.addLast(Pop(remaining = (sampleRate * 0.16f).toInt())) }
+        if (profile.grainAsset == null) repeat(params.pendingPops) { popQueue.addLast(Pop(remaining = (sampleRate * 0.16f).toInt(), gain = profile.popLevel)) }
 
         val effRpm = (params.rpm + params.revBump).coerceAtLeast(0f)
         val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
@@ -229,8 +229,8 @@ class EngineSynth(
         repeat(params.pendingPops) {
             when {
                 profile.whistle -> whistle.blow(0.45f + 0.25f * abs(nextNoise()))
-                popsRecorded -> lay(b.pops[(abs(nextNoise()) * b.pops.size).toInt().coerceAtMost(b.pops.size - 1)], 0.9f)
-                else -> popQueue.addLast(Pop(remaining = (sampleRate * 0.14f).toInt()))
+                popsRecorded -> lay(b.pops[(abs(nextNoise()) * b.pops.size).toInt().coerceAtMost(b.pops.size - 1)], 0.9f * profile.popLevel)
+                else -> popQueue.addLast(Pop(remaining = (sampleRate * 0.14f).toInt(), gain = profile.popLevel))
             }
         }
         // The boiler blows off while the locomotive stands; it stops as soon as it moves.

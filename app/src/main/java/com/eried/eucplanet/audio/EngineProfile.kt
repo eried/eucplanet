@@ -77,6 +77,12 @@ data class EngineProfile(
     val exhaustGrit: Float = 0.15f,
     /** Pop probability per decel event (0..1), multiplied by the user's decel character. */
     val decelPopProbability: Float = 0.4f,
+    /**
+     * How loud the throttle-chop pop is laid, 1 = as the recording or the pipe gives it.
+     * Raised where the pop sat barely over its engine. Engines cut from the same
+     * recording carry the same value.
+     */
+    val popLevel: Float = 1f,
     /** Brightness of the firing pulse, 1 = sharp crack, 0 = soft thump. */
     val compressionTone: Float = 0.5f,
     /** Level trim so every engine sits at about the same loudness. */
@@ -184,6 +190,7 @@ data class EngineProfile(
                 grainAsset = "grain_v_twin",
                 idleRpm = 1000, maxRpm = 6500,
                 cylinderCount = 2,
+                popLevel = 1.41f,
                 // 45 degree V-twin: the uneven "potato-potato", second cylinder fires 315 degrees after the first
                 firingAngles = floatArrayOf(0f, 315f),
                 pipeHz = 210f, pipeQ = 1.1f,
@@ -201,6 +208,7 @@ data class EngineProfile(
                 grainAsset = "grain_inline_4",
                 idleRpm = 900, maxRpm = 4000,
                 cylinderCount = 4,
+                popLevel = 1.41f,
                 firingAngles = floatArrayOf(0f, 180f, 360f, 540f),
                 gainTrim = 1.3f,
                 pipeHz = 230f, pipeQ = 0.9f,
@@ -218,6 +226,8 @@ data class EngineProfile(
                 grainAsset = "grain_v8_muscle",
                 idleRpm = 700, maxRpm = 3200,
                 cylinderCount = 8,
+                // The recording's own backfire is a quiet one
+                popLevel = 2f,
                 firingAngles = floatArrayOf(0f, 90f, 180f, 270f, 360f, 450f, 540f, 630f),
                 // Cross-plane, firing order 1-8-4-3-6-5-7-2: the banks go L R R L R L L R
                 banks = intArrayOf(0, 1, 1, 0, 1, 0, 0, 1),
@@ -235,6 +245,7 @@ data class EngineProfile(
                 grainAsset = "grain_v12_italian",
                 idleRpm = 900, maxRpm = 4000,
                 cylinderCount = 12,
+                popLevel = 1.41f,
                 firingAngles = FloatArray(12) { i -> i * 60f },
                 pipeHz = 240f, pipeQ = 0.8f,
                 ringHz = 3000f, ringAmount = 0.15f,
@@ -445,25 +456,26 @@ data class EngineProfile(
                 // Recorded: a small motorcycle, starts and revs (BigSoundBank s0281)
                 grainAsset = "grain_motorcycle",
                 idleRpm = 1000, maxRpm = 3500,
+                popLevel = 1.41f,
                 cylinderCount = 2, firingAngles = floatArrayOf(0f, 360f),
                 pipeHz = 220f, pipeQ = 1f, gainTrim = 1.2f
             ),
             // Hidden: the old "sampled" keys, each the same recording as a listed engine,
             // so a rider who picked one keeps their sound.
             EngineProfile(key = "SAMPLED_V8_COBRA", preview = true, displayName = "V8 Cobra", kind = Kind.ICE,
-                grainAsset = "grain_v8_muscle", idleRpm = 700, maxRpm = 3200,
+                grainAsset = "grain_v8_muscle", idleRpm = 700, maxRpm = 3200, popLevel = 2f,
                 cylinderCount = 8, firingAngles = FloatArray(8) { i -> i * 90f }, banks = intArrayOf(0, 1, 1, 0, 1, 0, 0, 1), pipeHz = 200f),
             EngineProfile(key = "SAMPLED_VTWIN_DUCATI", preview = true, displayName = "V-twin Ducati", kind = Kind.ICE,
-                grainAsset = "grain_v_twin", idleRpm = 1000, maxRpm = 6500,
+                grainAsset = "grain_v_twin", idleRpm = 1000, maxRpm = 6500, popLevel = 1.41f,
                 cylinderCount = 2, firingAngles = floatArrayOf(0f, 315f), pipeHz = 210f, gainTrim = 1.7f),
             EngineProfile(key = "SAMPLED_CITY_CAR", preview = true, displayName = "City car", kind = Kind.ICE,
-                grainAsset = "grain_inline_4", idleRpm = 900, maxRpm = 4000,
+                grainAsset = "grain_inline_4", idleRpm = 900, maxRpm = 4000, popLevel = 1.41f,
                 cylinderCount = 4, firingAngles = floatArrayOf(0f, 180f, 360f, 540f), pipeHz = 230f),
             EngineProfile(key = "SAMPLED_STEAM_LOCO", preview = true, displayName = "Steam locomotive", kind = Kind.ICE, gearless = true,
                 grainAsset = "grain_steam_loco", whistle = true, idleRpm = 50, maxRpm = 220, decelPopProbability = 0.35f,
                 cylinderCount = 2, firingAngles = floatArrayOf(0f, 180f), twoStroke = true, pipeHz = 320f, pulseMs = 160f, gainTrim = 2f),
             EngineProfile(key = "SAMPLED_ASTON_MARTIN", preview = true, displayName = "Aston Martin", kind = Kind.ICE,
-                grainAsset = "grain_v12_italian", idleRpm = 900, maxRpm = 4000,
+                grainAsset = "grain_v12_italian", idleRpm = 900, maxRpm = 4000, popLevel = 1.41f,
                 cylinderCount = 12, firingAngles = FloatArray(12) { i -> i * 60f }, pipeHz = 240f)
         )
 
