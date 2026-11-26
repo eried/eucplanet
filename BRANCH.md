@@ -36,7 +36,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Backups: a folder with many trips is checked much faster. The background check runs every six hours.
 - Fixes: alarm tone after a disconnect, navigation after Stop, a leaderboard rename undone by an upload, a quick reconnect dropped, P6 and V6 lock right after connecting, chart axis labels.
 - Engine list: some recorded engines are gone; a rider who had one gets the closest engine.
-- Engine pops: letting off sharply gives one pop on every wheel (it repeated, longer on wheels that report slowly). A little louder on the V8, V-twin, inline-4, V12 and small dirt bike. The decel preview in Settings plays its pop.
+- Engine pops: letting off sharply gives one pop on every wheel (it repeated, longer on wheels that report slowly). A little louder on the V8, V-twin, inline-4, V12 and small dirt bike. The decel preview in Settings plays its pop. A preview no longer silences the engine sound of a connected wheel.
 - No more silent work when Android starts the app in the background: no map warm-up, no watch app opening by itself.
 - Full phone: saving an alarm no longer closes the app, and the app no longer closes on every start. It says the storage is full and reopens by itself once there is room.
 - Damaged settings file: the app says the settings were reset and points to Backups.

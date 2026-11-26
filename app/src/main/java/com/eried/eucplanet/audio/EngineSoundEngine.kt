@@ -55,8 +55,10 @@ class EngineSoundEngine(private val context: Context) {
 
     private var headphonesOnly: Boolean = false
     /** Tracks the previous applySettings()'s enabled flag so we only log toggle edges. */
-    private var lastAppliedEnabled: Boolean = false
-    private var connected: Boolean = false
+    @Volatile private var lastAppliedEnabled: Boolean = false
+    @Volatile private var connected: Boolean = false
+    /** A Settings preview has the engine: the wheel's telemetry waits until it is over. */
+    @Volatile private var previewing: Boolean = false
 
     // Audio focus
     private var focusRequest: AudioFocusRequest? = null
@@ -171,12 +173,16 @@ class EngineSoundEngine(private val context: Context) {
         // it's seen a non-zero pwm; prime the flag so brake/decel scenarios behave.
         model.pwmEverNonZero = true
         Thread {
+            previewing = true
             try {
+                // With a wheel connected the engine is already running the ride: it
+                // makes way, so the preview starts clean with its own engine loaded.
+                if (running) stop()
                 start()
                 val script = EngineRide.preview(scenario, durationMs, model.maxSpeedRefKmh)
                 for (step in script) {
                     if (step.direct) pushParamsDirect(step.rpmFraction, step.load)
-                    else pushTelemetry(step.speedKmh, step.pwmPercent)
+                    else tick(step.speedKmh, step.pwmPercent)
                     Thread.sleep(step.holdMs)
                 }
                 Thread.sleep(250)
@@ -189,6 +195,10 @@ class EngineSoundEngine(private val context: Context) {
                 // Reset smoothing state so the next real telemetry tick doesn't carry over
                 // the scenario's rpm/load, avoids a transient when the user goes riding right after.
                 synchronized(telemetryLock) { model.resetMotion() }
+                previewing = false
+                // The ride gets its engine sound back. It used to stay silent until
+                // the wheel reconnected.
+                if (connected && lastAppliedEnabled) start()
             }
         }.start()
     }
@@ -202,6 +212,11 @@ class EngineSoundEngine(private val context: Context) {
 
     /** Telemetry tick from WheelService (typically 5-20 Hz). */
     fun pushTelemetry(speedKmh: Float, pwmPercent: Float) {
+        if (previewing) return
+        tick(speedKmh, pwmPercent)
+    }
+
+    private fun tick(speedKmh: Float, pwmPercent: Float) {
         synchronized(telemetryLock) {
             val now = System.currentTimeMillis()
             paramsSnapshot = pops.post(model.tick(now, speedKmh, pwmPercent))
