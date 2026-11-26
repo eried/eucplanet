@@ -211,11 +211,15 @@ jobs:
       - name: Keep the phone's R8 mapping
         # A crash trace from the shrunk build has shortened names. This file
         # turns them back. Not in the release: it is far bigger than the APK.
-        if: hashFiles('app/build/outputs/mapping/branch/mapping.txt') != ''
+        # A branch without the shrunk build has no such file, and a problem
+        # with this upload must never hold back the release: asking for the
+        # file's hash here timed out on its size and did exactly that.
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: mapping-${{ needs.meta.outputs.short_sha }}
           path: app/build/outputs/mapping/branch/mapping.txt
+          if-no-files-found: ignore
           retention-days: 90
 
       - name: Stage for release
