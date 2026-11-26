@@ -33,6 +33,8 @@ import org.koin.core.component.get
  *     battery checks need to change without walking the settings screens;
  *     adv="id=value,id=value" sets any Advanced setting by its registry id
  *     (gpsParkedDelaySec=10, graphSampleIntervalMs=250...);
+ *     engine=<key> switches engine sound on with that engine ("V8_MUSCLE"...)
+ *     and engine=off switches it off;
  *     engo_fake_pair=true remembers made-up ENGO glasses (switched off, so
  *     nothing dials them) and false forgets them, so the glasses' page
  *     settings can be seen and screenshotted with no glasses.
@@ -152,6 +154,12 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
                     }.getOrNull()
                     n = if (json == null) n.copy(phoneHudEnabled = false)
                     else n.copy(phoneHudEnabled = true, phoneHudOverlayName = name, phoneHudOverlayJson = json)
+                }
+                // Engine sound with one engine by key, through the speaker and
+                // with the most pops on a throttle chop; "off" switches it off.
+                intent.getStringExtra(EXTRA_ENGINE)?.let { key ->
+                    n = if (key == "off") n.copy(engineSound = n.engineSound.copy(enabled = false))
+                    else n.copy(engineSound = n.engineSound.copy(enabled = true, type = key, decelChar = "BACKFIRE", headphonesOnly = false))
                 }
                 if (engo != null) n = n.copy(engoHud = n.engoHud.copy(
                     enabled = false,
@@ -282,6 +290,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val EXTRA_HUD_SCREENS = "hud_screens"
         const val EXTRA_HUD_MODE = "hud_mode"
         const val EXTRA_PHONE_HUD = "phone_hud"
+        const val EXTRA_ENGINE = "engine"
         const val EXTRA_HUD_OVERLAY = "hud_overlay"
         const val EXTRA_ENGO_FAKE_PAIR = "engo_fake_pair"
 
