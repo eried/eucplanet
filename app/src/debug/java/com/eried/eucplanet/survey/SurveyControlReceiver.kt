@@ -143,6 +143,16 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
                     }
                 }
                 if (overlayJson != null) n = n.copy(hudCustomOverlayName = overlayName, hudCustomOverlayJson = overlayJson)
+                // The floating overlay over other apps, with a built-in preset
+                // ("Race", "Minimal"...); "off" switches it off. It also needs
+                // the draw-over-apps permission: appops set <pkg> SYSTEM_ALERT_WINDOW allow.
+                intent.getStringExtra(EXTRA_PHONE_HUD)?.let { name ->
+                    val json = runCatching {
+                        context.assets.open("overlay_presets/$name.json").bufferedReader().use { it.readText() }
+                    }.getOrNull()
+                    n = if (json == null) n.copy(phoneHudEnabled = false)
+                    else n.copy(phoneHudEnabled = true, phoneHudOverlayName = name, phoneHudOverlayJson = json)
+                }
                 if (engo != null) n = n.copy(engoHud = n.engoHud.copy(
                     enabled = false,
                     pairedAddress = if (engo) "00:00:00:00:E3:60" else null,
@@ -271,6 +281,7 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val EXTRA_ADV = "adv"
         const val EXTRA_HUD_SCREENS = "hud_screens"
         const val EXTRA_HUD_MODE = "hud_mode"
+        const val EXTRA_PHONE_HUD = "phone_hud"
         const val EXTRA_HUD_OVERLAY = "hud_overlay"
         const val EXTRA_ENGO_FAKE_PAIR = "engo_fake_pair"
 
