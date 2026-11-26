@@ -973,6 +973,11 @@ internal fun MetricGraph(
             // Worked out for the whole axis at once: a narrow range printed
             // in whole numbers showed the same number on two lines.
             val leftLabels = axisLabels((0..4).map { bounds.min + padded * it / 4f }, leftLabelFormat)
+            // The right axis the same way: a charge that moves the pack from
+            // 80.2 to 81 V read 80, 80, 81, 81, 81 down its side.
+            val rightLabels = bounds2?.let { b2 ->
+                axisLabels((0..4).map { b2.min + padded2 * it / 4f }, series2LabelFormat)
+            }
             for (i in 0..4) {
                 val y = h - h * i / 4f
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
@@ -981,10 +986,9 @@ internal fun MetricGraph(
                 )
                 drawText(label, topLeft = Offset(-label.size.width - 6f, y - label.size.height / 2f))
                 // Right axis = secondary series (e.g. voltage) on its own scale.
-                if (bounds2 != null) {
-                    val v2 = bounds2.min + padded2 * i / 4f
+                if (rightLabels != null) {
                     val r = textMeasurer.measure(
-                        series2LabelFormat(v2), TextStyle(fontSize = 10.sp, color = color2)
+                        rightLabels[i], TextStyle(fontSize = 10.sp, color = color2)
                     )
                     drawText(r, topLeft = Offset(w + 6f, y - r.size.height / 2f))
                 }

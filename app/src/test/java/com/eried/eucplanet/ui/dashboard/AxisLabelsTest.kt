@@ -22,6 +22,14 @@ class AxisLabelsTest {
     }
 
     @Test
+    fun `the voltage axis of a short charge names every line`() {
+        // 80.2 to 81.0 V on the Battery monitor read 80, 80, 81, 81, 81.
+        val labels = axisLabels(listOf(80.2f, 80.4f, 80.6f, 80.8f, 81.0f), whole)
+        assertEquals(5, labels.distinct().size)
+        assertEquals("80.2", labels.first().replace(',', '.'))
+    }
+
+    @Test
     fun `a very narrow range takes two decimals`() {
         val labels = axisLabels(listOf(3.30f, 3.32f, 3.34f, 3.36f, 3.38f), whole)
         assertEquals(5, labels.distinct().size)
