@@ -37,6 +37,8 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Fixes: alarm tone after a disconnect, navigation after Stop, a leaderboard rename undone by an upload, a quick reconnect dropped, P6 and V6 lock right after connecting, chart axis labels.
 - Engine list: some recorded engines are gone; a rider who had one gets the closest engine.
 - No more silent work when Android starts the app in the background: no map warm-up, no watch app opening by itself.
+- Full phone: saving an alarm no longer closes the app, and the app no longer closes on every start. It says the storage is full and reopens by itself once there is room.
+- Damaged settings file: the app says the settings were reset and points to Backups.
 
 ## Please test
 
@@ -57,6 +59,8 @@ New features before they settle. Ride it only when you can cut the ride short.
 - **Battery monitor:** does the liquid still move with the phone?
 - **Overlay Studio:** record a take with a stopwatch or G-force element, and one without.
 - **Watch:** the phone battery shown can be half a minute old. Any other value late?
+- **Phone nearly full:** does the app say "Phone storage is full" in your language, and carry on once you free space?
+- **"Settings were reset":** if you ever see it, tell us what happened before. Is the text right in your language?
 - **Any wheel:** anything acting differently from the last build is a bug.
 
 ## Reporting back
