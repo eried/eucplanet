@@ -28,7 +28,9 @@ import org.koin.core.component.get
  *   - SURVEY_CONNECT_VIRTUAL: start WheelService with VIRTUAL:<id> so there
  *     is live telemetry on the dashboard when the screenshots are captured.
  *   - SURVEY_SOUND: play one beep (kind=beep) or speak one line (kind=voice),
- *     so the warm-route timing can be checked on a machine with no alarm firing.
+ *     so the warm-route timing can be checked on a machine with no alarm firing;
+ *     kind=engine_decel plays the Settings preview of a throttle chop with the
+ *     engine picked (revs up, lets off, pops), which no virtual wheel rides.
  *   - SURVEY_SET: notif_actions (CSV) and warm_route_ms, the two settings the
  *     battery checks need to change without walking the settings screens;
  *     adv="id=value,id=value" sets any Advanced setting by its registry id
@@ -96,8 +98,12 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
     private fun sound(kind: String) {
         Log.i(TAG, "SURVEY_SOUND $kind")
         scope.launch {
-            if (kind == "voice") voiceService.speak("Test")
-            else tonePlayer.playBeep(1000, 200, 1, 0, 80, -1, 0, 0)
+            when (kind) {
+                "voice" -> voiceService.speak("Test")
+                "engine_decel" -> get<com.eried.eucplanet.audio.EngineSoundEngine>()
+                    .previewProfile(settingsRepository.get().engineType, scenario = "DECEL")
+                else -> tonePlayer.playBeep(1000, 200, 1, 0, 80, -1, 0, 0)
+            }
             Log.i(TAG, "SURVEY_SOUND $kind done")
         }
     }
