@@ -36,6 +36,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Backups: a folder with many trips is checked much faster. The background check runs every six hours.
 - Fixes: alarm tone after a disconnect, navigation after Stop, a leaderboard rename undone by an upload, a quick reconnect dropped, P6 and V6 lock right after connecting, chart axis labels.
 - Engine list: some recorded engines are gone; a rider who had one gets the closest engine.
+- Engine pops: letting off sharply gives one pop on every wheel (it repeated, longer on wheels that report slowly). A little louder on the V8, V-twin, inline-4, V12 and small dirt bike. The decel preview in Settings plays its pop.
 - No more silent work when Android starts the app in the background: no map warm-up, no watch app opening by itself.
 - Full phone: saving an alarm no longer closes the app, and the app no longer closes on every start. It says the storage is full and reopens by itself once there is room.
 - Damaged settings file: the app says the settings were reset and points to Backups.
@@ -46,6 +47,7 @@ New features before they settle. Ride it only when you can cut the ride short.
 - **Motoeye:** power it on: does the HUD app show once and stay?
 - **Offline:** airplane mode in a downloaded square: route, turn cues, map?
 - **Engine sound:** which engine sounds wrong, and at what speed?
+- **Engine pops:** decel on Standard or Backfire, let off sharply: one clean pop? Loud enough? Say the engine.
 - **Volume keys, screen off:** do click and hold fire? Say your phone model.
 - **Your language:** anything odd or cut off? Say the screen.
 - **Crew pass:** scan a code from eucstats: does the screen read clearly in your language?
