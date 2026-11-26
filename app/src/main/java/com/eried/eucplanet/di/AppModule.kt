@@ -305,6 +305,9 @@ object AppModule {
         } catch (t: Throwable) {
             if (t.isOutOfStorage()) {
                 Log.e(TAG, "DB open failed for lack of storage, $DB_NAME left untouched", t)
+                // The main screen says so and waits for room, in place of
+                // lists that would all come up empty.
+                com.eried.eucplanet.util.StorageStart.dataUnavailable.value = true
                 return first
             }
             Log.e(TAG, "DB open failed, keeping a copy of $DB_NAME before rebuilding", t)

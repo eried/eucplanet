@@ -34,6 +34,9 @@
 -dontwarn java.lang.management.**
 -dontwarn io.ktor.**
 -dontwarn kotlinx.coroutines.debug.**
+# survivesAsStorageFull (util/StorageFull.kt) recognises a failure handed over
+# by a coroutine by the name of the note the coroutine attaches to it.
+-keepnames class kotlinx.coroutines.internal.DiagnosticCoroutineContextException
 
 # JmDNS multicast discovery -- the library inspects classes reflectively for
 # DNS record types.

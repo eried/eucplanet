@@ -73,7 +73,9 @@ class EucPlanetApp : Application(), Configuration.Provider {
         hudServer = get()
         syncManager = get()
         legalLockdown = get()
-        CrashHandler.install(this)
+        CrashHandler.install(this) {
+            get<com.eried.eucplanet.data.repository.AppHealthRepository>().noteStorageFull()
+        }
         // Track UI foreground so background-only process wakes (a periodic
         // upload worker re-creating the process) don't auto-connect hardware
         // like the external GPS box. See com.eried.eucplanet.util.AppForeground.

@@ -452,7 +452,18 @@ class AppHealthRepository(
                 fix = { openStorageSettings() }
             )
         )
+        // Said out loud as well, wherever the rider is. The card alone is a
+        // small triangle on the dashboard: a recording that stopped, or an
+        // alarm that was not saved, went by without a word. Not once per
+        // failed write though, a full phone fails many in a row.
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastStorageNoticeMs < STORAGE_NOTICE_GAP_MS) return
+        lastStorageNoticeMs = now
+        appNotifier.post(context.getString(R.string.warnings_storage_full_title))
     }
+
+    /** The phone's storage settings, for the rider to make room. */
+    fun openStorage() = openStorageSettings()
 
     /**
      * A write failed. Raises the storage warning when the cause is a phone out
@@ -470,11 +481,7 @@ class AppHealthRepository(
      * once per keystroke of a text field.
      */
     fun noteSettingNotSaved(e: Throwable) {
-        if (!noteWriteFailed(e)) return
-        val now = android.os.SystemClock.elapsedRealtime()
-        if (now - lastStorageNoticeMs < STORAGE_NOTICE_GAP_MS) return
-        lastStorageNoticeMs = now
-        appNotifier.post(context.getString(R.string.warnings_storage_full_title))
+        noteWriteFailed(e)
     }
 
     /**
