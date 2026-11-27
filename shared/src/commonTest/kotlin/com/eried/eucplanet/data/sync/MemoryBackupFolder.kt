@@ -136,7 +136,7 @@ class FolderTestPhone(
     var nowMs: Long = 1_787_000_000_000L
 
     val files: TripFileStore = filesFactory?.invoke { nowMs } ?: MemoryTripFiles { nowMs }
-    val settings = SettingsRepository(SettingsStore(MemoryDataStore()) { com.eried.eucplanet.data.store.DefaultUnits.METRIC })
+    val settings = SettingsRepository(SettingsStore(MemoryDataStore(), startingUnits = { com.eried.eucplanet.data.store.DefaultUnits.METRIC }))
     val alarms = MemoryAlarms()
     val dropbox = DropboxRepository(settings, object : DropboxLinkScratch {
         override var verifier: String? = null

@@ -549,7 +549,13 @@ class WheelService : LifecycleService() {
         // The Phone HUD hides while the app is in front, so it has to follow
         // the foreground flag as well as the settings.
         lifecycleScope.launch {
-            com.eried.eucplanet.util.AppForeground.isForeground.collect { applyPhoneHud() }
+            com.eried.eucplanet.util.AppForeground.isForeground.collect {
+                applyPhoneHud()
+                // A background start can leave the service on Bluetooth only.
+                // Opening the app is when Android allows location again, and
+                // nothing else is sure to send a start then, so ask here.
+                regainLocationIfVisible()
+            }
         }
 
         // ...and while the app is in picture-in-picture, which it has to be

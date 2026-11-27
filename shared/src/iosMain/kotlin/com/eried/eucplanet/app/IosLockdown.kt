@@ -55,6 +55,7 @@ internal object IosLockdown {
                 corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
                 produceFile = { "$folder/legal_lockdown.preferences_pb".toPath() },
             ),
+            onWriteFailed = { IosAppHealth.noteSettingNotSaved(it) },
         )
     }
 

@@ -1,6 +1,8 @@
 package com.eried.eucplanet.data.repository
 
 import com.eried.eucplanet.service.addToWindow
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 /**
  * Charging inferred from the pack percentage climbing while the wheel stands
@@ -37,6 +39,10 @@ import com.eried.eucplanet.service.addToWindow
  * minutes of it never fires, while a charger sustains it all afternoon.
  *
  * Kept free of Android so it can be unit-tested directly.
+ *
+ * [update] and [reset] take the same lock: frames arrive on the telemetry
+ * side while the disconnect handler resets from its own, and readings cleared
+ * halfway through a frame threw.
  */
 class ChargeRiseDetector(
     /** Climb per minute at or above which the pack counts as charging. */
@@ -44,6 +50,9 @@ class ChargeRiseDetector(
     /** How long the climb has to hold up before the state latches on. */
     private val confirmMs: Long = 3 * 60_000L,
 ) {
+    // Replaces @Synchronized, which does nothing on the iPhone.
+    private val lock = SynchronizedObject()
+
     private companion object {
         /** Percentage the pack must gain before a rate is worth computing. One
          *  whole point, which is the finest a wheel reports. */
@@ -71,10 +80,12 @@ class ChargeRiseDetector(
     private val recent = ArrayDeque<Pair<Long, Float>>()
 
     fun reset() {
-        rising = false
-        refMs = 0L
-        runStartMs = 0L
-        recent.clear()
+        synchronized(lock) {
+            rising = false
+            refMs = 0L
+            runStartMs = 0L
+            recent.clear()
+        }
     }
 
     /**
@@ -86,7 +97,7 @@ class ChargeRiseDetector(
      * answers. The detector forgets its reference then, so a ride's motor
      * current cannot leave a stale latch behind for the charge that follows.
      */
-    fun update(nowMs: Long, percent: Float, applicable: Boolean): Boolean {
+    fun update(nowMs: Long, percent: Float, applicable: Boolean): Boolean = synchronized(lock) {
         if (!applicable) {
             reset()
             return false

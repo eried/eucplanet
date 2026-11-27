@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import com.eried.eucplanet.platform.JSONObject
+import okio.IOException
+import com.eried.eucplanet.platform.Log
 
 /**
  * Persists the full [AppSettings] object as a single JSON blob in DataStore
@@ -33,15 +35,33 @@ class SettingsStore(
     private val dataStore: DataStore<Preferences>,
     /** The first-run units from where the phone is, see [seedDefaultsIfAbsent]. */
     private val startingUnits: () -> DefaultUnits.Units,
+    // Told when a save fails, which in practice means the phone is out of
+    // storage.
+    private val onWriteFailed: (IOException) -> Unit = {},
 ) {
 
     val settings: Flow<AppSettings> = dataStore.data.map { prefs -> readSettings(prefs) }
 
     suspend fun get(): AppSettings = readSettings(dataStore.data.first())
 
+    /**
+     * Every write goes through here. Out of storage, DataStore throws an
+     * IOException, and since saves run in plain coroutines that closed the
+     * whole app on a tap of any setting. DataStore writes a new file and swaps
+     * it in, so a failed save leaves the settings that were there intact.
+     */
+    private suspend fun write(transform: suspend (MutablePreferences) -> Unit) {
+        try {
+            dataStore.edit(transform)
+        } catch (e: IOException) {
+            Log.e("SettingsStore", "Settings not saved", e)
+            onWriteFailed(e)
+        }
+    }
+
     suspend fun update(settings: AppSettings) {
         val json = SettingsJson.toJson(settings).toString()
-        dataStore.edit { prefs -> prefs[KEY_JSON] = json }
+        write { prefs -> prefs[KEY_JSON] = json }
     }
 
     /**
@@ -61,7 +81,7 @@ class SettingsStore(
      * ordered against every other change.
      */
     suspend fun update(transform: (AppSettings) -> AppSettings) {
-        dataStore.edit { prefs ->
+        write { prefs ->
             prefs[KEY_JSON] = SettingsJson.toJson(transform(readSettings(prefs))).toString()
         }
     }
@@ -72,7 +92,7 @@ class SettingsStore(
      * migration is safe.
      */
     suspend fun seedIfAbsent(imported: AppSettings) {
-        dataStore.edit { prefs ->
+        write { prefs ->
             if (prefs[KEY_JSON] == null) {
                 prefs[KEY_JSON] = SettingsJson.toJson(imported).toString()
             }
@@ -88,7 +108,7 @@ class SettingsStore(
      * is already present, so they are never flipped.
      */
     suspend fun seedDefaultsIfAbsent() {
-        dataStore.edit { prefs ->
+        write { prefs ->
             if (prefs[KEY_JSON] == null) {
                 val units = startingUnits()
                 val seeded = AppSettings(

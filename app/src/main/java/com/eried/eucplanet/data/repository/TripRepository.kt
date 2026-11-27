@@ -676,12 +676,13 @@ class TripRepository(
             writer.open()
         } catch (e: Exception) {
             Log.e(TAG, "Could not open trip file ${file.name}; recording aborted", e)
+            appHealth.noteWriteFailed(e)
             lastStartFailureMs = System.currentTimeMillis()
+            runCatching { file.delete() }   // no empty file per retry
             _recording.value = false   // release the slot claimed above
             return
         }
         csvWriter = writer
-        appHealth.storageAvailable()
 
         gpsDistanceKm = 0.0
         _liveGpsDistanceKm.value = 0f
@@ -704,6 +705,7 @@ class TripRepository(
             tripDao.insert(trip)
         } catch (e: Exception) {
             Log.e(TAG, "Could not persist trip row; recording aborted", e)
+            appHealth.noteWriteFailed(e)
             lastStartFailureMs = System.currentTimeMillis()
             runCatching { writer.close() }
             runCatching { file.delete() }
@@ -713,6 +715,10 @@ class TripRepository(
         }
         currentTrip = trip.copy(id = id)
         _currentTripId.value = id
+        // Clears a storage warning only if the phone has room again. A start
+        // that got this far is not proof: a full phone can still take the
+        // first few bytes.
+        appHealth.refreshStorageWarning()
 
         Log.i(TAG, "Recording started: $fileName")
         scope.launch {

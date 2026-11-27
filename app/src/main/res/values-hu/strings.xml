@@ -2367,7 +2367,7 @@
     <string name="warnings_battery_opt_title">Az akkumulátor-optimalizálás be van kapcsolva</string>
     <string name="warnings_battery_opt_body">Az Android leállíthatja az EUC Planetet a háttérben, és a rögzítés menet közben megszakad. Engedélyezd, hogy korlátozás nélkül fusson.</string>
     <string name="warnings_storage_full_title">A telefon tárhelye megtelt</string>
-    <string name="warnings_storage_full_body">Az út rögzítése leállt. Az eddigi út el van mentve. Szabadíts fel helyet az újbóli rögzítéshez.</string>
+    <string name="warnings_storage_full_body">Az utak nem rögzíthetők, és a módosítások nem menthetők. Az eddigi utak biztonságban vannak. Szabadíts fel helyet a folytatáshoz.</string>
     <string name="warnings_hud_blocked_title">A telefonos HUD nem tud rajzolni</string>
     <string name="warnings_hud_blocked_body">A más alkalmazások fölé rajzolás engedélyét visszavonták, így az átfedés nem jelenik meg a térkép vagy a zene fölött.</string>
     <string name="warnings_no_backup_title">A menetekről nincs biztonsági mentés</string>

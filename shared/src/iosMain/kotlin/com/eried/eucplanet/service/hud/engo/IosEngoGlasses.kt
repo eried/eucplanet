@@ -140,6 +140,10 @@ class IosEngoGlasses : EngoGlasses {
         pump()
     }
 
+    // The queue only changes on the main thread; the renderer reads its size
+    // from its own, and a size one frame stale is fine for holding a screen.
+    override fun backlog(): Int = queue.size
+
     private fun open(p: CBPeripheral) {
         peripheral = p
         p.delegate = peripheralDelegate

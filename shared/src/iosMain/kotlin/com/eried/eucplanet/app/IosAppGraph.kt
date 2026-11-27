@@ -101,6 +101,8 @@ object IosAppGraph {
                 val region = NSLocale.currentLocale.countryCode.orEmpty()
                 com.eried.eucplanet.data.store.DefaultUnits.pick(region, region)
             },
+            // A save that failed for lack of room raises the storage warning, as on Android.
+            onWriteFailed = { IosAppHealth.noteSettingNotSaved(it) },
         )
     }
 

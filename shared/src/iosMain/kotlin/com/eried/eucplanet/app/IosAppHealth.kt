@@ -14,8 +14,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSFileSystemFreeSize
 import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSNumber
 import platform.Foundation.NSOperationQueue
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDefaults
@@ -117,17 +125,63 @@ internal object IosAppHealth : AppHealth {
     fun microphoneGranted() = dismiss(MIC_ID)
 
     /**
-     * A trip recording stopped because the phone is out of storage, as
-     * Android's AppHealthRepository.noteStorageFull. It stays until a
-     * recording starts again, the proof that there is room now. iOS has no
-     * link to its storage page, so the entry opens the app's settings, the
-     * same fallback Android uses.
+     * The phone is out of storage: a trip recording stopped, or something
+     * could not be saved, as Android's AppHealthRepository.noteStorageFull. It
+     * stays until the phone has room again, see [refreshStorageWarning]. iOS
+     * has no link to its storage page, so the entry opens the app's settings,
+     * the same fallback Android uses. Raised from the recording's thread, so
+     * the list is changed on the main thread.
      */
-    fun noteStorageFull() = upsert(
-        AppWarning(STORAGE_FULL_ID, Res.string.warnings_storage_full_title, Res.string.warnings_storage_full_body, fix = ::openAppSettings)
-    )
+    fun noteStorageFull() {
+        scope.launch {
+            upsert(
+                AppWarning(STORAGE_FULL_ID, Res.string.warnings_storage_full_title, Res.string.warnings_storage_full_body, fix = ::openAppSettings)
+            )
+        }
+    }
 
-    fun storageAvailable() = dismiss(STORAGE_FULL_ID)
+    /**
+     * A write failed. Raises the storage warning when the cause is a phone out
+     * of room, and says whether it was; any other failure is the caller's.
+     */
+    fun noteWriteFailed(e: Throwable): Boolean {
+        if (!e.isOutOfStorage()) return false
+        noteStorageFull()
+        return true
+    }
+
+    /**
+     * A setting could not be saved, as on Android: said on screen as well,
+     * since the rider is usually in Settings then, but not once per keystroke
+     * of a text field.
+     */
+    fun noteSettingNotSaved(e: Throwable) {
+        if (!noteWriteFailed(e)) return
+        val last = lastStorageNotice
+        if (last != null && last.elapsedNow() < STORAGE_NOTICE_GAP) return
+        lastStorageNotice = TimeSource.Monotonic.markNow()
+        scope.launch { IosAppGraph.notices.post(getString(Res.string.warnings_storage_full_title)) }
+    }
+
+    @kotlin.concurrent.Volatile private var lastStorageNotice: TimeMark? = null
+
+    /**
+     * Clears the storage warning once the phone has room again. Free space is
+     * the test, not a write that happened to succeed: a full phone can still
+     * take a few bytes. On the main thread, where the list changes.
+     */
+    fun refreshStorageWarning() {
+        scope.launch {
+            if (list.value.none { it.id == STORAGE_FULL_ID }) return@launch
+            if (freeBytes() >= STORAGE_OK_BYTES) dismiss(STORAGE_FULL_ID)
+        }
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    private fun freeBytes(): Long {
+        val attrs = NSFileManager.defaultManager.attributesOfFileSystemForPath(IosAppGraph.documents, null)
+        return (attrs?.get(NSFileSystemFreeSize) as? NSNumber)?.longLongValue ?: 0L
+    }
 
     // The trips half of Android's no-backup warning; the Dropbox half is read here.
     override fun refreshBackupWarning(hasFolder: Boolean, hasTrips: Boolean) {
@@ -162,6 +216,8 @@ internal object IosAppHealth : AppHealth {
             UIApplicationWillEnterForegroundNotification, null, NSOperationQueue.mainQueue,
         ) { _ ->
             readNotifications()
+            // Room made while away: the storage entry goes, as on Android's resume.
+            refreshStorageWarning()
             // Back from Settings with the microphone allowed: the entry goes, as on Android.
             if (IosSpeechListener.permitted()) microphoneGranted()
         }
@@ -257,6 +313,10 @@ internal object IosAppHealth : AppHealth {
 
     /** Android's id for the same entry (AppHealthRepository.STORAGE_FULL_ID). */
     private const val STORAGE_FULL_ID = "storage.full"
+
+    /** Room for hours of trip rows; below this the warning stays (Android's value). */
+    private const val STORAGE_OK_BYTES = 10L * 1024 * 1024
+    private val STORAGE_NOTICE_GAP = 5.seconds
 
     /** The app's own page in the iPhone's Settings. */
     fun openSettings() = openAppSettings()

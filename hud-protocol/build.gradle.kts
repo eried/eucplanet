@@ -32,6 +32,8 @@ kotlin {
         commonMain.dependencies {
             api(libs.kotlinx.serialization.json)
             implementation(libs.coroutines.core)
+            // Locks that hold on the iPhone too (@Synchronized does nothing there).
+            implementation(libs.atomicfu)
         }
         getByName("androidUnitTest").dependencies {
             implementation(libs.junit)

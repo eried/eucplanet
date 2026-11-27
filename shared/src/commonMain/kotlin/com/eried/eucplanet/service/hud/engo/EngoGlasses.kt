@@ -29,4 +29,7 @@ interface EngoGlasses {
 
     /** Queue a screen's frames; they are written respecting the glasses' flow control. */
     fun send(frames: List<ByteArray>)
+
+    /** Frames still waiting to be written, see [EngoLink.roomFor]. */
+    fun backlog(): Int
 }

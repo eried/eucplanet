@@ -21,22 +21,27 @@ New features before they settle. Ride it only when you can cut the ride short.
 - Phones without Wi-Fi can install it again (Wi-Fi is only for the HUD and Amazfit links).
 - Two crash fixes from Play: reconnecting to the last wheel, and a memory leak on long rides when the phone clock jumps.
 - More crash fixes: full phone storage ends the recording with a warning, damaged settings start from defaults, background starts keep the wheel link.
+- Full phone: opening the app no longer wipes alarms and wheel profiles, and saving a setting no longer closes the app.
 - Crew pass: plain approval screen that shows who is asking and for what access.
+- Smaller crash fixes: KingSong speed setting, a damaged saved wheel address, chart and Battery Reset, long group rides with the map closed.
+- ENGO: the glasses should no longer fall behind or freeze on a slow link.
+- Resets: Reset metrics, the trip meter Reset and radar Disconnect can no longer close the app or be undone by an update in progress.
 - iPhone (TestFlight): the same app from shared code: dashboard, alarms, voice reports and commands, settings, themes, trips and trip tools, leaderboards and crew pass, Dropbox and the backup folder, navigation with offline areas, the Overlay Studio, motor sound, the MotoEye HUD, ENGO glasses, the radar, TPMS caps, GPS sensors, Flic buttons and home screen widgets, in all 31 languages.
 - iPhone: left out because iOS does not allow it: volume keys, starting or skipping music, a window over other apps, sending the HUD its app, the watches. It never had Android Auto.
 - iPhone: reconnects, records, speaks and beeps with the phone locked, and uploads when iOS gives it time. ENGO glasses are not tried with real glasses on an iPhone yet.
 - iPhone: built with Xcode 27 (iOS 27 SDK), which needs the scene start-up: the app no longer closes at launch with it.
-- iPhone: the same storage and settings crash fixes, and the same crew pass screen.
+- iPhone: the same crash fixes as Android (storage, settings, resets, ENGO on a slow link), and the same crew pass screen.
 
 ## Please test
 
-- **ENGO glasses:** pairing, reconnect, and does the glasses page match the phone preview?
+- **ENGO glasses:** pairing, reconnect, and does the glasses page match the phone preview? Does it ever freeze or lag?
 - **Motoeye:** power it on: does the HUD app show once and stay?
 - **Offline:** airplane mode in a downloaded square: route, turn cues, map?
 - **Engine sound:** which engine sounds wrong, and at what speed?
 - **Volume keys, screen off:** do click and hold fire? Say your phone model.
 - **Your language:** anything odd or cut off? Say the screen.
 - **Crew pass:** scan a code from eucstats: does the screen read clearly in your language?
+- **Reset metrics, trip meter Reset:** do the numbers go to zero and stay there?
 - **Any wheel:** anything acting differently from the last build is a bug.
 
 **iPhone** (TestFlight)

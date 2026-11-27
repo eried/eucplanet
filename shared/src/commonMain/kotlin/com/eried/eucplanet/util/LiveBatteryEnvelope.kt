@@ -1,5 +1,9 @@
 package com.eried.eucplanet.util
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import kotlin.concurrent.Volatile
+
 /**
  * The battery envelope, computed as the ride happens.
  *
@@ -36,10 +40,17 @@ package com.eried.eucplanet.util
  *
  * Pure and tickless: it is fed samples and asked for a value, so a test can
  * run a whole ride through it in a millisecond.
+ *
+ * [sample] and [reset] take the same lock: readings arrive on the telemetry
+ * side while connecting to a wheel resets the line from the screen's thread,
+ * and a bucket emptied halfway through a reading threw.
  */
 class LiveBatteryEnvelope(
     private val bucketMs: Long = (BatteryEnvelope.BUCKET_S * 1000).toLong(),
 ) {
+
+    // Replaces @Synchronized, which does nothing on the iPhone.
+    private val lock = SynchronizedObject()
 
     private var bucketStartMs = 0L
 
@@ -59,6 +70,7 @@ class LiveBatteryEnvelope(
     private var pendingDrop = Float.NaN
 
     /** The envelope now, or NaN before the first bucket has closed. */
+    @Volatile
     var value: Float = Float.NaN
         private set
 
@@ -74,7 +86,7 @@ class LiveBatteryEnvelope(
      * before the first real frame, and letting that into the bucket would
      * start every ride with an envelope at the bottom of the pack.
      */
-    fun sample(nowMs: Long, batteryPercent: Float, charging: Boolean = false): Float {
+    fun sample(nowMs: Long, batteryPercent: Float, charging: Boolean = false): Float = synchronized(lock) {
         if (batteryPercent <= 0f || batteryPercent > 100f) return value
         if (!started) { bucketStartMs = nowMs; started = true }
         // A clock that jumped backwards (or a fresh connection) starts over
@@ -90,13 +102,15 @@ class LiveBatteryEnvelope(
 
     /** Forget the ride so far: a new wheel is a new pack. */
     fun reset() {
-        bucketStartMs = 0L
-        started = false
-        bucket.clear()
-        bucketCharging = false
-        running = Float.NaN
-        pendingDrop = Float.NaN
-        value = Float.NaN
+        synchronized(lock) {
+            bucketStartMs = 0L
+            started = false
+            bucket.clear()
+            bucketCharging = false
+            running = Float.NaN
+            pendingDrop = Float.NaN
+            value = Float.NaN
+        }
     }
 
     private fun closeBucket() {

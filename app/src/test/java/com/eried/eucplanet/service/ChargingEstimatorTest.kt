@@ -48,6 +48,24 @@ class ChargingEstimatorTest {
     }
 
     @Test
+    fun `the longest window a rider can set is kept whole`() {
+        // Advanced lets the window go up to 20 minutes. At 20 readings a
+        // second that is 24000 samples, and a cap sized for the 5 minute
+        // default dropped the older half without a word.
+        val est = ChargingEstimator(windowMs = 1_200_000L)
+        val stepMs = 50L
+        val tenMinutes = 600_000L
+        // Ten minutes flat, then ten minutes climbing 1 % a minute.
+        for (t in 0L until 2 * tenMinutes step stepMs) {
+            val pct = if (t < tenMinutes) 50f else 50f + (t - tenMinutes) / 60_000f
+            est.addSample(t, pct)
+        }
+        // Over the whole 20 minutes the fitted slope is 0.5 %/min. A window
+        // cut to its newest part sees only the climb and reads 1.0.
+        assertEquals(0.5f, est.estimate().ratePctPerMin, 0.05f)
+    }
+
+    @Test
     fun `not warmed up with too little data`() {
         val est = ChargingEstimator()
         est.addSample(0, 50f)

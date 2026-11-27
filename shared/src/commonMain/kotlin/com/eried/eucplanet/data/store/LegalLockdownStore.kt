@@ -1,6 +1,7 @@
 package com.eried.eucplanet.data.store
 
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -8,6 +9,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import okio.IOException
+import com.eried.eucplanet.platform.Log
 
 /**
  * The resident setting, whether it has actually engaged, and the MD5 of the
@@ -59,7 +62,12 @@ interface LockdownStore {
  * The DataStore itself comes from the platform: Android's `legal_lockdown`
  * preferences file (LegalLockdownDataStore.kt), iOS's IosLockdown.
  */
-class LegalLockdownStore(private val dataStore: DataStore<Preferences>) : LockdownStore {
+class LegalLockdownStore(
+    private val dataStore: DataStore<Preferences>,
+    // Told when a save fails, which in practice means the phone is out of
+    // storage.
+    private val onWriteFailed: (IOException) -> Unit = {},
+) : LockdownStore {
 
     override val state: Flow<LockdownState> = dataStore.data.map { prefs ->
         LockdownState(
@@ -71,16 +79,27 @@ class LegalLockdownStore(private val dataStore: DataStore<Preferences>) : Lockdo
 
     override suspend fun get(): LockdownState = state.first()
 
+    /** A save that fails is dropped and reported, see SettingsStore.write. */
+    private suspend fun write(transform: suspend (MutablePreferences) -> Unit) {
+        try {
+            dataStore.edit(transform)
+        } catch (e: IOException) {
+            Log.e("LegalLockdownStore", "Lockdown state not saved", e)
+            onWriteFailed(e)
+        }
+    }
+
     override suspend fun set(armed: Boolean, engaged: Boolean, codeHash: String) {
-        dataStore.edit { prefs ->
+        write { prefs ->
             prefs[KEY_ARMED] = armed
             prefs[KEY_ENGAGED] = engaged
             prefs[KEY_HASH] = codeHash
         }
     }
 
+    /** Latch the mode on without touching the armed flag or the code. */
     override suspend fun setEngaged(engaged: Boolean) {
-        dataStore.edit { prefs -> prefs[KEY_ENGAGED] = engaged }
+        write { prefs -> prefs[KEY_ENGAGED] = engaged }
     }
 
     private companion object {

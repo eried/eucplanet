@@ -195,6 +195,8 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
             w.open()
         } catch (e: Exception) {
             Log.e(TAG, "Could not open trip file $fileName; recording aborted", e)
+            IosAppHealth.noteWriteFailed(e)
+            NSFileManager.defaultManager.removeItemAtPath("$tripsDir/$fileName", null)   // no empty file per retry
             _recording.value = false
             return
         }
@@ -203,15 +205,19 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
             dao.insert(record)
         } catch (e: Exception) {
             Log.e(TAG, "Could not persist trip row; recording aborted", e)
+            IosAppHealth.noteWriteFailed(e)
             w.close()
             NSFileManager.defaultManager.removeItemAtPath("$tripsDir/$fileName", null)
             _recording.value = false
             return
         }
         writer = w
-        IosAppHealth.storageAvailable()
         trip = record.copy(id = id)
         _currentTripId.value = id
+        // Clears a storage warning only if the phone has room again. A start
+        // that got this far is not proof: a full phone can still take the
+        // first few bytes.
+        IosAppHealth.refreshStorageWarning()
         gpsKm = 0.0
         _liveGpsKm.value = 0f
         wheelKm = 0f

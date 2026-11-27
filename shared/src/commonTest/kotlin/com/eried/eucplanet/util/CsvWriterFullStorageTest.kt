@@ -3,6 +3,7 @@ package com.eried.eucplanet.util
 import com.eried.eucplanet.data.model.WheelData
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -52,6 +53,17 @@ class CsvWriterFullStorageTest {
         csv.close()
         // What fit before the disk filled up is still there, header first.
         assertTrue(sink.kept.toString().startsWith("Date,Speed,"))
+    }
+
+    @Test
+    fun aFullDiskFailsTheOpenAndLeavesNothingOpen() {
+        // The header goes to disk at open, so a phone with no room fails the
+        // start instead of looking fine until the first rows are flushed.
+        val csv = CsvWriter(FullAfter(roomChars = 0))
+        // The caller aborts the recording.
+        assertFailsWith<IllegalStateException> { csv.open() }
+        assertFalse(csv.writeRow(WheelData(speed = 20f), location = null))
+        csv.close()
     }
 
     @Test

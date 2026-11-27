@@ -1,5 +1,9 @@
 package com.eried.eucplanet.hud.protocol
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import kotlin.concurrent.Volatile
+
 /**
  * Phone-side detector for "my own home/other Wi-Fi is interrupting the HUD".
  *
@@ -15,7 +19,9 @@ package com.eried.eucplanet.hud.protocol
  * and auto-clear it once the link has been stable for [clearAfterStableMs].
  *
  * Pure: the caller passes the clock ([nowMs]) so this is unit-testable and has
- * no Android dependency. Not thread-safe; call from a single coroutine/thread.
+ * no Android dependency. Its three calls take the same lock: the phone reports
+ * Wi-Fi changes from the network callback, HUD drops from the socket's thread
+ * and stable ticks from the push loop.
  */
 class WifiInterferenceDetector(
     private val correlationWindowMs: Long = 20_000L,
@@ -23,23 +29,29 @@ class WifiInterferenceDetector(
     private val rollingWindowMs: Long = 5 * 60_000L,
     private val clearAfterStableMs: Long = 3 * 60_000L,
 ) {
+    // Replaces @Synchronized, which does nothing on the iPhone.
+    private val lock = SynchronizedObject()
+
     private var lastStaTransitionMs: Long = 0L
     private val correlatedDropTimes = ArrayDeque<Long>()
 
     /** True while we believe the phone's Wi-Fi is the thing dropping the HUD. */
+    @Volatile
     var advisoryActive: Boolean = false
         private set
 
     /** The phone's home/other Wi-Fi STA just changed state (onAvailable /
      *  onLosing / onLost of an internet-capable Wi-Fi network). */
     fun onStaTransition(nowMs: Long) {
-        lastStaTransitionMs = nowMs
+        synchronized(lock) {
+            lastStaTransitionMs = nowMs
+        }
     }
 
     /** Record an established-link HUD drop. Returns true if it correlated with a
      *  recent STA transition (i.e. it looks like channel-follow, not a plain
      *  out-of-range drop). */
-    fun onHudDrop(nowMs: Long): Boolean {
+    fun onHudDrop(nowMs: Long): Boolean = synchronized(lock) {
         val correlated = lastStaTransitionMs != 0L &&
             nowMs - lastStaTransitionMs in 0..correlationWindowMs
         if (correlated) {
@@ -53,11 +65,13 @@ class WifiInterferenceDetector(
     /** Call on a healthy/stable tick. Clears the advisory once the link has gone
      *  [clearAfterStableMs] with no fresh correlated drop. */
     fun onStableTick(nowMs: Long) {
-        prune(nowMs)
-        val lastDrop = correlatedDropTimes.lastOrNull()
-        if (advisoryActive && (lastDrop == null || nowMs - lastDrop >= clearAfterStableMs)) {
-            advisoryActive = false
-            correlatedDropTimes.clear()
+        synchronized(lock) {
+            prune(nowMs)
+            val lastDrop = correlatedDropTimes.lastOrNull()
+            if (advisoryActive && (lastDrop == null || nowMs - lastDrop >= clearAfterStableMs)) {
+                advisoryActive = false
+                correlatedDropTimes.clear()
+            }
         }
     }
 

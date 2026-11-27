@@ -12,7 +12,9 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.location.LocationManagerCompat
+import com.eried.eucplanet.R
 import com.eried.eucplanet.resources.*
+import com.eried.eucplanet.util.isOutOfStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +31,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * and returns to the app.
  */
 class AppHealthRepository(
-    private val context: Context
+    private val context: Context,
+    private val appNotifier: com.eried.eucplanet.util.AppNotifier,
 ) {
 
     // Stored as a list (not a map) so the flow exposes exactly what the UI
@@ -118,6 +121,7 @@ class AppHealthRepository(
         pipRequested: Boolean = false,
         phoneHudRequested: Boolean = false,
     ) {
+        refreshStorageWarning()
         // POST_NOTIFICATIONS only exists on Android 13+. Below TIRAMISU the
         // notification post is implicit, so the warning never applies.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -406,8 +410,9 @@ class AppHealthRepository(
      * (MainActivity.onResume will fire it on return).
      */
     /**
-     * A trip recording stopped because the phone is out of storage. It stays
-     * until a recording starts again, the proof that there is room now.
+     * The phone is out of storage: a trip recording stopped, or something
+     * could not be saved. It stays until the phone has room again, see
+     * [refreshStorageWarning].
      */
     fun noteStorageFull() {
         upsert(
@@ -420,7 +425,41 @@ class AppHealthRepository(
         )
     }
 
-    fun storageAvailable() = dismiss(STORAGE_FULL_ID)
+    /**
+     * A write failed. Raises the storage warning when the cause is a phone out
+     * of room, and says whether it was; any other failure is the caller's.
+     */
+    fun noteWriteFailed(e: Throwable): Boolean {
+        if (!e.isOutOfStorage()) return false
+        noteStorageFull()
+        return true
+    }
+
+    /**
+     * A setting could not be saved. The rider is usually on a settings screen
+     * then, away from the dashboard card, so it is said there as well, but not
+     * once per keystroke of a text field.
+     */
+    fun noteSettingNotSaved(e: Throwable) {
+        if (!noteWriteFailed(e)) return
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastStorageNoticeMs < STORAGE_NOTICE_GAP_MS) return
+        lastStorageNoticeMs = now
+        appNotifier.post(context.getString(R.string.warnings_storage_full_title))
+    }
+
+    /**
+     * Clears the storage warning once the phone has room again. Free space is
+     * the test, not a write that happened to succeed: a full phone can still
+     * take a few bytes, and the warning used to clear itself on the next
+     * recording attempt while nothing could be saved.
+     */
+    fun refreshStorageWarning() {
+        if (_warnings.value.none { it.id == STORAGE_FULL_ID }) return
+        if (context.filesDir.usableSpace >= STORAGE_OK_BYTES) dismiss(STORAGE_FULL_ID)
+    }
+
+    @Volatile private var lastStorageNoticeMs = 0L
 
     private fun openStorageSettings() {
         val intent = Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS)
@@ -447,6 +486,10 @@ class AppHealthRepository(
         private const val BATTERY_OPT_ID = "power.battery-optimised"
         private const val BACKUP_FOLDER_ID = "backup.folder"
         private const val STORAGE_FULL_ID = "storage.full"
+
+        /** Room for hours of trip rows; below this the warning stays. */
+        private const val STORAGE_OK_BYTES = 10L * 1024 * 1024
+        private const val STORAGE_NOTICE_GAP_MS = 5_000L
 
         /** "Backups and leaderboards" in the settings tab order. */
         private const val SETTINGS_TAB_BACKUPS = 4

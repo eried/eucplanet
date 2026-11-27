@@ -58,10 +58,21 @@ class CsvWriter(private val sink: TextSink) {
     /** Number of data rows written so far (excluding the header). */
     val rows: Int get() = rowCount
 
+    /**
+     * Creates the file and writes the header through to disk. Throws when that
+     * fails, with nothing left open: on a full phone the start then fails
+     * cleanly, instead of looking fine until the first rows are flushed.
+     */
     fun open() {
         sink.open()
-        writer = sink
-        sink.writeLine("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
+        try {
+            sink.writeLine("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y,Torque,Phase current,Extra")
+            sink.flush()
+        } catch (e: Exception) {
+            runCatching { sink.close() }
+            throw e
+        }
+        synchronized(lock) { writer = sink }
     }
 
     /**
@@ -71,8 +82,10 @@ class CsvWriter(private val sink: TextSink) {
      */
     fun resume(rowsSoFar: Int) {
         sink.openAppend()
-        writer = sink
-        rowCount = rowsSoFar.coerceAtLeast(0)
+        synchronized(lock) {
+            writer = sink
+            rowCount = rowsSoFar.coerceAtLeast(0)
+        }
     }
 
     /**

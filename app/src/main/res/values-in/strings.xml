@@ -2441,7 +2441,7 @@
     <string name="warnings_battery_opt_title">Pengoptimalan baterai aktif</string>
     <string name="warnings_battery_opt_body">Android bisa menghentikan EUC Planet di latar belakang, sehingga rekaman berhenti di tengah perjalanan. Izinkan berjalan tanpa batasan.</string>
     <string name="warnings_storage_full_title">Penyimpanan ponsel penuh</string>
-    <string name="warnings_storage_full_body">Perekaman perjalanan berhenti. Perjalanan sejauh ini sudah tersimpan. Kosongkan ruang untuk merekam lagi.</string>
+    <string name="warnings_storage_full_body">Perjalanan tidak dapat direkam dan perubahan tidak dapat disimpan. Perjalanan sejauh ini aman. Kosongkan ruang untuk melanjutkan.</string>
     <string name="warnings_hud_blocked_title">HUD ponsel tidak bisa tampil</string>
     <string name="warnings_hud_blocked_body">Izin tampil di atas aplikasi lain dicabut, jadi overlay tidak akan muncul di atas peta atau musik.</string>
     <string name="warnings_no_backup_title">Perjalanan tidak dicadangkan</string>

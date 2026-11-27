@@ -14,11 +14,14 @@ import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.db.WheelProfileDao
 import com.eried.eucplanet.data.store.SettingsJson
 import com.eried.eucplanet.data.store.LegalLockdownStore
+import com.eried.eucplanet.data.repository.AppHealthRepository
 import com.eried.eucplanet.data.store.LockdownStore
 import com.eried.eucplanet.data.store.lockdownDataStore
 import com.eried.eucplanet.data.store.SettingsStore
 import com.eried.eucplanet.data.store.androidStartingUnits
 import com.eried.eucplanet.data.store.settingsDataStore
+import com.eried.eucplanet.util.isOutOfStorage
+import com.eried.eucplanet.util.mayRebuildDatabase
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.koin.android.ext.koin.androidContext
@@ -33,8 +36,8 @@ val appModule = module {
     // The settings DataStore is its own definition: SettingsStore, now in
     // :shared, takes it in its constructor instead of a Context.
     single { androidContext().settingsDataStore }
-    single { AppModule.provideSettingsStore(androidContext(), get()) }
-    single<LockdownStore> { AppModule.provideLegalLockdownStore(androidContext()) }
+    single { AppModule.provideSettingsStore(androidContext(), get(), get()) }
+    single<LockdownStore> { AppModule.provideLegalLockdownStore(androidContext(), get()) }
     single { AppModule.provideDatabase(androidContext()) }
     factory { AppModule.provideTripDao(get()) }
     factory { AppModule.provideAlarmDao(get()) }
@@ -46,8 +49,16 @@ object AppModule {
     private const val DB_NAME = "eucplanet.db"
     private const val TAG = "AppModule"
 
-    fun provideSettingsStore(context: Context, dataStore: DataStore<Preferences>): SettingsStore {
-        val store = SettingsStore(dataStore) { androidStartingUnits(context) }
+    fun provideSettingsStore(
+        context: Context,
+        dataStore: DataStore<Preferences>,
+        health: AppHealthRepository,
+    ): SettingsStore {
+        val store = SettingsStore(
+            dataStore,
+            startingUnits = { androidStartingUnits(context) },
+            onWriteFailed = { health.noteSettingNotSaved(it) },
+        )
         copyLegacyRoomSettingsIfPresent(context, store)
         // After the legacy migration: if DataStore is still empty this is a
         // genuine fresh install, seed unit defaults from the device locale.
@@ -57,8 +68,8 @@ object AppModule {
     }
 
     /** Legal Mode Lockdown state. Its own store, never part of AppSettings. */
-    fun provideLegalLockdownStore(context: Context): LegalLockdownStore =
-        LegalLockdownStore(context.lockdownDataStore)
+    fun provideLegalLockdownStore(context: Context, health: AppHealthRepository): LegalLockdownStore =
+        LegalLockdownStore(context.lockdownDataStore) { health.noteSettingNotSaved(it) }
 
     fun provideDatabase(context: Context): AppDatabase {
         return openOrRecover(context)
@@ -288,6 +299,13 @@ object AppModule {
      * only then deleted and rebuilt, so a rider's trips, alarms and profiles
      * can still be pulled off the device instead of being wiped on the spot.
      * Settings stay safe in DataStore regardless.
+     *
+     * A phone with no storage left fails the open as well, because SQLite
+     * cannot create its side files, and that is not a broken database. It
+     * used to be treated as one: the copy failed for lack of room, the file
+     * was deleted anyway, and the rider lost everything by opening the app.
+     * Now the file is left alone unless it is really unreadable and the copy
+     * is safe, see [mayRebuildDatabase]. It opens again once there is room.
      */
     private fun openOrRecover(context: Context): AppDatabase {
         val first = buildDb(context)
@@ -295,10 +313,19 @@ object AppModule {
             first.openHelper.writableDatabase
             first
         } catch (t: Throwable) {
+            if (t.isOutOfStorage()) {
+                Log.e(TAG, "DB open failed for lack of storage, $DB_NAME left untouched", t)
+                return first
+            }
             Log.e(TAG, "DB open failed, keeping a copy of $DB_NAME before rebuilding", t)
             runCatching { first.close() }
-            runCatching { keepCorruptCopy(context.getDatabasePath(DB_NAME)) }
+            val copyKept = runCatching { keepCorruptCopy(context.getDatabasePath(DB_NAME)) }
                 .onFailure { Log.e(TAG, "Could not copy the unreadable database", it) }
+                .getOrDefault(false)
+            if (!mayRebuildDatabase(t, copyKept)) {
+                Log.e(TAG, "No safe copy of $DB_NAME, so it is not deleted")
+                return buildDb(context)
+            }
             runCatching { context.deleteDatabase(DB_NAME) }
             val rebuilt = buildDb(context)
             runCatching { rebuilt.openHelper.writableDatabase }
@@ -314,15 +341,26 @@ object AppModule {
      * Copy [dbFile] and its -wal / -shm to `<name>.corrupt-<yyyyMMdd-HHmmss>`
      * (the side files keep their suffix after the stamp so SQLite still pairs
      * them with the copy), then drop all but the newest [CORRUPT_COPIES_KEPT].
+     *
+     * Returns whether the copy is safe: every byte of every file made it, or
+     * there was no database to copy. A copy that fails part way is removed,
+     * and the caller must then leave the original where it is.
      */
-    private fun keepCorruptCopy(dbFile: File) {
-        if (!dbFile.exists()) return
+    private fun keepCorruptCopy(dbFile: File): Boolean {
+        if (!dbFile.exists()) return true
         val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
         val copy = File(dbFile.parentFile, "${dbFile.name}.corrupt-$stamp")
-        dbFile.copyTo(copy, overwrite = true)
-        for (suffix in SIDE_FILES) {
-            val side = File(dbFile.path + suffix)
-            if (side.exists()) side.copyTo(File(copy.path + suffix), overwrite = true)
+        val pairs = (listOf("") + SIDE_FILES)
+            .map { File(dbFile.path + it) to File(copy.path + it) }
+            .filter { (source, _) -> source.exists() }
+        try {
+            for ((source, target) in pairs) {
+                source.copyTo(target, overwrite = true)
+                if (target.length() != source.length()) throw java.io.IOException("short copy of ${source.name}")
+            }
+        } catch (e: Exception) {
+            pairs.forEach { (_, target) -> target.delete() }
+            throw e
         }
         Log.e(TAG, "Unreadable database kept at ${copy.path}")
         val prefix = "${dbFile.name}.corrupt-"
@@ -331,6 +369,7 @@ object AppModule {
             ?.sortedByDescending { it.name } // the stamp sorts newest first
             ?.drop(CORRUPT_COPIES_KEPT)
             ?.forEach { old -> (listOf("") + SIDE_FILES).forEach { File(old.path + it).delete() } }
+        return true
     }
 
     private fun buildDb(context: Context): AppDatabase =

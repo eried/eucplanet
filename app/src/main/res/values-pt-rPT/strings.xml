@@ -2524,7 +2524,7 @@
     <string name="warnings_battery_opt_title">A otimização da bateria está ativa</string>
     <string name="warnings_battery_opt_body">O Android pode parar o EUC Planet em segundo plano e terminar uma gravação a meio da volta. Permita que funcione sem restrições.</string>
     <string name="warnings_storage_full_title">O armazenamento do telemóvel está cheio</string>
-    <string name="warnings_storage_full_body">A gravação do percurso parou. O percurso até agora está guardado. Liberte espaço para voltar a gravar.</string>
+    <string name="warnings_storage_full_body">Não é possível gravar percursos nem guardar alterações. Os percursos até agora estão seguros. Liberte espaço para continuar.</string>
     <string name="warnings_hud_blocked_title">O HUD do telemóvel não consegue desenhar</string>
     <string name="warnings_hud_blocked_body">A autorização para desenhar sobre outras apps foi retirada, por isso o overlay não aparece por cima de mapas ou música.</string>
     <string name="warnings_no_backup_title">Os percursos não têm cópia</string>

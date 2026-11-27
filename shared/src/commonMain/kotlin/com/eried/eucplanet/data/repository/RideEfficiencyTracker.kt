@@ -1,6 +1,8 @@
 package com.eried.eucplanet.data.repository
 
 import com.eried.eucplanet.service.addToWindow
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 /**
  * One tick of the ride-efficiency window: cumulative net energy and cumulative
@@ -22,6 +24,12 @@ data class EnergySample(
  * Split out of WheelRepository so a whole ride can be replayed against it in a
  * unit test. It is fed one sample per tick and hands back the two numbers the
  * tiles render; it owns no coroutines and touches no Android.
+ *
+ * [sample] and [reset] take the same lock. The sample comes from the telemetry
+ * side once a second, while a reset arrives from the screen's thread (Reset
+ * metrics, the Battery screen's Reset data) or from a voice report. A window
+ * cleared halfway through a sample threw. Nothing in here waits or calls out,
+ * so the lock is never held for longer than one sample.
  *
  * Two rules earn their keep:
  *
@@ -61,6 +69,8 @@ data class EnergySample(
  * by then the window describes a ride that is over.
  */
 class RideEfficiencyTracker {
+    // Replaces @Synchronized, which does nothing on the iPhone.
+    private val lock = SynchronizedObject()
 
     /** What the CONSUMPTION and RANGE tiles show. NaN in either means blank. */
     data class Estimate(
@@ -129,18 +139,20 @@ class RideEfficiencyTracker {
 
     /** Forget the session. Called on a reconnect and by the repository. */
     fun reset() {
-        window.clear()
-        restWindow.clear()
-        cumulativeKm = 0f
-        lastSourceKm = Float.NaN
-        lastWhConsumed = 0f
-        ridingMs = 0L
-        lastTickMs = 0L
-        lastMovedMs = 0L
-        baselineWh = Float.NaN
-        baselinePct = -1
-        baselineSetMs = 0L
-        chargingSinceMs = 0L
+        synchronized(lock) {
+            window.clear()
+            restWindow.clear()
+            cumulativeKm = 0f
+            lastSourceKm = Float.NaN
+            lastWhConsumed = 0f
+            ridingMs = 0L
+            lastTickMs = 0L
+            lastMovedMs = 0L
+            baselineWh = Float.NaN
+            baselinePct = -1
+            baselineSetMs = 0L
+            chargingSinceMs = 0L
+        }
     }
 
     /**
@@ -160,7 +172,7 @@ class RideEfficiencyTracker {
         windowMs: Long,
         packCapacityWh: Int,
         charging: Boolean = false,
-    ): Estimate {
+    ): Estimate = synchronized(lock) {
         // The consumed counter only climbs within a session, so a drop means the
         // session restarted (reconnect) and every baseline is stale.
         if (whConsumed < lastWhConsumed - RESTART_EPSILON_WH) reset()

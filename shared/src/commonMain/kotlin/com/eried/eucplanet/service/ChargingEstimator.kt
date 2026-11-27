@@ -107,9 +107,11 @@ class ChargingEstimator(
             samples.clear()
         }
         // Rolling window (the newest sample always stays). addToWindow also
-        // starts over if the clock steps back and caps the count, so an
-        // overnight charge cannot grow this without end.
-        samples.addToWindow(Sample(timestampMs, smoothed), timestampMs, { it.t }, windowMs, MAX_SAMPLES)
+        // starts over if the clock steps back and caps the count, so a clock
+        // that lies cannot grow this without end.
+        samples.addToWindow(
+            Sample(timestampMs, smoothed), timestampMs, { it.t }, windowMs, chargingSampleCap(windowMs),
+        )
     }
 
     /** Clear all session state (call when a charging session ends/starts fresh). */
@@ -199,5 +201,11 @@ class ChargingEstimator(
     }
 }
 
-/** Sample cap: 5 minutes at 20 Hz is 6000, so this only bites when timestamps lie. */
-private const val MAX_SAMPLES = 10_000
+/**
+ * Sample cap for a charging window: room for 50 readings a second, more than
+ * any wheel sends. It follows the window because the rider can set that up to
+ * 20 minutes in Advanced, and a fixed cap sized for the 5 minute default cut
+ * the longer windows short. It only bites when timestamps lie.
+ */
+internal fun chargingSampleCap(windowMs: Long): Int =
+    (windowMs / 20L).coerceIn(10_000L, 200_000L).toInt()

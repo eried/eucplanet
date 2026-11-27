@@ -2005,7 +2005,7 @@
     <string name="warnings_battery_opt_title">Batterioptimering är på</string>
     <string name="warnings_battery_opt_body">Android kan stoppa EUC Planet i bakgrunden och avbryta en inspelning mitt i turen. Tillåt appen att köra obegränsat.</string>
     <string name="warnings_storage_full_title">Telefonens lagring är full</string>
-    <string name="warnings_storage_full_body">Turinspelningen stoppades. Turen hittills är sparad. Frigör utrymme för att spela in igen.</string>
+    <string name="warnings_storage_full_body">Turer kan inte spelas in och ändringar kan inte sparas. Turerna hittills är säkra. Frigör utrymme för att fortsätta.</string>
     <string name="warnings_hud_blocked_title">Telefon-HUD kan inte visas</string>
     <string name="warnings_hud_blocked_body">Behörigheten att visas över andra appar har tagits bort, så överlägget syns inte ovanpå kartor eller musik.</string>
     <string name="warnings_no_backup_title">Turer säkerhetskopieras inte</string>

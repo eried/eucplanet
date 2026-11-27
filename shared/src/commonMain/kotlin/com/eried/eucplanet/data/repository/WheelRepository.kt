@@ -41,6 +41,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.concurrent.Volatile
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 data class MetricSample(val timestampMs: Long, val value: Float)
 
@@ -396,6 +398,13 @@ class WheelRepository(
     // current (both InMotion generations), gated on that capability in
     // deriveChargeStatus.
     private val chargeRiseDetector = ChargeRiseDetector()
+    /**
+     * Held while the charge inference above is advanced or cleared. Frames
+     * advance it on the telemetry thread and the disconnect handler clears
+     * it from its own; a frame still in flight could count on from the old
+     * run after the clear.
+     */
+    private val chargeDetectLock = SynchronizedObject()
 
     // Charging session (estimator + per-session history) lives here so the
     // prediction persists across navigation; updated each telemetry frame.
@@ -518,6 +527,14 @@ class WheelRepository(
             .toMutableMap()
     private var lastHistorySampleMs = 0L
 
+    /**
+     * Held for every read and change of the history buffers above. Samples
+     * are added on the telemetry thread and the Reset buttons clear from the
+     * screen's thread; a clear landing in the middle of a sample broke the
+     * list under the loop that was reading it.
+     */
+    private val historyLock = SynchronizedObject()
+
     private val _fullHistory = MutableStateFlow(FullMetricHistory())
     val fullHistory: StateFlow<FullMetricHistory> = _fullHistory.asStateFlow()
 
@@ -528,7 +545,7 @@ class WheelRepository(
      * Settings and trip records are untouched, fresh samples re-seed
      * the buffer at the next 1Hz tick.
      */
-    fun resetHistory(key: String) {
+    fun resetHistory(key: String) = synchronized(historyLock) {
         val current = _fullHistory.value
         _fullHistory.value = when (key) {
             "BATTERY" -> { battHist.clear(); current.copy(battery = emptyList()) }
@@ -557,11 +574,16 @@ class WheelRepository(
      * curve they were watching.
      */
     fun resetRideEnergy() {
-        sessionEnergyWh = 0f
-        sessionEnergyInWh = 0f
-        sessionEnergyOutWh = 0f
-        sessionLastEnergyMs = 0L
-        sessionLastPowerW = 0f
+        // The telemetry thread adds to these totals under the same lock. A
+        // reset that landed between its read and its write was undone, and
+        // Wh used carried on from the old total.
+        synchronized(chargeLock) {
+            sessionEnergyWh = 0f
+            sessionEnergyInWh = 0f
+            sessionEnergyOutWh = 0f
+            sessionLastEnergyMs = 0L
+            sessionLastPowerW = 0f
+        }
         rideEfficiency.reset()
         // Publish immediately so the tiles do not read the old total for the
         // second until the next telemetry frame lands.
@@ -582,7 +604,7 @@ class WheelRepository(
      * Reset metrics read as a button that did nothing. [connect] has always
      * cleared both when switching wheels; this is the same clear.
      */
-    fun resetAllHistory() {
+    fun resetAllHistory() = synchronized(historyLock) {
         battHist.clear(); tempHist.clear(); voltHist.clear()
         ampsHist.clear(); loadHist.clear(); speedHist.clear()
         extrasHist.values.forEach { it.clear() }
@@ -1060,10 +1082,12 @@ class WheelRepository(
                         _wheelHasBeeperVolume.value = false
                         _wheelSeriesCells.value = null
                         _chargeStatus.value = ChargeStatus.Disconnected
-                        chargeInferred = false
-                        chargeNegSamples = 0
-                        chargePosSamples = 0
-                        chargeRiseDetector.reset()
+                        synchronized(chargeDetectLock) {
+                            chargeInferred = false
+                            chargeNegSamples = 0
+                            chargePosSamples = 0
+                            chargeRiseDetector.reset()
+                        }
                         // The charging session (charge / voltage / pack / cell
                         // history, estimator, energy) is NOT cleared here: the
                         // Battery screen keeps it frozen so a BLE drop or a
@@ -1105,6 +1129,15 @@ class WheelRepository(
         }
     }
 
+    /**
+     * Held while the charging session is updated or wiped. The update runs on
+     * the telemetry thread and Reset data on the screen's thread; a wipe in
+     * the middle of an update left the session half cleared, with the old
+     * curve published once more after the reset.
+     */
+    private val chargeLock = SynchronizedObject()
+
+    /** Call with [chargeLock] held. */
     private fun updateChargingSession(data: WheelData, status: ChargeStatus) {
         // Connection-scoped: the session runs whenever a wheel is connected (so the
         // charts / Added / Rate keep updating while riding too). A disconnect
@@ -1235,7 +1268,7 @@ class WheelRepository(
      * an empty snapshot; the next connected frame starts a fresh session (the
      * `!chargingSessionActive` init path in updateChargingSession).
      */
-    fun resetChargingSession() {
+    fun resetChargingSession() = synchronized(chargeLock) {
         chargingSessionActive = false
         chargingEstimator.reset()
         chargePctHist.clear(); chargeVoltHist.clear(); chargeTempHist.clear(); clearPackHist()
@@ -1375,7 +1408,11 @@ class WheelRepository(
      * ones, holds through the trickle band) so the dashboard doesn't flicker as
      * the charger tapers near full. A moving wheel is never reported charging.
      */
-    private fun deriveChargeStatus(data: WheelData): ChargeStatus {
+    private fun deriveChargeStatus(data: WheelData): ChargeStatus =
+        synchronized(chargeDetectLock) { deriveChargeStatusLocked(data) }
+
+    /** Call with [chargeDetectLock] held. */
+    private fun deriveChargeStatusLocked(data: WheelData): ChargeStatus {
         if (bleManager.connectionState.value != ConnectionState.CONNECTED) {
             chargeInferred = false
             chargeNegSamples = 0
@@ -1507,10 +1544,7 @@ class WheelRepository(
         batteryEnvelope.reset()
         if (lastConnectedAddress != null && lastConnectedAddress != address) {
             // Different wheel, clear history
-            battHist.clear(); tempHist.clear(); voltHist.clear()
-            ampsHist.clear(); loadHist.clear(); speedHist.clear()
-            extrasHist.values.forEach { it.clear() }
-            _fullHistory.value = FullMetricHistory()
+            resetAllHistory()
             // Same rule for the Battery screen's charging session: a new wheel starts
             // fresh so its charge curve / packs / cells don't inherit the last wheel's.
             resetChargingSession()
@@ -2307,7 +2341,9 @@ class WheelRepository(
                 }
                 // Never let the charging-session bookkeeping throw out of the
                 // telemetry path, telemetry/dashboard must keep flowing regardless.
-                runCatching { updateChargingSession(_wheelData.value, _chargeStatus.value) }
+                runCatching {
+                    synchronized(chargeLock) { updateChargingSession(_wheelData.value, _chargeStatus.value) }
+                }
                 // Mirror wheel-reported tilt-back / alarm thresholds into the
                 // app's settings store on adapters that surface them (Veteran),
                 // so the Settings UI shows what the wheel firmware is actually
@@ -2322,54 +2358,56 @@ class WheelRepository(
                 val now = System.currentTimeMillis()
                 if (now - lastHistorySampleMs >= graphSampleIntervalMs) {
                     lastHistorySampleMs = now
-                    val d = _wheelData.value
-                    battHist.add(MetricSample(now, d.batteryPercent.toFloat()))
-                    tempHist.add(MetricSample(now, d.maxTemperature))
-                    voltHist.add(MetricSample(now, d.voltage))
-                    ampsHist.add(MetricSample(now, d.current))
-                    loadHist.add(MetricSample(now, d.pwm.absoluteValue))
-                    speedHist.add(MetricSample(now, d.speed.absoluteValue))
-                    // Sample every extra metric on the same tick. Each
-                    // EXTRA_HISTORY_METRICS entry feeds one buffer in
-                    // extrasHist; the extractor is read against the same
-                    // WheelData snapshot the legacy 6 use, so all rolling
-                    // history is time-aligned.
-                    for ((key, extractor) in EXTRA_HISTORY_METRICS) {
-                        // null = "no sample this tick" (e.g. an implausible or
-                        // absent temperature), so the buffer never records a
-                        // value the tile itself would refuse to show.
-                        extractor(d)?.let { extrasHist[key]?.add(MetricSample(now, it)) }
+                    synchronized(historyLock) {
+                        val d = _wheelData.value
+                        battHist.add(MetricSample(now, d.batteryPercent.toFloat()))
+                        tempHist.add(MetricSample(now, d.maxTemperature))
+                        voltHist.add(MetricSample(now, d.voltage))
+                        ampsHist.add(MetricSample(now, d.current))
+                        loadHist.add(MetricSample(now, d.pwm.absoluteValue))
+                        speedHist.add(MetricSample(now, d.speed.absoluteValue))
+                        // Sample every extra metric on the same tick. Each
+                        // EXTRA_HISTORY_METRICS entry feeds one buffer in
+                        // extrasHist; the extractor is read against the same
+                        // WheelData snapshot the legacy 6 use, so all rolling
+                        // history is time-aligned.
+                        for ((key, extractor) in EXTRA_HISTORY_METRICS) {
+                            // null = "no sample this tick" (e.g. an implausible or
+                            // absent temperature), so the buffer never records a
+                            // value the tile itself would refuse to show.
+                            extractor(d)?.let { extrasHist[key]?.add(MetricSample(now, it)) }
+                        }
+                        // Phone- and GPS-derived stat metrics aren't on WheelData,
+                        // so sample them from their injected sources on this same
+                        // tick. Store raw values (km/h, metres, percent) so the
+                        // stat math and the tile formatter agree, exactly like the
+                        // wheel extras above.
+                        sampleSourceHistory(now)
+                        // Drop anything older than the retention window from every
+                        // buffer in one pass. List.removeAll touches each list
+                        // once so this stays linear in buffer size.
+                        val cutoff = now - historyWindowMs
+                        listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
+                            .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                        extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                        // The buffers keep at least 5 min so widening the stats
+                        // length has data at once, but everything that reads them
+                        // (tile stats, sparklines, the detail screen, voice
+                        // answers) sees only the rider's chosen window. Publishing
+                        // the whole buffer made 30 s, 1, 2 and 3 min all read as
+                        // 5 min.
+                        val shownFrom = now - rollingWindowMs
+                        fun List<MetricSample>.shown() = filter { it.timestampMs >= shownFrom }
+                        _fullHistory.value = FullMetricHistory(
+                            battery = battHist.shown(),
+                            temperature = tempHist.shown(),
+                            voltage = voltHist.shown(),
+                            current = ampsHist.shown(),
+                            load = loadHist.shown(),
+                            speed = speedHist.shown(),
+                            extras = extrasHist.mapValues { (_, list) -> list.shown() }
+                        )
                     }
-                    // Phone- and GPS-derived stat metrics aren't on WheelData,
-                    // so sample them from their injected sources on this same
-                    // tick. Store raw values (km/h, metres, percent) so the
-                    // stat math and the tile formatter agree, exactly like the
-                    // wheel extras above.
-                    sampleSourceHistory(now)
-                    // Drop anything older than the retention window from every
-                    // buffer in one pass. List.removeAll touches each list
-                    // once so this stays linear in buffer size.
-                    val cutoff = now - historyWindowMs
-                    listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
-                        .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
-                    extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
-                    // The buffers keep at least 5 min so widening the stats
-                    // length has data at once, but everything that reads them
-                    // (tile stats, sparklines, the detail screen, voice
-                    // answers) sees only the rider's chosen window. Publishing
-                    // the whole buffer made 30 s, 1, 2 and 3 min all read as
-                    // 5 min.
-                    val shownFrom = now - rollingWindowMs
-                    fun List<MetricSample>.shown() = filter { it.timestampMs >= shownFrom }
-                    _fullHistory.value = FullMetricHistory(
-                        battery = battHist.shown(),
-                        temperature = tempHist.shown(),
-                        voltage = voltHist.shown(),
-                        current = ampsHist.shown(),
-                        load = loadHist.shown(),
-                        speed = speedHist.shown(),
-                        extras = extrasHist.mapValues { (_, list) -> list.shown() }
-                    )
                 }
                 // Evaluate alarm rules against new telemetry
                 alarmEngine.evaluate(_wheelData.value)

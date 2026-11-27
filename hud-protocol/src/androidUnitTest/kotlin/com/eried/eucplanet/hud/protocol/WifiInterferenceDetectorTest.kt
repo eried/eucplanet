@@ -1,8 +1,12 @@
 package com.eried.eucplanet.hud.protocol
 
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 
 /**
  * The phone-side "is my own Wi-Fi interrupting the HUD?" detector.
@@ -64,5 +68,40 @@ class WifiInterferenceDetectorTest {
         assertTrue(d.advisoryActive)
         d.onStableTick(20_000L) // only 5s since last drop -> not yet stable
         assertTrue(d.advisoryActive)
+    }
+
+    @Test fun calls_from_three_threads_at_once_do_not_break_it() {
+        // The phone reports Wi-Fi changes from the network callback, HUD drops
+        // from the socket's thread and stable ticks from the push loop.
+        val d = WifiInterferenceDetector(
+            correlationWindowMs = Long.MAX_VALUE,
+            minCorrelatedDrops = 2,
+            rollingWindowMs = 50L,
+            clearAfterStableMs = 0L,
+        )
+        val sides = listOf<(Long) -> Unit>(
+            { t -> d.onStaTransition(t) },
+            { t -> d.onHudDrop(t + 1L) },
+            { t -> d.onStableTick(t + 1L) },
+        )
+        val failure = AtomicReference<Throwable?>()
+        val go = CountDownLatch(1)
+        val threads = sides.map { side ->
+            thread(isDaemon = true) {
+                go.await()
+                try {
+                    var t = 1L
+                    while (t <= 200_000L && failure.get() == null) side(t++)
+                } catch (e: Throwable) {
+                    failure.compareAndSet(null, e)
+                }
+            }
+        }
+        go.countDown()
+        for (t in threads) {
+            t.join(30_000L)
+            if (t.isAlive) failure.compareAndSet(null, IllegalStateException("a side is stuck"))
+        }
+        assertNull("${failure.get()}", failure.get())
     }
 }
