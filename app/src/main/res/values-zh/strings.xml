@@ -717,12 +717,8 @@
     <string name="engine_preset_sampled_diesel_iveco">柴油卡车</string>
     <string name="engine_preset_sampled_motorcycle">小型越野摩托</string>
     <string name="engine_preset_sampled_city_car">城市轿车</string>
-    <string name="engine_preset_sampled_tractor">拖拉机</string>
-    <string name="engine_preset_sampled_lawnmower">割草机</string>
     <string name="engine_preset_sampled_steam_loco">蒸汽机车</string>
-    <string name="engine_preset_sampled_big_diesel">大型柴油</string>
     <string name="engine_preset_sampled_broken_exhaust">破损排气</string>
-    <string name="engine_preset_sampled_quad_atv">四轮越野车</string>
 
     <string name="external_gps_autodetect_forward_capture">正在读取前进动作…</string>
     <string name="external_gps_autodetect_lateral_capture">正在读取横向动作…</string>
@@ -1863,7 +1859,9 @@
     <string name="warnings_battery_opt_title">电池优化已开启</string>
     <string name="warnings_battery_opt_body">系统可能在后台停止 EUC Planet，让骑行中的记录中断。请允许它不受限制地运行。</string>
     <string name="warnings_storage_full_title">手机存储空间已满</string>
-    <string name="warnings_storage_full_body">无法记录行程，也无法保存更改。之前的骑行安全无损。请释放空间后继续。</string>
+    <string name="warnings_storage_full_body">无法记录行程，也无法保存更改。之前的行程不会丢失。请释放空间后继续。</string>
+    <string name="warnings_settings_reset_title">设置已重置</string>
+    <string name="warnings_settings_reset_body">设置文件已损坏，应用以默认设置启动。行程和报警不受影响。如有设置备份，请恢复。</string>
     <string name="warnings_hud_blocked_title">手机 HUD 无法显示</string>
     <string name="warnings_hud_blocked_body">悬浮显示权限已被撤销，因此叠加层不会出现在地图或音乐之上。</string>
     <string name="warnings_no_backup_title">行程未备份</string>
@@ -2160,6 +2158,8 @@
     <string name="adv_phone_gps_idle_interval_desc">未记录或导航时的 GPS 更新间隔，让导航和重新连接随时就绪。数值越大越省电。</string>
     <string name="adv_gps_idle_off_delay">闲置后关闭 GPS</string>
     <string name="adv_gps_idle_off_delay_desc">当应用在后台运行、未连接独轮车且未在记录时，GPS 会关闭以省电。0 表示立即关闭；大于 0 则先保持低功耗定位这么久，这样快速切换应用时 GPS 不会断。</string>
+    <string name="adv_gps_parked_delay">停放时降低 GPS 频率</string>
+    <string name="adv_gps_parked_delay_desc">连接独轮车且应用在后台运行时，独轮车静止这么久后，或在充电时立即，GPS 会降到空闲间隔。一开始移动就恢复全速。0 表示从不降低。</string>
     <string name="adv_gps_fix_max_age">GPS 定位最长时效</string>
     <string name="adv_gps_fix_max_age_desc">超过这个时长的位置算作没有定位，这样在 GPS 就绪前开始的记录不会以过期的点开头。</string>
     <string name="adv_pushonly_note">部分设备以自身固定频率推送数据，会忽略这些设置：仅推送型独轮车（Begode、Gotway、Veteran、KingSong）、外置 GPS（RaceBox、Dragy）、雷达和 Flic 按钮。</string>
@@ -2650,8 +2650,8 @@
     <string name="voice_stat_peak">峰值</string>
     <string name="crews_pass_action">战队通行证</string>
     <string name="crews_pass_search_hint">加入在线排行榜后就会显示战队通行证。</string>
-    <string name="crews_scan_hint">在浏览器中打开 eucstats，点按“战队”，然后扫描显示的代码。</string>
-    <string name="crews_scan_invalid">这不是战队通行证代码。</string>
+    <string name="crews_scan_hint">在浏览器中打开 eucstats，点按“战队”，然后扫描显示的二维码。</string>
+    <string name="crews_scan_invalid">这不是战队通行码。</string>
     <string name="crews_scan_is_share">那是实时位置的码。去地图上的“分享”里扫。</string>
     <string name="share_scan_is_crewpass">这是战队通行码，请在设置的“%1$s”中扫描。</string>
     <string name="crews_type_instead">手动输入</string>
@@ -2670,7 +2670,7 @@
     <string name="crews_scope_admin">管理控制台</string>
     <string name="crews_grant">只有在你本人发起请求时才发放此通行证。</string>
     <string name="crews_noprofile_title">先加入排行榜</string>
-    <string name="crews_noprofile_body">通行证需要排行榜资料，而这部手机还没有。请在 %1$s 中加入，然后重新扫描。</string>
+    <string name="crews_noprofile_body">通行证需要排行榜资料，而这台手机还没有。请在 %1$s 中加入，然后重新扫描。</string>
     <string name="crews_issue">允许</string>
     <string name="crews_notme">拒绝</string>
     <string name="crews_ratelimited">试太多次了。等一分钟再来。</string>

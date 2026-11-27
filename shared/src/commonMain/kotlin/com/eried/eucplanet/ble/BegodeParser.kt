@@ -174,9 +174,9 @@ class BegodeParser {
         // we include it in the prefix-stamped line; the body covers all 24
         // bytes (header through terminator) so an investigator can sanity-
         // check framing as well as payload.
-        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
             "Begode realtime tag=0x${"%02x".format(tag)} len=${frame.size} body=${frame.joinToString(" ") { "%02x".format(it) }}"
-        )
+        }
         return when (tag) {
             0x00 -> parseLiveA(frame, model)?.let { DecodeResult.Telemetry(it) }
             0x01 -> { cacheBmsVoltage(frame); null }

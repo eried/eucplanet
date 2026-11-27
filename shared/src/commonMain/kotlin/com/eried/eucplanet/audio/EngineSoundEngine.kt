@@ -43,6 +43,8 @@ class EngineSoundEngine(
     @Volatile private var running: Boolean = false
 
     @Volatile private var paramsSnapshot: EngineParams = EngineParams.SILENT
+    /** The snapshot is rendered many times between two ticks; a pop must be laid once. */
+    private val pops = PopHandoff()
     private val synth = EngineSynth(sampleRate) { asset -> openBank(asset) }
 
     // Guards the model: pushTelemetry runs on the service's worker thread (and
@@ -54,8 +56,10 @@ class EngineSoundEngine(
 
     private var headphonesOnly: Boolean = false
     /** Tracks the previous applySettings()'s enabled flag so we only log toggle edges. */
-    private var lastAppliedEnabled: Boolean = false
-    private var connected: Boolean = false
+    @Volatile private var lastAppliedEnabled: Boolean = false
+    @Volatile private var connected: Boolean = false
+    /** A Settings preview has the engine: the wheel's telemetry waits until it is over. */
+    @Volatile private var previewing: Boolean = false
 
     /** Runs the previews, which sleep between their steps. */
     private val previewScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -170,12 +174,16 @@ class EngineSoundEngine(
         // it's seen a non-zero pwm; prime the flag so brake/decel scenarios behave.
         model.pwmEverNonZero = true
         previewScope.launch {
+            previewing = true
             try {
+                // With a wheel connected the engine is already running the ride: it
+                // makes way, so the preview starts clean with its own engine loaded.
+                if (running) stop()
                 start()
                 val script = EngineRide.preview(scenario, durationMs, model.maxSpeedRefKmh)
                 for (step in script) {
                     if (step.direct) pushParamsDirect(step.rpmFraction, step.load)
-                    else pushTelemetry(step.speedKmh, step.pwmPercent)
+                    else tick(step.speedKmh, step.pwmPercent)
                     delay(step.holdMs)
                 }
                 delay(250)
@@ -188,6 +196,10 @@ class EngineSoundEngine(
                 // Reset smoothing state so the next real telemetry tick doesn't carry over
                 // the scenario's rpm/load, avoids a transient when the user goes riding right after.
                 synchronized(telemetryLock) { model.resetMotion() }
+                previewing = false
+                // The ride gets its engine sound back. It used to stay silent until
+                // the wheel reconnected.
+                if (connected && lastAppliedEnabled) start()
             }
         }
     }
@@ -195,15 +207,20 @@ class EngineSoundEngine(
     private fun pushParamsDirect(rpmFraction: Float, load: Float) {
         synchronized(telemetryLock) {
             val now = System.currentTimeMillis()
-            paramsSnapshot = model.direct(now, rpmFraction, load)
+            paramsSnapshot = pops.post(model.direct(now, rpmFraction, load))
         }
     }
 
     /** Telemetry tick from WheelService (typically 5-20 Hz). */
     fun pushTelemetry(speedKmh: Float, pwmPercent: Float) {
+        if (previewing) return
+        tick(speedKmh, pwmPercent)
+    }
+
+    private fun tick(speedKmh: Float, pwmPercent: Float) {
         synchronized(telemetryLock) {
             val now = System.currentTimeMillis()
-            paramsSnapshot = model.tick(now, speedKmh, pwmPercent)
+            paramsSnapshot = pops.post(model.tick(now, speedKmh, pwmPercent))
         }
     }
 
@@ -215,6 +232,8 @@ class EngineSoundEngine(
             return
         }
         running = true
+        // A pop from before the audio ran would go off now.
+        pops.clear()
         output.requestFocus()
         // A recorded engine's bank is read here, off the audio thread.
         synth.preload(profile)
@@ -234,7 +253,7 @@ class EngineSoundEngine(
     private val producer = object : EngineProducer {
         override fun render(out: FloatArray): Boolean {
             if (!running) return false
-            synth.render(paramsSnapshot, out, 0, out.size)
+            synth.render(pops.take(paramsSnapshot), out, 0, out.size)
             return true
         }
 

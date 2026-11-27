@@ -606,6 +606,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Taxa a que o GPS se mantém ativo quando não está a gravar nem a navegar, para o Navegador e uma nova ligação à roda estarem prontos. Mais alto poupa bateria.</string>
     <string name="adv_gps_idle_off_delay">GPS desligado após inatividade</string>
     <string name="adv_gps_idle_off_delay_desc">Quando a app está em segundo plano sem roda ligada e sem gravar, o GPS desliga-se para poupar bateria. 0 desliga-o logo; mais alto mantém primeiro um sinal de baixo consumo durante esse tempo, para uma troca rápida de app não perder o GPS.</string>
+    <string name="adv_gps_parked_delay">GPS mais lento com a roda parada</string>
+    <string name="adv_gps_parked_delay_desc">Com uma roda ligada e a app em segundo plano, o GPS passa para o intervalo em repouso quando a roda está parada há este tempo, ou logo enquanto carrega. O primeiro movimento repõe o ritmo completo. 0 nunca o abranda.</string>
     <string name="adv_gps_fix_max_age">Idade máxima do sinal GPS</string>
     <string name="adv_gps_fix_max_age_desc">Uma posição mais antiga do que isto conta como sem sinal, para uma gravação iniciada antes de o GPS estar pronto não começar com um ponto antigo.</string>
     <string name="adv_hud_report_interval">Taxa de envio para o HUD</string>
@@ -1152,13 +1154,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Camião a gasóleo</string>
     <string name="engine_preset_sampled_motorcycle">Moto de cross pequena</string>
     <string name="engine_preset_sampled_city_car">Carro citadino</string>
-    <string name="engine_preset_sampled_tractor">Trator</string>
-    <string name="engine_preset_sampled_lawnmower">Corta-relva</string>
     <string name="engine_preset_sampled_steam_loco">Locomotiva a vapor</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Diesel grande</string>
     <string name="engine_preset_sampled_broken_exhaust">Escape furado</string>
-    <string name="engine_preset_sampled_quad_atv">Moto-quatro ATV</string>
 
     <string name="col_periodic">Periódico</string>
     <string name="col_trigger">Evento</string>
@@ -1493,7 +1491,7 @@
     <string name="widget_weather_question">Andar?</string>
     <string name="widget_weather_score_desc">O tempo para andar, agora mesmo.</string>
     <string name="widget_weather_compact_desc">Como está o tempo para andar, agora e nas próximas horas.</string>
-    <string name="widget_weather_graph_desc">Como está o tempo para andar, ao longo do período da previsão.</string>
+    <string name="widget_weather_graph_desc">Como está o tempo para andar, ao longo do período da previsão</string>
     <string name="widget_weather_refresh_desc">Atualizar a previsão</string>
     <string name="widget_weather_never">Ainda sem previsão. Abra a app uma vez ou toque em atualizar.</string>
     <string name="widget_weather_never_short">Nunca</string>
@@ -1695,7 +1693,7 @@
     <string name="alarm_section_voice">Voz</string>
     <string name="alarm_enable_voice">Ativar voz</string>
     <string name="alarm_voice_template">Modelo de texto</string>
-    <string name="alarm_voice_template_help">Variáveis: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Variáveis: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_voice_default">Atenção! {metric} a {value}</string>
     <string name="alarm_section_vibrate">Vibrar</string>
     <string name="alarm_enable_vibrate">Ativar vibração</string>
@@ -1904,19 +1902,19 @@
     <string name="studio_element_map">Mapa</string>
     <string name="studio_element_radar">Radar</string>
 
-    <string name="studio_hint_wheel_name">O nome da roda ligada.</string>
-    <string name="studio_hint_app_badge">Nome e ícone do EUC Planet.</string>
+    <string name="studio_hint_wheel_name">O nome da roda ligada</string>
+    <string name="studio_hint_app_badge">Nome e ícone do EUC Planet</string>
     <string name="studio_hint_text">Texto personalizado escrito por si.</string>
-    <string name="studio_hint_data_value">Um valor em tempo real, como velocidade ou bateria.</string>
+    <string name="studio_hint_data_value">Um valor em tempo real, como velocidade ou bateria</string>
     <string name="studio_hint_data_graph">Um gráfico contínuo de um valor.</string>
     <string name="studio_hint_data_dial">Um mostrador circular para um valor.</string>
     <string name="studio_hint_data_bar">Uma barra linear para um valor.</string>
-    <string name="studio_hint_floating_camera">Uma pequena câmara em imagem na imagem.</string>
-    <string name="studio_hint_image">A sua própria imagem, incorporada na predefinição.</string>
-    <string name="studio_hint_clock">Um relógio, relógio analógico ou cronómetro.</string>
+    <string name="studio_hint_floating_camera">Uma pequena câmara em imagem na imagem</string>
+    <string name="studio_hint_image">A sua própria imagem, incorporada na predefinição</string>
+    <string name="studio_hint_clock">Um relógio, relógio analógico ou cronómetro</string>
     <string name="studio_hint_g_force">Um círculo com o rasto da força G.</string>
-    <string name="studio_hint_map">Um minimapa em tempo real com o seu trajeto.</string>
-    <string name="studio_hint_radar">Radar traseiro: veículos a aproximar-se.</string>
+    <string name="studio_hint_map">Um minimapa em tempo real com o seu trajeto</string>
+    <string name="studio_hint_radar">Radar traseiro: veículos a aproximar-se</string>
 
     <string name="studio_layout_title">Painéis da câmara</string>
     <string name="studio_layout_full_screen">Ecrã inteiro</string>
@@ -2524,7 +2522,9 @@
     <string name="warnings_battery_opt_title">A otimização da bateria está ativa</string>
     <string name="warnings_battery_opt_body">O Android pode parar o EUC Planet em segundo plano e terminar uma gravação a meio da volta. Permita que funcione sem restrições.</string>
     <string name="warnings_storage_full_title">O armazenamento do telemóvel está cheio</string>
-    <string name="warnings_storage_full_body">Não é possível gravar percursos nem guardar alterações. Os percursos até agora estão seguros. Liberte espaço para continuar.</string>
+    <string name="warnings_storage_full_body">Não é possível gravar percursos nem guardar alterações. Os percursos já gravados estão seguros. Liberte espaço para continuar.</string>
+    <string name="warnings_settings_reset_title">As definições foram repostas</string>
+    <string name="warnings_settings_reset_body">O ficheiro de definições estava danificado, por isso a app começou com os valores predefinidos. Os percursos e os alarmes não foram afetados. Restaura uma cópia das definições, se tiveres uma.</string>
     <string name="warnings_hud_blocked_title">O HUD do telemóvel não consegue desenhar</string>
     <string name="warnings_hud_blocked_body">A autorização para desenhar sobre outras apps foi retirada, por isso o overlay não aparece por cima de mapas ou música.</string>
     <string name="warnings_no_backup_title">Os percursos não têm cópia</string>
@@ -2723,9 +2723,9 @@
     <string name="crews_access">Acesso: %1$s</string>
     <string name="crews_scope_crew">Equipas</string>
     <string name="crews_scope_admin">Consola de administração</string>
-    <string name="crews_grant">Emita este passe apenas se foi você a fazer o pedido.</string>
+    <string name="crews_grant">Emita este passe apenas se o pedido foi feito por si.</string>
     <string name="crews_noprofile_title">Entre primeiro na classificação</string>
-    <string name="crews_noprofile_body">Os passes precisam de um perfil na classificação, e este telemóvel ainda não tem um. Adira em %1$s e volte a ler o código.</string>
+    <string name="crews_noprofile_body">Os passes precisam de um perfil na classificação, e este telemóvel ainda não tem um. Entre na classificação em %1$s e volte a ler o código.</string>
     <string name="crews_issue">Permitir</string>
     <string name="crews_notme">Recusar</string>
     <string name="crews_ratelimited">Demasiadas tentativas. Aguarde um minuto e tente de novo.</string>

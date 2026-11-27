@@ -117,6 +117,20 @@ class VoiceService(
     )
     private val pendingBeforeReady = mutableListOf<DeferredUtterance>()
 
+    private val holders = VoiceHolders()
+
+    /** [who] ("window", "service") needs the voice from now on. */
+    fun acquire(who: String) {
+        holders.add(who)
+        initialize()
+    }
+
+    /** [who] is done with it. It is shut down once nobody needs it, see
+     *  [VoiceHolders] for what happened when each side did that on its own. */
+    fun release(who: String) {
+        if (holders.remove(who)) shutdown()
+    }
+
     fun initialize() {
         if (tts != null) return
         tts = TextToSpeech(context) { status ->

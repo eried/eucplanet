@@ -170,12 +170,18 @@ class SyncManager(
     fun startPendingUploadWatcher() {
         scope.launch {
             settingsRepository.settings
-                .map { it.pendingUploadIntervalMin }
+                .map { PeriodicUploads.of(it) }
                 .distinctUntilChanged()
-                .collect {
-                    schedulePeriodicTripUpload(it)
-                    schedulePeriodicEucStatsUpload(it)
-                    schedulePeriodicDropboxSync(it)
+                .collect { plan ->
+                    // A destination that is not set up gets no periodic pass:
+                    // its worker would wake the app only to return at once.
+                    val work = WorkManager.getInstance(context)
+                    if (plan.folder) schedulePeriodicTripUpload(plan.intervalMin)
+                    else work.cancelUniqueWork(PERIODIC_UPLOAD_WORK_NAME)
+                    if (plan.leaderboard) schedulePeriodicEucStatsUpload(plan.intervalMin)
+                    else work.cancelUniqueWork(EUCSTATS_PERIODIC_WORK_NAME)
+                    if (plan.dropbox) schedulePeriodicDropboxSync(plan.intervalMin)
+                    else work.cancelUniqueWork(DROPBOX_PERIODIC_WORK_NAME)
                 }
         }
     }

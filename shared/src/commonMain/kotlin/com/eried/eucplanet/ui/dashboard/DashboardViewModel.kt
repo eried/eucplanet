@@ -1038,7 +1038,7 @@ class DashboardViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MetricHistory())
 
     init {
-        voiceService.initialize()
+        voiceService.acquire("window")
         voiceService.welcomeOnce()
         autoConnectIfNeeded()
     }
@@ -1177,7 +1177,9 @@ class DashboardViewModel(
     }
 
     override fun onCleared() {
-        voiceService.shutdown()
+        // The window is done with the voice. The wheel service may not be:
+        // swiping the app away mid-ride lands here with the ride still on.
+        voiceService.release("window")
         super.onCleared()
     }
 }

@@ -281,9 +281,9 @@ class NinebotAdapter : WheelAdapter {
                 // Inspect tab can rummage through offsets the parser doesn't
                 // yet touch (status word, alarms, BMS hand-off bytes). Format
                 // matches the V14 / P6 NOTE entries the same picker reads.
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
                     "Ninebot realtime (Z) len=${frame.data.size} body=${frame.data.joinToString(" ") { "%02x".format(it) }}"
-                )
+                }
                 val telem = parser.parseZTelemetry(frame.data, detectedModel)
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }
@@ -342,9 +342,9 @@ class NinebotAdapter : WheelAdapter {
                 // Same NOTE prefix as the Z path so the Inspect tab can
                 // subscribe to a single "Ninebot realtime" filter regardless
                 // of which sub-protocol the connected wheel speaks.
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
                     "Ninebot realtime (Legacy) len=${frame.data.size} body=${frame.data.joinToString(" ") { "%02x".format(it) }}"
-                )
+                }
                 val telem = parser.parseLegacyTelemetry(frame.data, detectedModel)
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }

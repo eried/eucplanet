@@ -878,13 +878,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Camión diésel</string>
     <string name="engine_preset_sampled_motorcycle">Moto de cross pequeña</string>
     <string name="engine_preset_sampled_city_car">Coche urbano</string>
-    <string name="engine_preset_sampled_tractor">Tractor</string>
-    <string name="engine_preset_sampled_lawnmower">Cortacésped</string>
     <string name="engine_preset_sampled_steam_loco">Locomotora de vapor</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Diésel grande</string>
     <string name="engine_preset_sampled_broken_exhaust">Escape roto</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Periódico</string>
     <string name="col_trigger">Evento</string>
@@ -2009,8 +2005,10 @@
     <string name="warnings_location_services_title">La ubicación está apagada</string>
     <string name="warnings_battery_opt_title">La optimización de batería está activada</string>
     <string name="warnings_battery_opt_body">Android puede detener EUC Planet en segundo plano y cortar una grabación a mitad del viaje. Deja que funcione sin restricciones.</string>
-    <string name="warnings_storage_full_title">El almacenamiento del teléfono está lleno</string>
+    <string name="warnings_storage_full_title">El almacenamiento del móvil está lleno</string>
     <string name="warnings_storage_full_body">No se pueden grabar viajes ni guardar cambios. Lo recorrido hasta ahora está a salvo. Libera espacio para continuar.</string>
+    <string name="warnings_settings_reset_title">Los ajustes se han restablecido</string>
+    <string name="warnings_settings_reset_body">El archivo de ajustes estaba dañado, así que la app ha empezado con los valores por defecto. Los viajes y las alarmas no se ven afectados. Restaura una copia de seguridad de los ajustes si tienes una.</string>
     <string name="warnings_hud_blocked_title">El HUD del móvil no puede dibujar</string>
     <string name="warnings_hud_blocked_body">Se ha retirado el permiso para dibujar sobre otras apps, así que la superposición no aparecerá encima de mapas o música.</string>
     <string name="warnings_no_backup_title">Los viajes no tienen copia de seguridad</string>
@@ -2293,6 +2291,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Frecuencia del GPS cuando no se graba ni se navega, para que el Navegador y una rueda recién conectada estén listos. Un valor más alto ahorra batería.</string>
     <string name="adv_gps_idle_off_delay">Apagar GPS en reposo</string>
     <string name="adv_gps_idle_off_delay_desc">Cuando la app está en segundo plano sin rueda conectada y sin grabar, el GPS se apaga para ahorrar batería. 0 lo apaga de inmediato; un valor mayor lo deja ese tiempo en bajo consumo antes de apagarlo, para que cambiar de app un momento no corte el GPS.</string>
+    <string name="adv_gps_parked_delay">GPS lento con la rueda parada</string>
+    <string name="adv_gps_parked_delay_desc">Con una rueda conectada y la app en segundo plano, el GPS baja al intervalo en reposo cuando la rueda lleva este tiempo parada, o de inmediato mientras carga. Al primer movimiento vuelve el ritmo completo. 0 no lo baja nunca.</string>
     <string name="adv_gps_fix_max_age">Antigüedad máx. GPS</string>
     <string name="adv_gps_fix_max_age_desc">Una posición más antigua cuenta como sin señal, para que una grabación que empieza antes de que el GPS esté listo no arranque con un punto viejo.</string>
     <string name="adv_pushonly_note">Algunos dispositivos transmiten a su propio ritmo fijo e ignoran estos ajustes: ruedas que solo envían datos (Begode, Gotway, Veteran, KingSong), GPS externos (RaceBox, Dragy), radar y botones Flic.</string>
@@ -2707,7 +2707,7 @@
     <string name="widget_weather_question">¿Rodar?</string>
     <string name="widget_weather_score_desc">El tiempo para rodar, ahora mismo.</string>
     <string name="widget_weather_compact_desc">Qué tal está el tiempo para rodar, ahora y en las próximas horas.</string>
-    <string name="widget_weather_graph_desc">Qué tal está el tiempo para rodar a lo largo de la previsión.</string>
+    <string name="widget_weather_graph_desc">Qué tal está el tiempo para rodar a lo largo de la previsión</string>
     <string name="widget_weather_refresh_desc">Actualizar la previsión</string>
     <string name="widget_weather_never">Aún no hay previsión. Abre la app una vez o toca Actualizar.</string>
     <string name="widget_weather_never_short">Nunca</string>
@@ -2803,15 +2803,15 @@
     <string name="crews_access">Acceso: %1$s</string>
     <string name="crews_scope_crew">Cuadrillas</string>
     <string name="crews_scope_admin">Consola de administración</string>
-    <string name="crews_grant">Emite este pase solo si hiciste la solicitud tú mismo.</string>
+    <string name="crews_grant">Emite este pase solo si has hecho tú la solicitud.</string>
     <string name="crews_noprofile_title">Únete primero a la clasificación</string>
-    <string name="crews_noprofile_body">Los pases necesitan un perfil en la clasificación, y este teléfono aún no tiene uno. Únete en %1$s y vuelve a escanear.</string>
+    <string name="crews_noprofile_body">Los pases necesitan un perfil en la clasificación, y este móvil aún no tiene uno. Únete en %1$s y vuelve a escanear.</string>
     <string name="crews_issue">Permitir</string>
     <string name="crews_notme">Denegar</string>
     <string name="crews_ratelimited">Demasiados intentos. Espera un minuto y prueba otra vez.</string>
     <string name="crews_unreachable">No hay conexión con %1$s.</string>
     <string name="crews_refused">El servidor lo ha rechazado (%1$d).</string>
-    <string name="crews_done_title">Pase dado</string>
+    <string name="crews_done_title">Pase emitido</string>
     <string name="crews_done_body">Puedes cerrar esta pantalla.</string>
     <string name="crews_failed_title">Pase no emitido</string>
     <string name="crews_tryagain">Reintentar</string>

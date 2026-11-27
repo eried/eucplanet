@@ -36,6 +36,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.eried.eucplanet.util.TripCsv
 import java.io.File
@@ -157,6 +159,11 @@ class TripRepository(
     // Cached so the non-suspend recomputeGpsTier can read it. Seconds of idle
     // before GPS is fully released; 0 = immediately. See GpsPowerPolicy / OFF.
     @Volatile private var gpsIdleOffDelaySec: Int = 30
+    // Seconds a connected wheel stands still before it counts as parked and
+    // GPS slows down; 0 = never. See ParkedDetector / GpsTier.PARKED.
+    @Volatile private var gpsParkedDelaySec: Int = 120
+    private val parkedDetector = com.eried.eucplanet.data.model.ParkedDetector()
+    @Volatile private var gpsParked = false
 
     // Demand-driven GPS power (GpsPowerPolicy). The stream only runs after a real
     // consumer calls startLocationUpdates(); once running it self-adjusts its tier
@@ -202,6 +209,7 @@ class TripRepository(
                 phoneGpsIntervalMs = it.phoneGpsIntervalMs.toLong().coerceAtLeast(100L)
                 phoneGpsIdleIntervalMs = it.phoneGpsIdleIntervalMs.toLong().coerceAtLeast(1000L)
                 gpsIdleOffDelaySec = it.gpsIdleOffDelaySec.coerceAtLeast(0)
+                gpsParkedDelaySec = it.gpsParkedDelaySec.coerceAtLeast(0)
                 // An interval change re-issues the request at the current tier.
                 currentGpsTier = null
                 recomputeGpsTier()
@@ -209,7 +217,38 @@ class TripRepository(
         }
         // Re-evaluate the GPS tier whenever any input changes.
         scope.launch { _recording.collect { recomputeGpsTier() } }
-        scope.launch { wheelRepository.connectionState.collect { recomputeGpsTier() } }
+        scope.launch {
+            wheelRepository.connectionState.collect {
+                // Parked belongs to one connection: a wheel that just
+                // connected has to stand still for the full delay again.
+                if (it != ConnectionState.CONNECTED) {
+                    parkedDetector.reset()
+                    gpsParked = false
+                }
+                recomputeGpsTier()
+            }
+        }
+        // Parked or not, from every frame, so the first one that moves brings
+        // the full rate back. The tier is only looked at again when it flips.
+        scope.launch {
+            wheelRepository.wheelData
+                .map { data ->
+                    val status = wheelRepository.chargeStatus.value
+                    parkedDetector.update(
+                        nowMs = android.os.SystemClock.elapsedRealtime(),
+                        moving = com.eried.eucplanet.service.AutoRecordPolicy.isMoving(data.speed),
+                        charging = status == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
+                            status == com.eried.eucplanet.data.model.ChargeStatus.Full,
+                        stillMs = gpsParkedDelaySec * 1000L,
+                    )
+                }
+                .distinctUntilChanged()
+                .collect { parked ->
+                    gpsParked = parked &&
+                        wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                    recomputeGpsTier()
+                }
+        }
         scope.launch { AppForeground.isForeground.collect { recomputeGpsTier() } }
         // Joining or leaving a group changes the tier the same way navigation
         // does. Resolved here, off the constructor thread, so the Lazy
@@ -239,22 +278,10 @@ class TripRepository(
             // seconds in the background; even thousands stay under a minute.
             runCatching { backfillWheelMetaFromFiles() }
         }
-        // App-start recovery sweep. Both workers also pick up orphaned/failed
-        // trips (folder: uploadStatus=3; eucstats: status 0 with UUID, 1, or 3),
-        // so this catches anything left behind by a previous session that
-        // couldn't finish its upload.
-        scope.launch {
-            val appSettings = runCatching { settingsRepository.get() }.getOrNull() ?: return@launch
-            if (appSettings.syncFolderUri != null) {
-                syncManager.enqueueTripUpload(appSettings)
-            }
-            if (eucStatsUploadsOn(appSettings, syncManager.riderStoreId.value)) {
-                syncManager.enqueueEucStatsUpload()
-            }
-            if (appSettings.dropboxAccessToken.isNotBlank()) {
-                syncManager.enqueueDropboxSync()
-            }
-        }
+        // The upload passes for trips a previous session left behind are queued
+        // once per start, by SyncManager.reconcileOnStart from EucPlanetApp. A
+        // second sweep used to sit here and queue the same three again, at
+        // once, which is the job-due-during-start-up that reconcile avoids.
     }
 
     // GPS-accumulated distance for the active recording. Reset at start, read at stop.
@@ -367,6 +394,7 @@ class TripRepository(
             sharing = gpsSharing,
             watchMapVisible = gpsWatchMapVisible,
             hudMapLinked = gpsHudMapLinked,
+            parked = gpsParked,
         )
         // OFF goes through the idle grace (a LOW fix, then released); any
         // other tier cancels a pending off. Shared with the iPhone.
@@ -403,6 +431,7 @@ class TripRepository(
         if (tier == currentGpsTier && locationUpdatesActive) return
         val (priority, interval) = when (tier) {
             GpsTier.HIGH -> Priority.PRIORITY_HIGH_ACCURACY to phoneGpsIntervalMs
+            GpsTier.PARKED -> Priority.PRIORITY_HIGH_ACCURACY to phoneGpsIdleIntervalMs
             GpsTier.BALANCED -> Priority.PRIORITY_BALANCED_POWER_ACCURACY to phoneGpsIdleIntervalMs
             GpsTier.LOW -> Priority.PRIORITY_LOW_POWER to phoneGpsIdleIntervalMs
             GpsTier.OFF -> return

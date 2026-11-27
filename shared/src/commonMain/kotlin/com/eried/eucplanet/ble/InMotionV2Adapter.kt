@@ -520,9 +520,9 @@ class InMotionV2Adapter : WheelAdapter {
                 // surface it for V14-family models the same way it does the
                 // P6 extended-routing 0x07 path. Same `<type> len=N body=...`
                 // format both sides parse.
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
                     "V14 realtime len=${data.size} body=${data.joinToString(" ") { "%02x".format(it) }}"
-                )
+                }
                 parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
             }
             0x05 -> {
@@ -564,12 +564,12 @@ class InMotionV2Adapter : WheelAdapter {
                 // X1 packs are 56 cells (a 120-byte frame); V14 packs are 32.
                 val cells = InMotionV2Parser.parseV14PackCells(data, if (isX1) 56 else 32)
                 if (cells != null) {
-                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
                         "V14 pack%d cells: %s".format(
                             packIndex,
                             cells.joinToString(", ") { "%.3fV".format(it) }
                         )
-                    )
+                    }
                     DecodeResult.Bms(
                         packIndex = packIndex,
                         cellVoltages = cells,
@@ -579,12 +579,12 @@ class InMotionV2Adapter : WheelAdapter {
             }
             else -> {
                 val body = data.copyOfRange(2, data.size)
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
                     "V14 pack%d sub=0x%02x len=%d body=%s".format(
                         packIndex, sub, body.size,
                         body.joinToString(" ") { "%02x".format(it) }
                     )
-                )
+                }
                 DecodeResult.Unknown
             }
         }
@@ -606,9 +606,9 @@ class InMotionV2Adapter : WheelAdapter {
                 // realtime: skip the `02 87 01 00` prefix to land on the data block
                 if (data.size < 4) return DecodeResult.Unknown
                 val body = data.copyOfRange(4, data.size)
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
                     "P6 realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
-                )
+                }
                 val telem = InMotionV2Parser.parseP6Telemetry(body) ?: return DecodeResult.Unknown
                 // Live motor from this realtime frame (slot 0); controller and
                 // battery from the cached 0x84 detailed block (slots 1/2). Fall
@@ -639,9 +639,9 @@ class InMotionV2Adapter : WheelAdapter {
                 // `02 84` routing pair so offset 0 matches the block analysis.
                 if (data.size < 2) return DecodeResult.Unknown
                 val body = data.copyOfRange(2, data.size)
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
                     "P6 detailed len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
-                )
+                }
                 // Cache the detailed block's controller / battery (and motor as
                 // a fallback); they are injected into the frequent realtime
                 // frames (sub 0x07 above) rather than emitted here, so the two
@@ -703,10 +703,11 @@ class InMotionV2Adapter : WheelAdapter {
                 // bytes) land here today, those need a richer parser once
                 // the right cmd byte has been identified.
                 val body = if (data.size >= 2) data.copyOfRange(2, data.size) else byteArrayOf()
-                val hex = body.joinToString(" ") { "%02x".format(it) }
-                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                    "V14 ext sub=0x%02x len=%d body=%s".format(sub, body.size, hex)
-                )
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
+                    "V14 ext sub=0x%02x len=%d body=%s".format(
+                        sub, body.size, body.joinToString(" ") { "%02x".format(it) }
+                    )
+                }
                 DecodeResult.Unknown
             }
         }
@@ -722,11 +723,12 @@ class InMotionV2Adapter : WheelAdapter {
      * in [decodeP6Extended].
      */
     private fun logBatteryInfo(body: ByteArray, prefix: String) {
-        val cells = InMotionV2Parser.parseBatteryInfo(body)
-        val hex = body.joinToString(" ") { "%02x".format(it) }
-        val note = if (cells == null) "$prefix len=${body.size} body=$hex (unparsed)"
-                   else "$prefix len=${body.size} packs=${cells.joinToString(", ") { "%.2fV".format(it) }} body=$hex"
-        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(note)
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
+            val cells = InMotionV2Parser.parseBatteryInfo(body)
+            val hex = body.joinToString(" ") { "%02x".format(it) }
+            if (cells == null) "$prefix len=${body.size} body=$hex (unparsed)"
+            else "$prefix len=${body.size} packs=${cells.joinToString(", ") { "%.2fV".format(it) }} body=$hex"
+        }
     }
 
     /**
@@ -777,9 +779,9 @@ class InMotionV2Adapter : WheelAdapter {
                     if (serial.isNotEmpty()) DecodeResult.Serial(serial) else DecodeResult.Unknown
                 }
                 else -> {
-                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note {
                         "V6 info sub=%02x body=%s".format(sub, body.joinToString(" ") { "%02x".format(it) })
-                    )
+                    }
                     DecodeResult.Unknown
                 }
             }

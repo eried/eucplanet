@@ -74,6 +74,9 @@ kotlin {
             implementation(libs.okhttp)
             // The Bluetooth-enable prompt before a scan (rememberScanStarter).
             implementation(libs.androidx.activity.compose)
+            // The welcome tour's clip (LoopingClip), the player the app already has.
+            implementation(libs.media3.exoplayer)
+            implementation(libs.media3.common)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -145,7 +148,7 @@ val overlayPresetIndex = tasks.register("generateOverlayPresetIndex") {
 }
 val iosAppArt = tasks.register<Sync>("generateIosAppArt") {
     from(rootProject.file("app/src/main/assets")) {
-        include("welcome_clip.webp", "leaflet.js", "leaflet.css", "leaflet-rotate.js", "overlay_default.json")
+        include("welcome_clip.mp4", "leaflet.js", "leaflet.css", "leaflet-rotate.js", "overlay_default.json")
         into("files")
     }
     from(rootProject.file("app/src/main/assets/overlay_presets")) {

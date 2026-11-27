@@ -18,6 +18,8 @@ import org.jetbrains.compose.resources.StringResource
 interface WheelAlarms {
     fun evaluate(data: WheelData)
     fun stopConstantTone()
+    /** The wheel disconnected: the tone stops now and after any evaluation still running. */
+    fun wheelDisconnected()
 }
 
 /** Keeps the audio route open between cues while riding (TonePlayer). */

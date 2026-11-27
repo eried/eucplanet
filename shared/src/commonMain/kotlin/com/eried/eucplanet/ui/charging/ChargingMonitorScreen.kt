@@ -118,6 +118,12 @@ import com.eried.eucplanet.ui.common.screenGeometry
 // How far the animated % may run ahead of the last reading.
 private const val MAX_LEAD = 1.2f
 private const val FLUID_COLS = 40
+/** The smallest change of tilt worth a repaint, about a third of a degree. */
+private const val TILT_STEP = 0.005f
+/** Gyroscope readings below this (rad/s) are the sensor at rest, not a shake. */
+private const val GYRO_REST = 0.02f
+/** Below this the fading shake is over. */
+private const val KICK_REST = 0.01f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -736,12 +742,31 @@ private fun BatteryFillGraphic(
     val dlife = remember { FloatArray(maxDrops) }
     val geo = remember { FloatArray(3) }   // [w, h, yTop] published by the Canvas
     val rnd = remember { kotlin.random.Random }
-    // Gravity along the screen's horizontal tilts the surface; the gyro's
-    // turn about the screen's vertical axis kicks a slosh.
-    PhoneMotionEffect(
-        onGravityX = { horiz -> tiltX.floatValue = (horiz / 9.81f).coerceIn(-1f, 1f) },
-        onGyroY = { rate -> gyroKick.floatValue = (gyroKick.floatValue - rate).coerceIn(-12f, 12f) },
-    )
+    // On while this screen is in front, off when the app is left with it
+    // open: the sensors used to keep running behind the home screen for as
+    // long as the charge lasted. Leaving the composition stops them.
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifeState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
+    if (lifeState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+        // Gravity along the screen's horizontal tilts the surface; the gyro's
+        // turn about the screen's vertical axis kicks a slosh.
+        PhoneMotionEffect(
+            onGravityX = { horiz ->
+                // Only a tilt the eye could see. A phone lying still reports a
+                // slightly different value fifty times a second, and each one
+                // repainted the whole liquid.
+                val tilt = (horiz / 9.81f).coerceIn(-1f, 1f)
+                if (kotlin.math.abs(tilt - tiltX.floatValue) >= TILT_STEP) tiltX.floatValue = tilt
+            },
+            onGyroY = { rate ->
+                // The same for the gyroscope at rest: its noise is not a
+                // shake. A real one is far above this.
+                if (kotlin.math.abs(rate) >= GYRO_REST) {
+                    gyroKick.floatValue = (gyroKick.floatValue - rate).coerceIn(-12f, 12f)
+                }
+            },
+        )
+    }
 
     LaunchedEffect(Unit) {
         var prev = 0L
@@ -751,7 +776,9 @@ private fun BatteryFillGraphic(
                     val dt = ((now - prev) / 1_000_000_000f).coerceIn(0f, 0.05f)
                     val tilt = tiltX.floatValue
                     val kick = gyroKick.floatValue
-                    gyroKick.floatValue = kick * 0.86f
+                    // Fades out, and ends: left to itself the fade never quite
+                    // reaches zero, and every step of it is a repaint.
+                    gyroKick.floatValue = if (kotlin.math.abs(kick) < KICK_REST) 0f else kick * 0.86f
                     val cx = FLUID_COLS / 2f
                     // Surface: spring toward the gravity-tilt line + neighbour
                     // coupling (travelling waves) + damping; the gyro injects slosh.

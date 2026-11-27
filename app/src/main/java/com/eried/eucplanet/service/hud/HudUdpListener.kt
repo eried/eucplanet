@@ -73,7 +73,7 @@ class HudUdpListener(
         watchNetworkChanges()
         job = scope.launch {
             while (isActive) {
-                runCatching { runListenLoop() }
+                runCatching { runListenLoop { isActive } }
                     .onFailure {
                         Log.w(TAG, "UDP listener crashed, restarting", it)
                         lastBindError = it.message ?: it::class.simpleName.orEmpty()
@@ -149,7 +149,7 @@ class HudUdpListener(
                     job = scope.launch {
                         kotlinx.coroutines.delay(250L) // let socket fully release
                         while (isActive) {
-                            runCatching { runListenLoop() }
+                            runCatching { runListenLoop { isActive } }
                             kotlinx.coroutines.delay(1_000L)
                         }
                     }
@@ -175,18 +175,28 @@ class HudUdpListener(
         networkCallback = null
     }
 
-    private fun runListenLoop() {
+    /**
+     * One socket's life. [stillWanted] is the calling coroutine's own
+     * `isActive`.
+     *
+     * The loop used to ask the shared `job` field whether to go on, and to
+     * wait for a packet with no time limit. A recycle (every Wi-Fi change)
+     * cancels the old job and puts a new one in that field, so the old loop
+     * asked the new job, heard "not cancelled" and never ended: one more
+     * blocked thread and one more bound socket per Wi-Fi change, for as long
+     * as the app ran. Each loop now asks its own coroutine, and the wait is
+     * bounded so a cancelled loop finds out within [RECEIVE_WAIT_MS] and
+     * closes its socket. What the live loop receives is unchanged.
+     */
+    private fun runListenLoop(stillWanted: () -> Boolean) {
         DatagramSocket(null).use { socket ->
             socket.reuseAddress = true
             socket.broadcast = true
-            socket.soTimeout = 0
+            socket.soTimeout = RECEIVE_WAIT_MS
             socket.bind(InetSocketAddress(port))
             lastBindError = ""
             hudLinkNote(TAG, "Beacon listener: bound to 0.0.0.0:$port")
-            val buf = ByteArray(512)
-            while (job?.isCancelled == false) {
-                val packet = DatagramPacket(buf, buf.size)
-                socket.receive(packet) // blocks
+            receiveWhile(socket, stillWanted) { packet ->
                 val text = String(packet.data, 0, packet.length, Charsets.US_ASCII).trim()
                 val srcIp = packet.address.hostAddress.orEmpty()
                 val now = System.currentTimeMillis()
@@ -214,5 +224,30 @@ class HudUdpListener(
         /** Beacons land every 2 s; one trace line a minute is enough
          *  to show the channel alive and to show it going quiet. */
         private const val BEACON_NOTE_INTERVAL_MS = 60_000L
+        /** How long one wait for a beacon lasts before the loop looks up to
+         *  see whether it is still wanted. Beacons come every 2 s. */
+        private const val RECEIVE_WAIT_MS = 3_000
+    }
+}
+
+/**
+ * Hands every datagram [socket] receives to [onPacket] for as long as
+ * [stillWanted] says so. The socket's own timeout bounds each wait, so the
+ * question is asked again even when nothing arrives.
+ */
+internal fun receiveWhile(
+    socket: DatagramSocket,
+    stillWanted: () -> Boolean,
+    onPacket: (DatagramPacket) -> Unit,
+) {
+    val buf = ByteArray(512)
+    while (stillWanted()) {
+        val packet = DatagramPacket(buf, buf.size)
+        try {
+            socket.receive(packet)
+        } catch (_: java.net.SocketTimeoutException) {
+            continue
+        }
+        onPacket(packet)
     }
 }

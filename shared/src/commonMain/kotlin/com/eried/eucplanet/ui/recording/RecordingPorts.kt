@@ -50,6 +50,8 @@ interface RecordingTrips {
     fun <R> readTripLines(trip: TripRecord, block: (Sequence<String>) -> R): R?
     /** The trip's CSV as it is on disk; null when the file is gone. */
     fun readTripBytes(trip: TripRecord): ByteArray?
+    /** The trip's CSV opened for reading at any position (the live trip screen); null when it is gone. */
+    fun openTripFile(trip: TripRecord): TripFileRead?
     /** Writes an imported CSV under a free name close to [baseName]; the file name it got. */
     fun writeImportedTrip(baseName: String, bytes: ByteArray): String
     fun deleteTripFile(fileName: String)

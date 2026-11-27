@@ -410,6 +410,14 @@ class OverlayStudioViewModel(
             // tween-animated against a separately-throttled trail.
             liveGForce.collect { pair ->
                 if (pair == null) return@collect
+                // Only for a preset with a G-force element. Without one the
+                // trail was still rebuilt on every motion reading, two copies
+                // of a thousand points fifty times a second. An element added
+                // later starts its trail from there, full within seconds.
+                if (!StudioNeeds.gForceTrail(_preset.value.elements)) {
+                    if (_liveGForceTrail.value.isNotEmpty()) _liveGForceTrail.value = emptyList()
+                    return@collect
+                }
                 _liveGForceTrail.update {
                     it.takeLast(LIVE_TRAIL_MAX - 1) +
                         androidx.compose.ui.geometry.Offset(pair.first, pair.second)

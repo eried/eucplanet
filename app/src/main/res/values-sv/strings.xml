@@ -874,13 +874,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesellastbil</string>
     <string name="engine_preset_sampled_motorcycle">Liten crosshoj</string>
     <string name="engine_preset_sampled_city_car">Stadsbil</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Gräsklippare</string>
     <string name="engine_preset_sampled_steam_loco">Ånglok</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Stor diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Trasigt avgasrör</string>
-    <string name="engine_preset_sampled_quad_atv">Fyrhjuling</string>
 
     <string name="col_periodic">Regelbunden</string>
     <string name="col_trigger">Utlöst</string>
@@ -2006,6 +2002,8 @@
     <string name="warnings_battery_opt_body">Android kan stoppa EUC Planet i bakgrunden och avbryta en inspelning mitt i turen. Tillåt appen att köra obegränsat.</string>
     <string name="warnings_storage_full_title">Telefonens lagring är full</string>
     <string name="warnings_storage_full_body">Turer kan inte spelas in och ändringar kan inte sparas. Turerna hittills är säkra. Frigör utrymme för att fortsätta.</string>
+    <string name="warnings_settings_reset_title">Inställningarna nollställdes</string>
+    <string name="warnings_settings_reset_body">Inställningsfilen var skadad, så appen startade med standardvärdena. Turer och larm påverkas inte. Återställ en säkerhetskopia av inställningarna om du har en.</string>
     <string name="warnings_hud_blocked_title">Telefon-HUD kan inte visas</string>
     <string name="warnings_hud_blocked_body">Behörigheten att visas över andra appar har tagits bort, så överlägget syns inte ovanpå kartor eller musik.</string>
     <string name="warnings_no_backup_title">Turer säkerhetskopieras inte</string>
@@ -2295,6 +2293,8 @@
     <string name="adv_phone_gps_idle_interval_desc">GPS-takt i viloläge när du inte spelar in eller navigerar, så att navigatorn och en ny anslutning är redo. Högre sparar batteri.</string>
     <string name="adv_gps_idle_off_delay">GPS av i viloläge</string>
     <string name="adv_gps_idle_off_delay_desc">När appen är i bakgrunden utan anslutet hjul och utan inspelning stängs GPS av för att spara batteri. 0 stänger av den direkt. Ett högre värde håller först en strömsnål position aktiv så länge, så att ett snabbt appbyte inte tappar GPS.</string>
+    <string name="adv_gps_parked_delay">Långsammare GPS vid parkering</string>
+    <string name="adv_gps_parked_delay_desc">Med ett hjul anslutet och appen i bakgrunden går GPS ner till intervallet i viloläge när hjulet har stått stilla så länge, eller direkt medan det laddas. Första rörelsen ger full takt igen. 0 sänker den aldrig.</string>
     <string name="adv_gps_fix_max_age">Max ålder för GPS-position</string>
     <string name="adv_gps_fix_max_age_desc">En position äldre än detta räknas som ingen position, så att en inspelning som startas innan GPS är redo inte börjar med en föråldrad punkt.</string>
     <string name="adv_pushonly_note">Vissa enheter sänder i sin egen fasta takt och bryr sig inte om de här inställningarna: push-only-hjul (Begode, Gotway, Veteran, KingSong), extern GPS (RaceBox, Dragy), radar och Flic-knappar.</string>

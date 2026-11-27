@@ -39,3 +39,35 @@ private val STORAGE_FULL_MARKS = listOf("ENOSPC", "SQLITE_FULL", "SQLITE_IOERR_S
  */
 fun mayRebuildDatabase(openError: Throwable, copyKept: Boolean): Boolean =
     copyKept && !openError.isOutOfStorage()
+
+/**
+ * Whether an uncaught failure may be answered with the storage warning in
+ * place of closing the app.
+ *
+ * Saving an alarm on a full phone closed the app: the database refused the
+ * write inside a background task, nothing caught it, and Android ended the
+ * process. With no room at all the database cannot even be opened, so the app
+ * then closed again on every start.
+ *
+ * Two things must hold. The cause is a phone out of storage. And the failure
+ * was handed over by a background task (a coroutine), which leaves its thread
+ * in working order: the task is over, the rest of the app is not. A failure
+ * that is unwinding a thread, the main thread above all, cannot be survived
+ * and closes the app as before. A coroutine marks what it hands over with a
+ * note of its own; StorageFullSurvivalTest fails if a library update renames
+ * that note, and the shrunk build keeps the name (proguard-rules.pro).
+ */
+fun survivesAsStorageFull(t: Throwable): Boolean =
+    t.isOutOfStorage() && t.suppressed.any { it.javaClass.name == COROUTINE_REPORT_MARK }
+
+private const val COROUTINE_REPORT_MARK = "kotlinx.coroutines.internal.DiagnosticCoroutineContextException"
+
+/**
+ * Set when the database could not be opened at start for lack of storage.
+ * The main screen then shows the storage warning and nothing else, see
+ * StorageFullStartScreen: every list would come up empty and read as lost
+ * data, when it is all still there.
+ */
+object StorageStart {
+    val dataUnavailable = kotlinx.coroutines.flow.MutableStateFlow(false)
+}

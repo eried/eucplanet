@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.eried.eucplanet.data.model.AppSettings
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +13,9 @@ import kotlinx.coroutines.flow.map
 import com.eried.eucplanet.platform.JSONObject
 import okio.IOException
 import com.eried.eucplanet.platform.Log
+import kotlin.concurrent.Volatile
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 /**
  * Persists the full [AppSettings] object as a single JSON blob in DataStore
@@ -38,7 +42,32 @@ class SettingsStore(
     // Told when a save fails, which in practice means the phone is out of
     // storage.
     private val onWriteFailed: (IOException) -> Unit = {},
+    // Told, once, when the stored settings could not be read and the app
+    // carries on from the defaults.
+    private val onReset: () -> Unit = {},
+    // Whether a settings file was there when the app started. A damaged file
+    // does not always fail to read: its bytes can pass for a file with
+    // nothing in it. A file that was there and holds no settings is that
+    // case; on a first install there is no file at all. Each phone looks at
+    // its own file, see [FILE_NAME].
+    private val fileWasThere: Boolean = false,
 ) {
+
+    private val resetLock = SynchronizedObject()
+    private var resetReported = false
+
+    private fun reportReset(how: String) {
+        synchronized(resetLock) {
+            if (resetReported) return
+            resetReported = true
+        }
+        Log.e("SettingsStore", "Stored settings unreadable ($how), starting from defaults")
+        onReset()
+    }
+
+    init {
+        whenSettingsFileDamaged = { reportReset("file damaged") }
+    }
 
     val settings: Flow<AppSettings> = dataStore.data.map { prefs -> readSettings(prefs) }
 
@@ -94,6 +123,7 @@ class SettingsStore(
     suspend fun seedIfAbsent(imported: AppSettings) {
         write { prefs ->
             if (prefs[KEY_JSON] == null) {
+                if (fileWasThere) reportReset("file held no settings")
                 prefs[KEY_JSON] = SettingsJson.toJson(imported).toString()
             }
         }
@@ -110,6 +140,7 @@ class SettingsStore(
     suspend fun seedDefaultsIfAbsent() {
         write { prefs ->
             if (prefs[KEY_JSON] == null) {
+                if (fileWasThere) reportReset("file held no settings")
                 val units = startingUnits()
                 val seeded = AppSettings(
                     unitSpeed = units.speed,
@@ -118,18 +149,57 @@ class SettingsStore(
                     unitAltitude = units.altitude
                 )
                 prefs[KEY_JSON] = SettingsJson.toJson(seeded).toString()
+                // A fresh install starts on the current defaults.
+                prefs[KEY_DEFAULTS_REV] = NewDefaults.REV
+            }
+            // A default that changed reaches an existing install once, here,
+            // in the transaction the start already runs. See NewDefaults.
+            val rev = prefs[KEY_DEFAULTS_REV] ?: 0
+            if (rev < NewDefaults.REV) {
+                val before = readSettings(prefs)
+                val after = NewDefaults.upgrade(before, rev)
+                if (after != before) prefs[KEY_JSON] = SettingsJson.toJson(after).toString()
+                prefs[KEY_DEFAULTS_REV] = NewDefaults.REV
             }
         }
     }
 
+    // The last blob read and what it parsed to. Every read used to parse the
+    // whole blob again, some three hundred fields, and there are well over a
+    // hundred places that read: a dozen of them in the first seconds of a
+    // start, then every upload pass and every return to the app. The blob only
+    // changes when a setting is saved, and then it is another string.
+    // AppSettings is immutable, so one instance can be handed to everyone.
+    @Volatile private var lastRead: Pair<String, AppSettings>? = null
+
     private fun readSettings(prefs: Preferences): AppSettings {
         val json = prefs[KEY_JSON] ?: return AppSettings()
-        return runCatching {
+        lastRead?.let { (text, parsed) -> if (text == json) return parsed }
+        val parsed = runCatching {
             SettingsJson.fromJson(JSONObject(json))
-        }.getOrElse { AppSettings() }
+        }.getOrElse {
+            reportReset("contents damaged")
+            AppSettings()
+        }
+        lastRead = json to parsed
+        return parsed
     }
 
     companion object {
+        /** The DataStore's name, so the start can ask whether its file exists. */
+        const val FILE_NAME = "eucplanet_settings"
         private val KEY_JSON = stringPreferencesKey("app_settings_json")
+        /** Which revision of [NewDefaults] this install has taken. */
+        private val KEY_DEFAULTS_REV = intPreferencesKey("defaults_rev")
     }
 }
+
+/**
+ * For the settings file's corruption handler on each phone: the rider is told,
+ * since the app otherwise opens on the welcome tour with every choice gone and
+ * no word about why.
+ */
+fun settingsFileDamaged() = whenSettingsFileDamaged()
+
+/** Set by the one [SettingsStore]; the file's handler has no other way to it. */
+@Volatile private var whenSettingsFileDamaged: () -> Unit = {}

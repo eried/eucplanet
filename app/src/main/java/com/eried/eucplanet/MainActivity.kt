@@ -332,6 +332,32 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    private val storageStillFull = MutableStateFlow(false)
+
+    /**
+     * Opened with no storage left: tries the database again and, once it
+     * opens, starts the app afresh. Afresh, because everything that was built
+     * on the shut database is in a state nobody has tested.
+     */
+    private fun reopenIfThereIsRoom(sayIfNot: Boolean) {
+        lifecycleScope.launch {
+            val opens = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    get<com.eried.eucplanet.data.db.AppDatabase>().openHelper.writableDatabase
+                }.isSuccess
+            }
+            if (!opens) {
+                if (sayIfNot) storageStillFull.value = true
+                return@launch
+            }
+            packageManager.getLaunchIntentForPackage(packageName)?.let {
+                startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+            }
+            finishAffinity()
+            Runtime.getRuntime().exit(0)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         voiceCommands.micPrompter = {
@@ -642,6 +668,27 @@ class MainActivity : AppCompatActivity() {
             val pulseColors = themeController.pulse.collectAsState().value
             val themeColors = pulseColors ?: liveColors ?: resolvedColors
             EucPlanetTheme(colors = themeColors) {
+                // Opened with no storage left and the database would not open:
+                // say so and nothing else, until there is room. See
+                // StorageFullStartScreen for why the dashboard is not shown.
+                val noData by com.eried.eucplanet.util.StorageStart.dataUnavailable.collectAsState()
+                if (noData) {
+                    val stillFull by storageStillFull.collectAsState()
+                    // Looked at again whenever the rider comes back, from the
+                    // phone's storage settings above all.
+                    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+                        reopenIfThereIsRoom(sayIfNot = false)
+                        onPauseOrDispose { }
+                    }
+                    com.eried.eucplanet.ui.common.StorageFullStartScreen(
+                        stillFull = stillFull,
+                        onFreeSpace = {
+                            get<com.eried.eucplanet.data.repository.AppHealthRepository>().openStorage()
+                        },
+                        onRetry = { reopenIfThereIsRoom(sayIfNot = true) },
+                    )
+                    return@EucPlanetTheme
+                }
                 // In PIP the navigation tree is replaced rather than overlaid:
                 // the window is a fraction of the screen and a scaled-down app
                 // is unreadable. The rest stays in composition, so leaving PIP

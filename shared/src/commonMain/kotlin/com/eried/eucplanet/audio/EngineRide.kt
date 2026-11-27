@@ -16,6 +16,8 @@ data class RideStep(
 )
 
 object EngineRide {
+    /** How long the decel preview holds full throttle before letting off, ms. */
+    private const val CHOP_HOLD_MS = 150L
 
     /** The settings-page preview for [scenario], as [EngineSoundEngine.previewProfile] plays it. */
     fun preview(scenario: String, durationMs: Long, maxSpeedRefKmh: Float): List<RideStep> = when (scenario) {
@@ -58,7 +60,11 @@ object EngineRide {
         val tailSteps = 15
         return (0..accelSteps).map { i ->
             val t = i.toFloat() / accelSteps
-            RideStep(accelDur / accelSteps, speedKmh = 10f + 25f * t, pwmPercent = 30f + 50f * t)
+            // The engine reads a let-off as a chop only once its load has caught up with
+            // the throttle. Held at the top this long it always has; at the pace of the
+            // climb it was a few milliseconds short, and most previews played no pop.
+            val hold = if (i == accelSteps) CHOP_HOLD_MS else accelDur / accelSteps
+            RideStep(hold, speedKmh = 10f + 25f * t, pwmPercent = 30f + 50f * t)
         } + RideStep(0L, speedKmh = 35f, pwmPercent = 0f) + (0..tailSteps).map { i ->
             RideStep(tailDur / tailSteps, speedKmh = 35f - 25f * (i.toFloat() / tailSteps), pwmPercent = 0f)
         }

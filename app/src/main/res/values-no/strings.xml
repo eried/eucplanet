@@ -734,12 +734,8 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesellastebil</string>
     <string name="engine_preset_sampled_motorcycle">Liten crosser</string>
     <string name="engine_preset_sampled_city_car">Bybil</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Gressklipper</string>
     <string name="engine_preset_sampled_steam_loco">Damplokomotiv</string>
-    <string name="engine_preset_sampled_big_diesel">Stor diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Ødelagt eksos</string>
-    <string name="engine_preset_sampled_quad_atv">Firehjuling</string>
 
     <string name="external_gps_autodetect_forward_capture">Leser gangbevegelse…</string>
     <string name="external_gps_autodetect_lateral_capture">Leser sidebevegelse…</string>
@@ -1880,8 +1876,10 @@
     <string name="online_rejoin_body">Sikkerhetskopimappen inneholder en profil som har vært brukt på ledertavlen.\n\nKjører-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Batterioptimalisering er på</string>
     <string name="warnings_battery_opt_body">Android kan stoppe EUC Planet i bakgrunnen og avbryte et opptak midt i turen. Tillat at appen kjører uten begrensninger.</string>
-    <string name="warnings_storage_full_title">Telefonens lagring er full</string>
+    <string name="warnings_storage_full_title">Telefonens lagringsplass er full</string>
     <string name="warnings_storage_full_body">Turer kan ikke tas opp, og endringer kan ikke lagres. Turene så langt er trygge. Frigjør plass for å fortsette.</string>
+    <string name="warnings_settings_reset_title">Innstillingene ble tilbakestilt</string>
+    <string name="warnings_settings_reset_body">Innstillingsfilen var skadet, så appen startet med standardinnstillingene. Turer og alarmer er ikke berørt. Gjenopprett en sikkerhetskopi av innstillingene hvis du har en.</string>
     <string name="warnings_hud_blocked_title">Telefon-HUD kan ikke tegne</string>
     <string name="warnings_hud_blocked_body">Tillatelsen til å tegne over andre apper ble trukket tilbake, så overlegget vises ikke oppå kart eller musikk.</string>
     <string name="warnings_no_backup_title">Turer sikkerhetskopieres ikke</string>
@@ -2180,6 +2178,8 @@
     <string name="adv_phone_gps_idle_interval_desc">GPS-frekvens når du ikke tar opp eller navigerer, så Navigatoren og en ny hjultilkobling er klare. Høyere sparer batteri.</string>
     <string name="adv_gps_idle_off_delay">GPS av i hvile</string>
     <string name="adv_gps_idle_off_delay_desc">Når appen er i bakgrunnen uten tilkoblet hjul og uten opptak, slås GPS av for å spare batteri. 0 slår den av med en gang. Høyere holder GPS varm med lavt strømforbruk så lenge først, slik at et raskt appbytte ikke kutter GPS.</string>
+    <string name="adv_gps_parked_delay">Tregere GPS ved parkering</string>
+    <string name="adv_gps_parked_delay_desc">Med et hjul tilkoblet og appen i bakgrunnen går GPS ned til hvileintervallet når hjulet har stått stille så lenge, eller med en gang mens det lader. Første bevegelse gir full takt igjen. 0 senker den aldri.</string>
     <string name="adv_gps_fix_max_age">Maks. alder på GPS-posisjon</string>
     <string name="adv_gps_fix_max_age_desc">En posisjon eldre enn dette teller som ingen posisjon, slik at et opptak som startes før GPS er klar, ikke begynner med et utdatert punkt.</string>
     <string name="adv_pushonly_note">Noen enheter sender med sin egen faste frekvens og ignorerer disse innstillingene: hjul som bare sender selv (Begode, Gotway, Veteran, KingSong), ekstern GPS (RaceBox, Dragy), radar og Flic-knapper.</string>
@@ -2680,7 +2680,7 @@
     <string name="crews_type_instead">Skriv inn manuelt</string>
     <string name="crews_code_label">Passkode</string>
     <string name="crews_foreign_title">Den koden er ikke fra eucstats</string>
-    <string name="crews_foreign_body">Denne forespørselen kommer fra %1$s, ikke eucstats. Å utstede et pass ville gi den serveren tilgang til kontoen din på resultatlisten.\n\nFor å bruke din egen server må du først slå på utviklermodus i Innstillinger.</string>
+    <string name="crews_foreign_body">Denne forespørselen kommer fra %1$s, ikke eucstats. Å utstede et pass ville gi den serveren tilgang til kontoen din på ledertavlen.\n\nFor å bruke din egen server må du først slå på utviklermodus i Innstillinger.</string>
     <string name="crews_scan_switch">Skann i stedet</string>
     <string name="crews_close">Lukk</string>
     <string name="crews_opensettings">Åpne innstillinger</string>
@@ -2693,7 +2693,7 @@
     <string name="crews_scope_admin">Administrasjonskonsoll</string>
     <string name="crews_grant">Utsted dette passet bare hvis du selv sendte forespørselen.</string>
     <string name="crews_noprofile_title">Bli med på ledertavlen først</string>
-    <string name="crews_noprofile_body">Pass krever en profil på resultatlisten, og denne telefonen har ingen ennå. Bli med under %1$s, og skann igjen.</string>
+    <string name="crews_noprofile_body">Pass krever en ledertavleprofil, og denne telefonen har ingen ennå. Bli med under %1$s, og skann igjen.</string>
     <string name="crews_issue">Tillat</string>
     <string name="crews_notme">Avslå</string>
     <string name="crews_ratelimited">For mange forsøk. Vent et minutt og prøv igjen.</string>

@@ -22,17 +22,34 @@ import kotlinx.coroutines.withTimeoutOrNull
  * first route near the rider ([location], when a fix comes within
  * [FIX_WAIT_MS]). It waits [AFTER_START_MS] so the start itself goes first;
  * a route asked for sooner stops it. Nothing runs without a downloaded square.
+ *
+ * It also waits for the app to be on screen. Android starts the process with
+ * no screen to run an upload job or after a reboot, and nobody asks such a
+ * start for a route: up to a minute of routing there was battery for nothing.
  */
 object OfflineWarmUp {
     const val AFTER_START_MS = 5_000L
     const val FIX_WAIT_MS = 30_000L
 
-    fun start(routing: RoutingService, location: Flow<GeoPoint?>) {
-        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
-            delay(AFTER_START_MS)
+    /** [onScreen] is each phone's app-in-front flow. */
+    fun start(routing: RoutingService, location: Flow<GeoPoint?>, onScreen: Flow<Boolean>) =
+        start(location, onScreen) { near -> routing.warmUpOffline(near) }
+
+    /** The same with its parts handed in, so the waiting can be tested. */
+    fun start(
+        location: Flow<GeoPoint?>,
+        onScreen: Flow<Boolean>,
+        afterStartMs: Long = AFTER_START_MS,
+        fixWaitMs: Long = FIX_WAIT_MS,
+        scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+        warm: suspend (GeoPoint?) -> Unit,
+    ) {
+        scope.launch {
+            onScreen.first { it }
+            delay(afterStartMs)
             try {
-                val near = withTimeoutOrNull(FIX_WAIT_MS) { location.filterNotNull().first() }
-                routing.warmUpOffline(near)
+                val near = withTimeoutOrNull(fixWaitMs) { location.filterNotNull().first() }
+                warm(near)
             } catch (e: Exception) {
                 Log.w("OfflineRouter", "warm-up after start failed: ${e.message}")
             }

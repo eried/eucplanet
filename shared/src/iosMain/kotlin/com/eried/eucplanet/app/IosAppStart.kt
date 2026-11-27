@@ -98,6 +98,8 @@ object IosAppStart {
         com.eried.eucplanet.nav.offline.OfflineWarmUp.start(
             IosAppGraph.routing,
             IosLocation.lastKnown.map { it?.let { l -> com.eried.eucplanet.data.model.GeoPoint(l.latitude, l.longitude) } },
+            // A background relaunch (Bluetooth, an upload) asks for no route.
+            IosForeground.visible,
         )
         // SIMCTL_CHILD_EUC_VOICE_EVERY=15 makes the periodic report speak every
         // 15 s whatever the speed and output, to hear it with the app in the

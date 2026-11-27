@@ -274,11 +274,11 @@ class VeteranAdapter : WheelAdapter {
             // Log the DECODED values (not just raw bytes) per frame so a
             // service-mode capture shows the speed/battery timeline directly -
             // i.e. whether telemetry updates smoothly or in random bursts.
-            DiagnosticsLogger.note(
+            DiagnosticsLogger.note {
                 "Veteran realtime spd=${emitted?.let { "%.1f".format(it.speed) } ?: "-"} " +
                     "bat=${emitted?.batteryPercent ?: "-"} pg=${VeteranParser.pageId(f.bytes)} " +
                     "len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
-            )
+            }
             if (emitted != null) out += DecodeResult.Telemetry(emitted)
             // Surface the resolved model once, so the UI and the experimental
             // banner can distinguish models within the Veteran family.

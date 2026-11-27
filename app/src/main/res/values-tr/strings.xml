@@ -874,13 +874,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dizel kamyon</string>
     <string name="engine_preset_sampled_motorcycle">Küçük arazi motosikleti</string>
     <string name="engine_preset_sampled_city_car">Şehir aracı</string>
-    <string name="engine_preset_sampled_tractor">Traktör</string>
-    <string name="engine_preset_sampled_lawnmower">Çim biçme makinesi</string>
     <string name="engine_preset_sampled_steam_loco">Buharlı lokomotif</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Büyük dizel</string>
     <string name="engine_preset_sampled_broken_exhaust">Arızalı egzoz</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Periyodik</string>
     <string name="col_trigger">Tetikleyici</string>
@@ -2007,6 +2003,8 @@
     <string name="warnings_battery_opt_body">Android, EUC Planet\'i arka planda durdurup sürüşün ortasında kaydı kesebilir. Kısıtlamasız çalışmasına izin verin.</string>
     <string name="warnings_storage_full_title">Telefon depolama alanı dolu</string>
     <string name="warnings_storage_full_body">Sürüşler kaydedilemiyor ve değişiklikler saklanamıyor. Şimdiye kadarki sürüşler güvende. Devam etmek için yer açın.</string>
+    <string name="warnings_settings_reset_title">Ayarlar sıfırlandı</string>
+    <string name="warnings_settings_reset_body">Ayar dosyası bozulmuştu, bu yüzden uygulama varsayılanlarla başladı. Sürüşler ve alarmlar etkilenmedi. Varsa ayar yedeğinizi geri yükleyin.</string>
     <string name="warnings_hud_blocked_title">Telefon HUD çizilemiyor</string>
     <string name="warnings_hud_blocked_body">Diğer uygulamaların üzerine çizme izni geri alındı, bu yüzden kaplama harita veya müziğin üstünde görünmeyecek.</string>
     <string name="warnings_no_backup_title">Sürüşler yedeklenmiyor</string>
@@ -2292,6 +2290,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Kayıt veya navigasyon yokken GPS güncelleme aralığı; böylece Navigatör ve yeni bir teker bağlantısı hazır kalır. Yüksek değer pili korur.</string>
     <string name="adv_gps_idle_off_delay">Boşta GPS kapatma</string>
     <string name="adv_gps_idle_off_delay_desc">Uygulama arka plandayken, teker bağlı değilken ve kayıt yokken pili korumak için GPS kapanır. 0 hemen kapatır; daha yüksek değerde GPS önce o süre boyunca düşük güçte açık kalır, böylece uygulamalar arasında kısa bir geçiş GPS\'i koparmaz.</string>
+    <string name="adv_gps_parked_delay">Park halinde yavaş GPS</string>
+    <string name="adv_gps_parked_delay_desc">Teker bağlıyken ve uygulama arka plandayken, teker bu süre boyunca durduğunda ya da şarj olurken hemen GPS boşta aralığına iner. İlk harekette tam hıza döner. 0 hiç yavaşlatmaz.</string>
     <string name="adv_gps_fix_max_age">Maks. GPS konum yaşı</string>
     <string name="adv_gps_fix_max_age_desc">Bundan eski bir konum geçersiz sayılır; böylece GPS hazır olmadan başlayan bir kayıt eski bir noktayla başlamaz.</string>
     <string name="adv_pushonly_note">Bazı cihazlar kendi sabit hızlarında veri gönderir ve bu ayarları yok sayar: veriyi kendiliğinden gönderen tekerler (Begode, Gotway, Veteran, KingSong), harici GPS (RaceBox, Dragy), radar ve Flic düğmeleri.</string>
@@ -2790,7 +2790,7 @@
     <string name="crews_type_instead">Elle gir</string>
     <string name="crews_code_label">Kart kodu</string>
     <string name="crews_foreign_title">Bu kod eucstats\'tan değil</string>
-    <string name="crews_foreign_body">Bu istek eucstats\'tan değil, %1$s adresinden geliyor. Kart vermek o sunucuya sıralama hesabınıza erişim verir.\n\nKendi sunucunuzu kullanmak için önce Ayarlar\'dan geliştirici modunu açın.</string>
+    <string name="crews_foreign_body">Bu istek eucstats\'tan değil, %1$s adresinden geliyor. Kart verirseniz o sunucu lider tablosu hesabınıza erişebilir.\n\nKendi sunucunuzu kullanmak için önce Ayarlar\'dan geliştirici modunu açın.</string>
     <string name="crews_scan_switch">Bunun yerine tara</string>
     <string name="crews_close">Kapat</string>
     <string name="crews_opensettings">Ayarları aç</string>
@@ -2803,7 +2803,7 @@
     <string name="crews_scope_admin">Yönetim konsolu</string>
     <string name="crews_grant">Bu kartı yalnızca isteği kendiniz yaptıysanız verin.</string>
     <string name="crews_noprofile_title">Önce lider tablosuna katılın</string>
-    <string name="crews_noprofile_body">Kartlar için bir sıralama profili gerekir ve bu telefonda henüz yok. %1$s bölümünden katılın, sonra yeniden tarayın.</string>
+    <string name="crews_noprofile_body">Kartlar için bir lider tablosu profili gerekir ve bu telefonda henüz yok. %1$s bölümünden katılın, sonra yeniden tarayın.</string>
     <string name="crews_issue">İzin ver</string>
     <string name="crews_notme">Reddet</string>
     <string name="crews_ratelimited">Çok fazla deneme. Bir dakika bekleyip tekrar deneyin.</string>

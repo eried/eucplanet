@@ -6,7 +6,8 @@ import com.eried.eucplanet.service.VoiceService
 
 /** VoiceService as the shared dashboard's [DashboardVoice]. */
 class AndroidDashboardVoice(private val voice: VoiceService) : DashboardVoice {
-    override fun initialize() = voice.initialize()
+    override fun acquire(who: String) = voice.acquire(who)
+    override fun release(who: String) = voice.release(who)
     override fun welcomeOnce() = voice.welcomeOnce()
     override fun speakWelcomeNow() = voice.speakWelcomeNow()
     override fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean) =

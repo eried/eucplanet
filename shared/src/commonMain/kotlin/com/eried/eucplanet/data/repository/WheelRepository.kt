@@ -445,6 +445,21 @@ class WheelRepository(
     // PREDICTION_LOG_INTERVAL_MS while a charge session is active so the
     // chart can visualise how the prediction drifted over the session.
     private val predictionHistory = ArrayDeque<PredictionSample>()
+
+    // What the last snapshot published of the histories above. A snapshot goes
+    // out on every wheel frame, and it used to copy all seven histories each
+    // time (up to a thousand points each), though they gain a point every 15
+    // or 30 seconds. The copies are now made when [chargeHistChanged] says one
+    // of them moved, and handed out again as they are until the next change.
+    // Guarded by [chargeLock] like the histories themselves.
+    private var chargeHistChanged = true
+    private var pubChargeHist: List<MetricSample> = emptyList()
+    private var pubVoltHist: List<MetricSample> = emptyList()
+    private var pubTempHist: List<MetricSample> = emptyList()
+    private var pubPredictionHist: List<PredictionSample> = emptyList()
+    private var pubPackMin: List<List<MetricSample>> = emptyList()
+    private var pubPackMax: List<List<MetricSample>> = emptyList()
+    private var pubPackAvg: List<List<MetricSample>> = emptyList()
     private var lastPredictionLogMs = 0L
     // Trapezoidal energy integral for the session, signed by
     // ChargeEnergy.stepWh: positive is into the battery.
@@ -835,24 +850,34 @@ class WheelRepository(
         // is recording (see the gate below); with it stopped the IMU flow goes
         // quiet and this merge stops re-emitting frames for nobody.
         scope.launch {
+            // A reading that says what the wheel data already says is not
+            // published: see ImuPublishGate. Only this collector uses the gate.
+            val gate = com.eried.eucplanet.data.model.ImuPublishGate()
             phoneSensorRepository.imu.collect { s ->
                 val ext = externalGpsRepository.currentSample.value
                 val useExt = prioritizeExternalGps &&
                     externalGpsRepository.connectionState.value == ConnectionState.CONNECTED &&
                     ext?.accelXG != null
-                _wheelData.value = if (useExt) {
-                    val ax = ext!!.accelXG ?: 0f
-                    val ay = ext.accelZG ?: 0f
-                    _wheelData.value.copy(
-                        gForce = kotlin.math.sqrt(ax * ax + ay * ay),
-                        accelX = ax,
-                        accelY = ay
+                val ax: Float
+                val ay: Float
+                val g: Float
+                if (useExt) {
+                    ax = ext!!.accelXG ?: 0f
+                    ay = ext.accelZG ?: 0f
+                    g = kotlin.math.sqrt(ax * ax + ay * ay)
+                } else {
+                    g = s?.magnitude ?: 0f
+                    ax = s?.xG ?: 0f
+                    ay = s?.zG ?: 0f
+                }
+                val shown = _wheelData.value
+                if (gate.shouldPublish(
+                        (com.eried.eucplanet.platform.System.nanoTime() / 1_000_000L),
+                        shown.gForce, shown.accelX, shown.accelY, g, ax, ay,
                     )
-                } else _wheelData.value.copy(
-                    gForce = s?.magnitude ?: 0f,
-                    accelX = s?.xG ?: 0f,
-                    accelY = s?.zG ?: 0f
-                )
+                ) {
+                    _wheelData.value = _wheelData.value.copy(gForce = g, accelX = ax, accelY = ay)
+                }
                 kotlinx.coroutines.delay(IMU_FRAME_MS)
             }
         }
@@ -1058,7 +1083,7 @@ class WheelRepository(
                         invalidateHeadlightReadback()
                         // Cut any constant alarm tone immediately (telemetry stops now,
                         // so the engine won't get another tick to clear it itself).
-                        alarmEngine.stopConstantTone()
+                        alarmEngine.wheelDisconnected()
                         initState = 0
                         pendingAuthKeyDeferred = null
                         pendingAuthConfirmDeferred = null
@@ -1155,6 +1180,7 @@ class WheelRepository(
                 committedFullEtaMs = null
                 committedFullAnchorMs = 0L
                 predictionHistory.clear()
+                chargeHistChanged = true
                 lastPredictionLogMs = 0L
                 sessionEnergyWh = 0f
                 sessionEnergyInWh = 0f
@@ -1233,22 +1259,33 @@ class WheelRepository(
             while (predictionHistory.size > PREDICTION_LOG_MAX_ENTRIES) {
                 predictionHistory.removeFirst()
             }
+            chargeHistChanged = true
+        }
+        if (chargeHistChanged) {
+            chargeHistChanged = false
+            pubChargeHist = chargePctHist.toList()
+            pubVoltHist = chargeVoltHist.toList()
+            pubTempHist = chargeTempHist.toList()
+            pubPredictionHist = predictionHistory.toList()
+            pubPackMin = packMinHist.map { it.toList() }
+            pubPackMax = packMaxHist.map { it.toList() }
+            pubPackAvg = packAvgHist.map { it.toList() }
         }
         _chargingSnapshot.value = ChargingSnapshot(
             estimate = est,
-            chargeHistory = chargePctHist.toList(),
-            voltageHistory = chargeVoltHist.toList(),
-            tempHistory = chargeTempHist.toList(),
+            chargeHistory = pubChargeHist,
+            voltageHistory = pubVoltHist,
+            tempHistory = pubTempHist,
             targetEtaMs = committedTargetEtaMs,
             fullEtaMs = committedFullEtaMs,
-            predictionHistory = predictionHistory.toList(),
+            predictionHistory = pubPredictionHist,
             sessionEnergyWh = sessionEnergyWh,
             sessionEnergyInWh = sessionEnergyInWh,
             sessionEnergyOutWh = sessionEnergyOutWh,
             estimatedChargedWh = estimatedChargedWh(est),
-            packMinHistory = packMinHist.map { it.toList() },
-            packMaxHistory = packMaxHist.map { it.toList() },
-            packAvgHistory = packAvgHist.map { it.toList() },
+            packMinHistory = pubPackMin,
+            packMaxHistory = pubPackMax,
+            packAvgHistory = pubPackAvg,
             packSeriesUnit = packHistUnit,
         )
     }
@@ -1259,6 +1296,7 @@ class WheelRepository(
         packMaxHist.clear()
         packAvgHist.clear()
         packHistUnit = "%"
+        chargeHistChanged = true
     }
 
     /**
@@ -1372,6 +1410,7 @@ class WheelRepository(
     private fun pushHist(dq: ArrayDeque<MetricSample>, t: Long, v: Float) {
         dq.addLast(MetricSample(t, v))
         while (dq.size > 1000) dq.removeFirst()
+        chargeHistChanged = true
     }
 
     /**
@@ -1996,8 +2035,8 @@ class WheelRepository(
                 // First-connect priming for wheels that silently drop control
                 // commands pre-auth (P6). Mark done even on failure so we don't
                 // loop forever; the periodic re-prime below will retry.
-                runConnectAuthHandshake()
-                initialAuthDone = true
+                // Skipped while a Lock tap runs the same exchange: next cycle.
+                if (runConnectAuthHandshake()) initialAuthDone = true
             } else {
                 // Periodic re-prime for the P6: the wheel's "control endpoint
                 // primed" state expires shortly after the handshake. The
@@ -2005,7 +2044,11 @@ class WheelRepository(
                 // light/horn/max-speed writes keep working through a session.
                 if (needsConnectAuth && realtimeCycle > 0 &&
                     realtimeCycle % CONNECT_AUTH_REFRESH_INTERVAL == 0) {
-                    runConnectAuthHandshake()
+                    // A Lock tap in progress re-primes the wheel itself; keep
+                    // the telemetry coming this cycle.
+                    if (!runConnectAuthHandshake()) {
+                        bleManager.writeCommand(wheelAdapter.pollRealtime(), POLL)
+                    }
                 } else if (realtimeCycle > 0 &&
                     realtimeCycle % STATS_REFRESH_INTERVAL == 0) {
                     wheelAdapter.pollStats()?.let { bleManager.writeCommand(it, POLL) }
@@ -2031,7 +2074,25 @@ class WheelRepository(
      * auth steps but stops after the verify ACK, there is no lock packet
      * to send. Failure is logged and ignored; the user keeps their telemetry.
      */
-    private suspend fun runConnectAuthHandshake() {
+    private suspend fun runConnectAuthHandshake(): Boolean {
+        // Under the same lock as a Lock tap ([authenticateAndLock]). Both wait
+        // for the wheel's key on the same pending field, so a tap during the
+        // handshake took the field over and one of the two gave up after four
+        // seconds. A tap now waits for a handshake in progress. The other way
+        // round this does not wait: it is called from the poll loop, and a
+        // loop parked behind a Lock tap would stop the telemetry. The tap does
+        // the same exchange with the wheel anyway, so this turn is skipped.
+        if (!authMutex.tryLock()) return false
+        try {
+            connectAuthHandshakeLocked()
+        } finally {
+            authMutex.unlock()
+        }
+        return true
+    }
+
+    /** Call with [authMutex] held. */
+    private suspend fun connectAuthHandshakeLocked() {
         val authReqPacket = wheelAdapter.requestAuthKey() ?: return
         val keyDeferred = CompletableDeferred<ByteArray>()
         pendingAuthKeyDeferred = keyDeferred
@@ -2384,12 +2445,11 @@ class WheelRepository(
                         // wheel extras above.
                         sampleSourceHistory(now)
                         // Drop anything older than the retention window from every
-                        // buffer in one pass. List.removeAll touches each list
-                        // once so this stays linear in buffer size.
+                        // buffer, from the front: see HistoryWindow.
                         val cutoff = now - historyWindowMs
                         listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
-                            .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
-                        extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                            .forEach { HistoryWindow.dropOlderThan(it, cutoff) }
+                        extrasHist.values.forEach { HistoryWindow.dropOlderThan(it, cutoff) }
                         // The buffers keep at least 5 min so widening the stats
                         // length has data at once, but everything that reads them
                         // (tile stats, sparklines, the detail screen, voice
@@ -2397,7 +2457,7 @@ class WheelRepository(
                         // the whole buffer made 30 s, 1, 2 and 3 min all read as
                         // 5 min.
                         val shownFrom = now - rollingWindowMs
-                        fun List<MetricSample>.shown() = filter { it.timestampMs >= shownFrom }
+                        fun List<MetricSample>.shown() = HistoryWindow.shownFrom(this, shownFrom)
                         _fullHistory.value = FullMetricHistory(
                             battery = battHist.shown(),
                             temperature = tempHist.shown(),
@@ -2417,8 +2477,11 @@ class WheelRepository(
             }
             is DecodeResult.Settings -> {
                 val ws = result.data
+                val settingsChanged = _wheelSettings.value != ws
                 _wheelSettings.value = ws
-                Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
+                if (settingsChanged) {
+                    Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
+                }
 
                 // Settings frames arrive on every poll cycle: read the warm copy, and
                 // the store itself only for the reconcile, which may write back.

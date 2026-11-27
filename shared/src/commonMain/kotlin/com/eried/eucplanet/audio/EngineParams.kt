@@ -19,7 +19,7 @@ data class EngineParams(
     val idleAmount: Float = 1f,
     /** Speed-curve gain times the voice duck factor, 0..1. */
     val masterGain: Float = 1f,
-    /** Number of decel pop events queued for this buffer (0+, typically 0 or 1). */
+    /** Decel pops to lay in this buffer (0+, typically 0 or 1). [PopHandoff] gives each to one buffer only. */
     val pendingPops: Int = 0,
     /** Transient RPM bump from rev-up detection, added on top of [rpm] in the synth. */
     val revBump: Float = 0f,

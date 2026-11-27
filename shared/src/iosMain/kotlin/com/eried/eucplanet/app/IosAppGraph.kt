@@ -92,8 +92,11 @@ object IosAppGraph {
             PreferenceDataStoreFactory.createWithPath(
                 // A damaged file made every read throw and each start crash. Start
                 // from defaults instead; the rider can restore a backup.
-                corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
-                produceFile = { "$documents/datastore/eucplanet_settings.preferences_pb".toPath() },
+                corruptionHandler = ReplaceFileCorruptionHandler {
+                    com.eried.eucplanet.data.store.settingsFileDamaged()
+                    emptyPreferences()
+                },
+                produceFile = { settingsFile.toPath() },
             ),
             // Android also asks the cell network; iOS has no reliable carrier
             // country, so the region the phone is set to decides alone.
@@ -103,7 +106,20 @@ object IosAppGraph {
             },
             // A save that failed for lack of room raises the storage warning, as on Android.
             onWriteFailed = { IosAppHealth.noteSettingNotSaved(it) },
+            onReset = { IosAppHealth.noteSettingsReset() },
+            fileWasThere = settingsFileWasThere,
         )
+    }
+
+    private val settingsFile: String
+        get() = "$documents/datastore/${SettingsStore.FILE_NAME}.preferences_pb"
+
+    /** Read before the store opens the file, as on Android. */
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    private val settingsFileWasThere: Boolean by lazy {
+        val size = NSFileManager.defaultManager.attributesOfItemAtPath(settingsFile, null)
+            ?.get(platform.Foundation.NSFileSize) as? Number
+        (size?.toLong() ?: 0L) > 0L
     }
 
     val settings: SettingsRepository by lazy { SettingsRepository(settingsStore) }

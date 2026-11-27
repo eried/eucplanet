@@ -753,12 +753,8 @@
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
     <string name="engine_preset_sampled_motorcycle">Piccola moto da cross</string>
     <string name="engine_preset_sampled_city_car">Utilitaria</string>
-    <string name="engine_preset_sampled_tractor">Trattore</string>
-    <string name="engine_preset_sampled_lawnmower">Tagliaerba</string>
     <string name="engine_preset_sampled_steam_loco">Locomotiva a vapore</string>
-    <string name="engine_preset_sampled_big_diesel">Grosso diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Marmitta rotta</string>
-    <string name="engine_preset_sampled_quad_atv">Quad</string>
 
     <string name="external_gps_autodetect_forward_capture">Lettura della camminata…</string>
     <string name="external_gps_autodetect_lateral_capture">Lettura del movimento laterale…</string>
@@ -1901,7 +1897,9 @@
     <string name="warnings_battery_opt_title">L\'ottimizzazione della batteria è attiva</string>
     <string name="warnings_battery_opt_body">Android può fermare EUC Planet in background e interrompere una registrazione a metà giro. Lascialo funzionare senza restrizioni.</string>
     <string name="warnings_storage_full_title">La memoria del telefono è piena</string>
-    <string name="warnings_storage_full_body">Impossibile registrare i giri e salvare le modifiche. I giri fin qui sono al sicuro. Libera spazio per continuare.</string>
+    <string name="warnings_storage_full_body">Impossibile registrare i viaggi e salvare le modifiche. I viaggi già registrati sono al sicuro. Libera spazio per continuare.</string>
+    <string name="warnings_settings_reset_title">Le impostazioni sono state azzerate</string>
+    <string name="warnings_settings_reset_body">Il file delle impostazioni era danneggiato, quindi l\'app è partita con i valori predefiniti. Viaggi e allarmi non sono interessati. Ripristina un backup delle impostazioni, se ne hai uno.</string>
     <string name="warnings_hud_blocked_title">L\'HUD del telefono è bloccato</string>
     <string name="warnings_hud_blocked_body">L\'autorizzazione a disegnare sopra le altre app è stata revocata, quindi l\'overlay non comparirà sopra mappe o musica.</string>
     <string name="warnings_no_backup_title">I viaggi non hanno un backup</string>
@@ -2200,6 +2198,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Frequenza con cui il GPS resta attivo quando non registri né navighi, così il Navigatore e una nuova connessione alla ruota sono subito pronti. Più alto risparmia batteria.</string>
     <string name="adv_gps_idle_off_delay">Spegni GPS a riposo</string>
     <string name="adv_gps_idle_off_delay_desc">Quando l\'app è in background senza ruota connessa e senza registrazione, il GPS si spegne per risparmiare batteria. 0 lo spegne subito; un valore più alto mantiene prima attiva una posizione a basso consumo per quel tempo, così un rapido cambio di app non interrompe il GPS.</string>
+    <string name="adv_gps_parked_delay">GPS lento da fermo</string>
+    <string name="adv_gps_parked_delay_desc">Con una ruota connessa e l\'app in background, il GPS passa all\'intervallo a riposo quando la ruota è ferma da questo tempo, o subito mentre è in carica. Il primo movimento riporta il ritmo pieno. 0 non lo rallenta mai.</string>
     <string name="adv_gps_fix_max_age">Età max. fix GPS</string>
     <string name="adv_gps_fix_max_age_desc">Una posizione più vecchia di così non conta, quindi una registrazione avviata prima che il GPS sia pronto non parte da un punto vecchio.</string>
     <string name="adv_pushonly_note">Alcuni dispositivi trasmettono a una propria frequenza fissa e ignorano queste impostazioni: ruote push-only (Begode, Gotway, Veteran, KingSong), GPS esterno (RaceBox, Dragy), radar e pulsanti Flic.</string>

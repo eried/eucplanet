@@ -774,10 +774,13 @@ class BleConnectionManager(
             Log.w(TAG, "gatt.disconnect() threw", e)
         }
         // Safety net: if callback doesn't fire, force-close after a short delay.
+        // Only the link this disconnect was for. A rider (or the reconnect)
+        // that connects again within the second has a new one in `gatt`, and
+        // the timer used to close that: connected, then gone a second later.
         scope.launch {
             delay(1000)
             val still = gatt
-            if (still != null) {
+            if (still != null && still === g) {
                 Log.w(TAG, "Forcing GATT close after timeout")
                 try { still.close() } catch (_: Exception) {}
                 gatt = null

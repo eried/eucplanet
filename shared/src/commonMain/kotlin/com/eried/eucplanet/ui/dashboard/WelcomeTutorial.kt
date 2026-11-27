@@ -431,7 +431,7 @@ fun WelcomeTutorialOverlay(
                             // Outro: clip, a title and bulleted tips.
                             Spacer(Modifier.height(12.dp))
                             LoopingClip(
-                                assetName = "welcome_clip.webp",
+                                assetName = "welcome_clip.mp4",
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
                                     .size(230.dp)

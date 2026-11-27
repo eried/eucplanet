@@ -545,6 +545,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Udržovací frekvence GPS, když se nenahrává ani nenaviguje, aby navigace a nové připojení monokola byly připraveny. Vyšší hodnota šetří baterii.</string>
     <string name="adv_gps_idle_off_delay">Vypnout GPS po nečinnosti</string>
     <string name="adv_gps_idle_off_delay_desc">Když je aplikace na pozadí, není připojeno monokolo a nic se nenahrává, GPS se vypne, aby šetřila baterii. 0 ji vypne hned; vyšší hodnota ještě tak dlouho drží úsporné určování polohy, takže rychlé přepnutí aplikace GPS neshodí.</string>
+    <string name="adv_gps_parked_delay">Pomalejší GPS při stání</string>
+    <string name="adv_gps_parked_delay_desc">Když je připojeno monokolo a aplikace je na pozadí, GPS přejde na klidový interval, jakmile monokolo stojí takto dlouho, nebo hned, když se nabíjí. První pohyb vrátí plnou rychlost. 0 ji nezpomalí nikdy.</string>
     <string name="adv_gps_fix_max_age">Maximální stáří polohy GPS</string>
     <string name="adv_gps_fix_max_age_desc">Starší poloha se bere, jako by žádná nebyla, takže nahrávání spuštěné dřív, než je GPS připravená, nezačne starým bodem.</string>
     <string name="adv_hud_report_interval">Frekvence hlášení do HUD</string>
@@ -1084,13 +1086,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dieselový kamion</string>
     <string name="engine_preset_sampled_motorcycle">Malá krosová motorka</string>
     <string name="engine_preset_sampled_city_car">Městské auto</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Sekačka na trávu</string>
     <string name="engine_preset_sampled_steam_loco">Parní lokomotiva</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Velký diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Prasklý výfuk</string>
-    <string name="engine_preset_sampled_quad_atv">Čtyřkolka ATV</string>
     <string name="col_periodic">Pravidelně</string>
     <string name="col_trigger">Na povel</string>
     <string name="voice_trigger_reset_after">Po hlášení na povel vynulovat metriky</string>
@@ -2370,6 +2368,8 @@
     <string name="warnings_battery_opt_body">Android může EUC Planet na pozadí zastavit a ukončit nahrávání uprostřed jízdy. Povolte aplikaci běžet bez omezení.</string>
     <string name="warnings_storage_full_title">Úložiště telefonu je plné</string>
     <string name="warnings_storage_full_body">Jízdy nelze nahrávat a změny nelze ukládat. Dosavadní jízdy jsou v bezpečí. Uvolněte místo a pokračujte.</string>
+    <string name="warnings_settings_reset_title">Nastavení se vrátilo na výchozí</string>
+    <string name="warnings_settings_reset_body">Soubor s nastavením byl poškozený, proto aplikace začala s výchozím nastavením. Jízd a alarmů se to netýká. Pokud máte zálohu nastavení, obnovte ji.</string>
     <string name="warnings_hud_blocked_title">HUD v telefonu nemůže kreslit</string>
     <string name="warnings_hud_blocked_body">Oprávnění kreslit přes ostatní aplikace bylo odebráno, takže se překryv nad mapami ani hudbou neobjeví.</string>
     <string name="warnings_no_backup_title">Jízdy nejsou zálohované</string>
@@ -2601,7 +2601,7 @@
     <string name="crews_type_instead">Zadat ručně</string>
     <string name="crews_code_label">Kód průkazu</string>
     <string name="crews_foreign_title">Tento kód není z eucstats</string>
-    <string name="crews_foreign_body">Tato žádost pochází z %1$s, ne z eucstats. Vydáním průkazu byste tomuto serveru dali přístup k vašemu účtu v žebříčku.\n\nChcete-li použít vlastní server, nejprve zapněte v Nastavení režim pro vývojáře.</string>
+    <string name="crews_foreign_body">Tato žádost pochází z %1$s, ne z eucstats. Vydáním průkazu byste tomuto serveru dali přístup ke svému účtu v žebříčku.\n\nChcete-li použít vlastní server, nejprve zapněte v Nastavení vývojářský režim.</string>
     <string name="crews_scan_switch">Raději naskenovat</string>
     <string name="crews_close">Zavřít</string>
     <string name="crews_opensettings">Otevřít nastavení</string>
@@ -2614,7 +2614,7 @@
     <string name="crews_scope_admin">Administrátorská konzole</string>
     <string name="crews_grant">Vydejte tento průkaz jen tehdy, pokud jste žádost podali sami.</string>
     <string name="crews_noprofile_title">Nejdřív se připojte k žebříčku</string>
-    <string name="crews_noprofile_body">Průkazy potřebují profil v žebříčku a tento telefon ho zatím nemá. Připojte se v sekci %1$s a naskenujte znovu.</string>
+    <string name="crews_noprofile_body">Průkazy potřebují profil v žebříčku a tento telefon ho zatím nemá. Připojte se v části %1$s a naskenujte znovu.</string>
     <string name="crews_issue">Povolit</string>
     <string name="crews_notme">Zamítnout</string>
     <string name="crews_ratelimited">Příliš mnoho pokusů. Počkejte minutu a zkuste to znovu.</string>

@@ -878,13 +878,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Дизельна вантажівка</string>
     <string name="engine_preset_sampled_motorcycle">Малий кросовий мотоцикл</string>
     <string name="engine_preset_sampled_city_car">Міське авто</string>
-    <string name="engine_preset_sampled_tractor">Трактор</string>
-    <string name="engine_preset_sampled_lawnmower">Газонокосарка</string>
     <string name="engine_preset_sampled_steam_loco">Паровоз</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Великий дизель</string>
     <string name="engine_preset_sampled_broken_exhaust">Пробитий вихлоп</string>
-    <string name="engine_preset_sampled_quad_atv">Квадроцикл</string>
 
     <string name="col_periodic">Періодично</string>
     <string name="col_trigger">За подією</string>
@@ -1372,8 +1368,10 @@
     <string name="online_rejoin_body">У папці резервних копій є профіль, який використовувався для таблиці лідерів.\n\nID райдера: %1$s</string>
     <string name="warnings_battery_opt_title">Оптимізацію батареї увімкнено</string>
     <string name="warnings_battery_opt_body">Android може зупинити EUC Planet у фоні та обірвати запис посеред поїздки. Дозвольте роботу без обмежень.</string>
-    <string name="warnings_storage_full_title">Пам\'ять телефону заповнена</string>
+    <string name="warnings_storage_full_title">Пам\'ять телефона заповнена</string>
     <string name="warnings_storage_full_body">Поїздки не записуються, а зміни не зберігаються. Попередні поїздки в безпеці. Звільніть місце, щоб продовжити.</string>
+    <string name="warnings_settings_reset_title">Налаштування скинуто</string>
+    <string name="warnings_settings_reset_body">Файл налаштувань був пошкоджений, тому застосунок запустився з типовими налаштуваннями. Поїздки й тривоги не зачеплено. Відновіть налаштування з резервної копії, якщо вона є.</string>
     <string name="warnings_hud_blocked_title">HUD на телефоні заблоковано</string>
     <string name="warnings_hud_blocked_body">Дозвіл малювати поверх інших застосунків відкликано, тому оверлей не з\'явиться поверх карт чи музики.</string>
     <string name="warnings_no_backup_title">Резервних копій поїздок немає</string>
@@ -2294,6 +2292,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Частота GPS, коли немає запису чи навігації, щоб Навігатор і нове підключення колеса були готові. Більше значення заощаджує батарею.</string>
     <string name="adv_gps_idle_off_delay">Вимикати GPS у спокої</string>
     <string name="adv_gps_idle_off_delay_desc">Коли застосунок у фоні, колесо не підключене й нічого не записується, GPS вимикається, щоб заощадити батарею. 0 вимикає одразу; більше значення ще стільки часу тримає GPS в енергоощадному режимі, щоб швидке перемикання між застосунками не збивало GPS.</string>
+    <string name="adv_gps_parked_delay">Рідше GPS на стоянці</string>
+    <string name="adv_gps_parked_delay_desc">Коли колесо підключене, а застосунок у фоні, GPS переходить на інтервал спокою, якщо колесо стоїть стільки часу, або одразу, поки воно заряджається. Перший рух повертає повну частоту. 0 ніколи його не сповільнює.</string>
     <string name="adv_gps_fix_max_age">Макс. вік позиції GPS</string>
     <string name="adv_gps_fix_max_age_desc">Якщо позиція старіша, вважається, що сигналу немає, тож запис, розпочатий до готовності GPS, не почнеться із застарілої точки.</string>
     <string name="adv_pushonly_note">Деякі пристрої передають дані зі своєю фіксованою частотою й ігнорують ці налаштування: колеса, що лише надсилають дані (Begode, Gotway, Veteran, KingSong), зовнішній GPS (RaceBox, Dragy), радар і кнопки Flic.</string>
@@ -2794,7 +2794,7 @@
     <string name="crews_type_instead">Ввести вручну</string>
     <string name="crews_code_label">Код пропуску</string>
     <string name="crews_foreign_title">Цей код не з eucstats</string>
-    <string name="crews_foreign_body">Цей запит надійшов з %1$s, а не з eucstats. Видача пропуску дасть цьому серверу доступ до вашого облікового запису в рейтингу.\n\nЩоб використовувати власний сервер, спершу увімкніть режим розробника в налаштуваннях.</string>
+    <string name="crews_foreign_body">Цей запит надійшов з %1$s, а не з eucstats. Видача пропуску дасть цьому серверу доступ до вашого акаунта в таблиці лідерів.\n\nЩоб використовувати власний сервер, спершу увімкніть режим розробника в налаштуваннях.</string>
     <string name="crews_scan_switch">Краще сканувати</string>
     <string name="crews_close">Закрити</string>
     <string name="crews_opensettings">Налаштування</string>
@@ -2807,7 +2807,7 @@
     <string name="crews_scope_admin">Консоль адміністратора</string>
     <string name="crews_grant">Видавайте цей пропуск, лише якщо запит зробили ви самі.</string>
     <string name="crews_noprofile_title">Спершу приєднайтеся до таблиці лідерів</string>
-    <string name="crews_noprofile_body">Для пропусків потрібен профіль у рейтингу, а на цьому телефоні його ще немає. Приєднайтеся в розділі %1$s і відскануйте знову.</string>
+    <string name="crews_noprofile_body">Для пропусків потрібен профіль у таблиці лідерів, а на цьому телефоні його ще немає. Приєднайтеся в розділі %1$s і відскануйте знову.</string>
     <string name="crews_issue">Дозволити</string>
     <string name="crews_notme">Відхилити</string>
     <string name="crews_ratelimited">Забагато спроб. Зачекайте хвилину й спробуйте ще раз.</string>

@@ -344,7 +344,7 @@ class WheelDiagnosticsViewModel(
         DiagnosticsLogger.note("--- BEGIN installed apps (${apps.size}) ---")
         // Pack 6 packages per line to keep the log scannable. Long line wrap
         // is fine; the dialog renders single-line and exports preserve full text.
-        apps.chunked(6).forEach { DiagnosticsLogger.note(it.joinToString("  ")) }
+        apps.chunked(6).forEach { DiagnosticsLogger.note { it.joinToString("  ") } }
         DiagnosticsLogger.note("--- END installed apps ---")
     }
 

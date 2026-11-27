@@ -111,7 +111,9 @@ class AlarmEvaluator {
                 continue
             }
             recordSample(metric, v, nowMs)
-            val slope = AlarmLogic.slopePerSec(
+            // The trend only matters to a rule with a lead time, and most
+            // have none, so the buffer is not copied and fitted for them.
+            val slope = if (metricRules.none { it.leadTimeMs > 0 }) null else AlarmLogic.slopePerSec(
                 sampleBuffers[metric]?.map { it.t to it.v } ?: emptyList(), nowMs,
                 slopeWindowMs, slopeMinSamples, slopeMinSpanMs
             )

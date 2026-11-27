@@ -78,8 +78,12 @@ class FakeEucStatsApi : EucStatsApiContract {
         return exportResult
     }
 
+    /** Runs while the upload is "on the network", before it answers. */
+    var duringUpload: (() -> Unit)? = null
+
     override fun uploadTrip(metaJson: String, gzippedCsv: ByteArray): UploadResult {
         uploadCalls += metaJson to gzippedCsv
+        duringUpload?.invoke()
         return if (uploadResultQueue.isNotEmpty()) uploadResultQueue.removeAt(0) else uploadResult
     }
 
@@ -186,6 +190,22 @@ class FakeTripDao : TripDao {
         val idx = trips.indexOfFirst { it.id == id }
         if (idx >= 0) trips[idx] = trips[idx].copy(uploadStatus = 2, uploadedAt = at)
     }
+
+    // The leaderboard's own columns. Each write is also noted in [updates], as
+    // the row it left behind, so the tests that read the last write still can.
+    private fun write(id: Long, change: (TripRecord) -> TripRecord) {
+        val idx = trips.indexOfFirst { it.id == id }
+        if (idx >= 0) {
+            trips[idx] = change(trips[idx])
+            updates += trips[idx]
+        }
+    }
+    override suspend fun setEucstatsUploaded(id: Long, status: Int, at: Long?, validation: String?) =
+        write(id) { it.copy(eucstatsStatus = status, eucstatsUploadedAt = at, eucstatsValidation = validation) }
+    override suspend fun setEucstatsStatus(id: Long, status: Int) =
+        write(id) { it.copy(eucstatsStatus = status) }
+    override suspend fun setEucstatsValidation(id: Long, validation: String?) =
+        write(id) { it.copy(eucstatsValidation = validation) }
 
     override suspend fun allWheelMeta(): List<String> = trips.mapNotNull { it.wheelMetaJson }
     override suspend fun getUnfinished(): List<TripRecord> = trips.filter { it.endTime == null }
@@ -362,6 +382,30 @@ class EucStatsRepositoryTest {
         assertEquals(2, updated.eucstatsStatus)
         assertEquals(12345L, updated.eucstatsUploadedAt)
         assertEquals("validated", updated.eucstatsValidation)
+    }
+
+    @Test fun uploadTrip_keepsARenameAndABackupMarkMadeWhileItRan() = runBlocking {
+        settingsPort.writeRiderId("store-1")
+        api.uploadResult = UploadResult.Ok("validated", false)
+        tripDao.trips.add(SAMPLE_TRIP)
+        // The rider renames the trip and its folder backup lands while the
+        // upload is still on the network.
+        api.duringUpload = {
+            runBlocking {
+                tripDao.updateCustomName(SAMPLE_TRIP.id, "Sunday loop")
+                tripDao.markUploaded(SAMPLE_TRIP.id, 777L)
+            }
+        }
+
+        val outcome = repo.uploadTrip(SAMPLE_TRIP)
+
+        assertEquals(Outcome.UPLOADED, outcome)
+        val row = tripDao.trips.first { it.id == SAMPLE_TRIP.id }
+        assertEquals("the rename was put back", "Sunday loop", row.customName)
+        assertEquals("the backup mark was put back", 2, row.uploadStatus)
+        assertEquals(777L, row.uploadedAt)
+        assertEquals(2, row.eucstatsStatus)
+        assertEquals("validated", row.eucstatsValidation)
     }
 
     @Test fun uploadTrip_okCallsRefreshCard() = runBlocking {

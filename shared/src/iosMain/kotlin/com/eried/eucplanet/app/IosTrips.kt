@@ -63,6 +63,9 @@ import platform.Foundation.dataWithBytes
 import platform.Foundation.fileHandleForWritingAtPath
 import platform.Foundation.writeData
 import platform.Foundation.seekToEndOfFile
+import platform.Foundation.seekToFileOffset
+import platform.Foundation.readDataOfLength
+import platform.Foundation.fileHandleForReadingAtPath
 import platform.Foundation.truncateFileAtOffset
 
 /**
@@ -552,6 +555,22 @@ internal object IosTrips : DashboardTrips, SettingsTrips, RecordingTrips, RideRe
         val data = NSData.dataWithContentsOfFile("$tripsDir/${trip.fileName}") ?: return null
         val n = data.length.toInt()
         return if (n == 0) ByteArray(0) else data.bytes!!.readBytes(n)
+    }
+
+    override fun openTripFile(trip: TripRecord): com.eried.eucplanet.ui.recording.TripFileRead? {
+        val handle = NSFileHandle.fileHandleForReadingAtPath("$tripsDir/${trip.fileName}")
+            ?: return null
+        return object : com.eried.eucplanet.ui.recording.TripFileRead {
+            override val length: Long = handle.seekToEndOfFile().toLong()
+            override fun read(at: Long, count: Int): ByteArray {
+                if (count <= 0) return ByteArray(0)
+                handle.seekToFileOffset(at.toULong())
+                val data = handle.readDataOfLength(count.toULong())
+                val n = data.length.toInt()
+                return if (n == 0) ByteArray(0) else data.bytes!!.readBytes(n)
+            }
+            override fun close() = handle.closeFile()
+        }
     }
 
     override fun writeImportedTrip(baseName: String, bytes: ByteArray): String {

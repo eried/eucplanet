@@ -406,9 +406,15 @@ private fun MetricDetailBody(
 
     val needsConvert = isTempMetric || isSpeedMetric || isDistanceMetric ||
         isPressureMetric || isAltitudeMetric
+    // Keyed on the history list, which is a new instance once per history
+    // tick, and on what the conversion depends on. Telemetry recomposes this
+    // screen several times a second; without the key every pass converted the
+    // buffer again and handed the chart a new list to redraw.
     val samples: List<MetricSample> =
-        if (needsConvert) rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
-        else rawSamples
+        remember(rawSamples, key, speedUnit, tempUnit, distanceUnit, pressureUnit, altitudeUnit) {
+            if (needsConvert) rawSamples.map { MetricSample(it.timestampMs, convert(it.value)) }
+            else rawSamples
+        }
 
     val unitLabel = when {
         isTempMetric -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
@@ -467,23 +473,31 @@ private fun MetricDetailBody(
     // Row 1 = central tendency + extremes; row 2 = percentiles + count
     // + window time. Cells render `--` when the buffer is empty so the
     // layout stays stable.
-    val values = samples.map { it.value }
-    val hasBuffer = values.size >= 2
+    val hasBuffer = samples.size >= 2
     val placeholderStat = "--"
-    val minStr = if (hasBuffer) statFmt.format(values.min()) else placeholderStat
-    val maxStr = if (hasBuffer) statFmt.format(values.max()) else placeholderStat
-    val avgStr = if (hasBuffer) statFmt.format(values.average()) else placeholderStat
-    val medStr = if (hasBuffer) statFmt.format(
-        com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-            com.eried.eucplanet.ui.settings.DashboardStat.MEDIAN, samples, currentValue
-        ) ?: 0f
-    ) else placeholderStat
-    val p95Str = if (hasBuffer) statFmt.format(
-        com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-            com.eried.eucplanet.ui.settings.DashboardStat.P95, samples, currentValue
-        ) ?: 0f
-    ) else placeholderStat
-    val countStr = if (samples.isNotEmpty()) values.size.toString() else placeholderStat
+    // None of these depend on the live value (the median and the percentile
+    // ignore their fallback), so they follow the history, once per tick.
+    val (minStr, maxStr, avgStr, medStr, p95Str) = remember(samples, statFmt) {
+        if (samples.size < 2) List(5) { placeholderStat } else {
+            val values = samples.map { it.value }
+            listOf(
+                statFmt.format(values.min()),
+                statFmt.format(values.max()),
+                statFmt.format(values.average()),
+                statFmt.format(
+                    com.eried.eucplanet.ui.settings.computeDashboardStatValue(
+                        com.eried.eucplanet.ui.settings.DashboardStat.MEDIAN, samples, 0f
+                    ) ?: 0f
+                ),
+                statFmt.format(
+                    com.eried.eucplanet.ui.settings.computeDashboardStatValue(
+                        com.eried.eucplanet.ui.settings.DashboardStat.P95, samples, 0f
+                    ) ?: 0f
+                ),
+            )
+        }
+    }
+    val countStr = if (samples.isNotEmpty()) samples.size.toString() else placeholderStat
     val durationStr = if (hasBuffer) {
         formatDuration((samples.last().timestampMs - samples.first().timestampMs) / 1000)
     } else placeholderStat
@@ -870,7 +884,7 @@ fun MetricGraph(
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
     val axisLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
-    val values = samples.map { it.value }
+    val values = remember(samples) { samples.map { it.value } }
     val minRaw = values.min()
     val maxRaw = values.max()
     val bounds = boundsFor(minRaw, maxRaw)
@@ -953,19 +967,25 @@ fun MetricGraph(
             val h = size.height
             val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
 
+            // Worked out for the whole axis at once: a narrow range printed
+            // in whole numbers showed the same number on two lines.
+            val leftLabels = axisLabels((0..4).map { bounds.min + padded * it / 4f }, leftLabelFormat)
+            // The right axis the same way: a charge that moves the pack from
+            // 80.2 to 81 V read 80, 80, 81, 81, 81 down its side.
+            val rightLabels = bounds2?.let { b2 ->
+                axisLabels((0..4).map { b2.min + padded2 * it / 4f }, series2LabelFormat)
+            }
             for (i in 0..4) {
                 val y = h - h * i / 4f
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
-                val value = bounds.min + padded * i / 4f
                 val label = textMeasurer.measure(
-                    leftLabelFormat(value), TextStyle(fontSize = 10.sp, color = axisLabelColor)
+                    leftLabels[i], TextStyle(fontSize = 10.sp, color = axisLabelColor)
                 )
                 drawText(label, topLeft = Offset(-label.size.width - 6f, y - label.size.height / 2f))
                 // Right axis = secondary series (e.g. voltage) on its own scale.
-                if (bounds2 != null) {
-                    val v2 = bounds2.min + padded2 * i / 4f
+                if (rightLabels != null) {
                     val r = textMeasurer.measure(
-                        series2LabelFormat(v2), TextStyle(fontSize = 10.sp, color = color2)
+                        rightLabels[i], TextStyle(fontSize = 10.sp, color = color2)
                     )
                     drawText(r, topLeft = Offset(w + 6f, y - r.size.height / 2f))
                 }

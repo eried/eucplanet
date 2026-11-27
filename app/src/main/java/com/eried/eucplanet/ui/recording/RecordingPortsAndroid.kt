@@ -85,6 +85,8 @@ class AndroidRecordingTrips(private val trips: TripRepository) : RecordingTrips 
     override fun readTripBytes(trip: TripRecord): ByteArray? =
         trips.getTripFile(trip).takeIf { it.exists() }?.readBytes()
 
+    override fun openTripFile(trip: TripRecord): TripFileRead? = trips.getTripFile(trip).openTripFile()
+
     override fun writeImportedTrip(baseName: String, bytes: ByteArray): String {
         val tripsDir = trips.getTripsDir()
         var targetFile = File(tripsDir, "$baseName.csv")

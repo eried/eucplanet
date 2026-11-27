@@ -39,7 +39,10 @@ interface TripMeterFeed {
 
 /** Spoken output (VoiceService). */
 interface DashboardVoice {
-    fun initialize()
+    /** [who] ("window", "service") needs the voice from now on. */
+    fun acquire(who: String)
+    /** [who] is done with it; it shuts down once nobody needs it. */
+    fun release(who: String)
     fun welcomeOnce()
     fun speakWelcomeNow()
     fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean)

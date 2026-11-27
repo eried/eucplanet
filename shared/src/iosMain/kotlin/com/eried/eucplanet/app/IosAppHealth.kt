@@ -138,6 +138,35 @@ internal object IosAppHealth : AppHealth {
                 AppWarning(STORAGE_FULL_ID, Res.string.warnings_storage_full_title, Res.string.warnings_storage_full_body, fix = ::openAppSettings)
             )
         }
+        // Said out loud as well, wherever the rider is, as on Android. The card
+        // alone is a small triangle on the dashboard: a recording that stopped,
+        // or an alarm that was not saved, went by without a word. Not once per
+        // failed write though, a full phone fails many in a row.
+        val last = lastStorageNotice
+        if (last != null && last.elapsedNow() < STORAGE_NOTICE_GAP) return
+        lastStorageNotice = TimeSource.Monotonic.markNow()
+        scope.launch { IosAppGraph.notices.post(getString(Res.string.warnings_storage_full_title)) }
+    }
+
+    /**
+     * The settings file could not be read and the app started from the
+     * defaults, as on Android. Said once, and kept as a card that leads to
+     * Backups, where a settings backup is restored. It goes when the rider
+     * has followed it, or with the app: the next start reads a sound file.
+     */
+    fun noteSettingsReset() {
+        scope.launch {
+            upsert(
+                AppWarning(
+                    SETTINGS_RESET_ID,
+                    Res.string.warnings_settings_reset_title,
+                    Res.string.warnings_settings_reset_body,
+                    fix = { dismiss(SETTINGS_RESET_ID) },
+                    settingsTab = SETTINGS_TAB_BACKUPS,
+                )
+            )
+            IosAppGraph.notices.postForStart(getString(Res.string.warnings_settings_reset_title))
+        }
     }
 
     /**
@@ -156,11 +185,7 @@ internal object IosAppHealth : AppHealth {
      * of a text field.
      */
     fun noteSettingNotSaved(e: Throwable) {
-        if (!noteWriteFailed(e)) return
-        val last = lastStorageNotice
-        if (last != null && last.elapsedNow() < STORAGE_NOTICE_GAP) return
-        lastStorageNotice = TimeSource.Monotonic.markNow()
-        scope.launch { IosAppGraph.notices.post(getString(Res.string.warnings_storage_full_title)) }
+        noteWriteFailed(e)
     }
 
     @kotlin.concurrent.Volatile private var lastStorageNotice: TimeMark? = null
@@ -313,6 +338,7 @@ internal object IosAppHealth : AppHealth {
 
     /** Android's id for the same entry (AppHealthRepository.STORAGE_FULL_ID). */
     private const val STORAGE_FULL_ID = "storage.full"
+    private const val SETTINGS_RESET_ID = "settings.reset"
 
     /** Room for hours of trip rows; below this the warning stays (Android's value). */
     private const val STORAGE_OK_BYTES = 10L * 1024 * 1024

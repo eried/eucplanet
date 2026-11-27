@@ -18,10 +18,21 @@ import java.util.Date
  */
 object CrashHandler {
 
-    fun install(context: Context) {
+    private const val MAX_FILES = 20
+
+    /**
+     * [onStorageFull] is told about a save that failed for lack of storage in
+     * a background task. The app stays open then, see [survivesAsStorageFull].
+     */
+    fun install(context: Context, onStorageFull: (Throwable) -> Unit = {}) {
         val appContext = context.applicationContext
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            if (survivesAsStorageFull(throwable)) {
+                android.util.Log.e("CrashHandler", "Out of storage in a background task, the app stays open", throwable)
+                runCatching { onStorageFull(throwable) }
+                return@setDefaultUncaughtExceptionHandler
+            }
             try { writeCrash(appContext, thread, throwable) } catch (_: Throwable) { /* swallow */ }
             previous?.uncaughtException(thread, throwable)
         }

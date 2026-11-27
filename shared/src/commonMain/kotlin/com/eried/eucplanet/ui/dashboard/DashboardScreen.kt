@@ -207,7 +207,10 @@ fun DashboardScreen(
     }
     // The wheel-rate flows stop while the app is in the background: collected
     // plainly, every frame recomposed a dashboard nobody could see.
-    val wheelData by viewModel.wheelData.collectAsStateWithLifecycle()
+    // The wheel's data reaches the screen on the dashboard's 30-a-second
+    // clock, the same one the dial glides on, so the two repaint together.
+    val stepClock = rememberStepClock()
+    val wheelData by rememberPaced(viewModel.wheelData, stepClock)
     val connectionState by viewModel.connectionState.collectAsState()
     // Quake-style console cheat (set via Settings search-bar). Multiplies ONLY the
     // displayed speed on the gauge, the underlying wheelData.speed stays accurate
@@ -573,6 +576,10 @@ fun DashboardScreen(
                                         val tab = w.settingsTab
                                         if (tab != null) {
                                             showWarningsDialog = false
+                                            // Its own action too: a warning
+                                            // that only needs reading takes
+                                            // itself away here.
+                                            w.fix()
                                             onNavigateToSettings(tab)
                                         } else {
                                             w.fix()
@@ -968,12 +975,17 @@ fun DashboardScreen(
                 // (~4-5 Hz) so the dial arc and the big number track
                 // continuously instead of snapping. ~250 ms linear ≈ one
                 // update interval: no lag, no stutter. When telemetry goes
-                // stale and speed is forced to 0, the animation to 0 is fine.
-                val animatedSpeed by animateFloatAsState(
-                    targetValue = wheelData.speed.absoluteValue * cheatSpeedMult,
-                    animationSpec = tween(durationMillis = 250, easing = LinearEasing),
-                    label = "dashSpeed"
+                // stale and speed is forced to 0, the glide to 0 is fine.
+                // On the dashboard's clock, thirty steps a second.
+                //
+                // Held as a State and read only by the dial's draw and by the
+                // number's own small composable. Read here with `by`, it changed
+                // on every display frame of a ride and recomposed this whole
+                // block (dial, icons, menus) sixty or more times a second.
+                val animatedSpeedState = rememberGlidingSpeed(
+                    wheelData.speed.absoluteValue * cheatSpeedMult, stepClock
                 )
+                val animatedSpeed = remember(animatedSpeedState) { { animatedSpeedState.value } }
                 // Gauge style key for this surface. Unknown keys fall back to
                 // the dial so future styles (PWM-primary etc.) degrade safely
                 // on older builds.
@@ -986,25 +998,18 @@ fun DashboardScreen(
                     // NUMBER: the plain speed value, no gauge ring. Compact
                     // default; opt-in for landscape. Same colour rule as the
                     // dial: band tiers win when the band is on.
-                    val speedFrac = (animatedSpeed / gaugeMax).coerceIn(0f, 1f)
-                    val numberColor = when {
-                        showGaugeColorBand && speedFrac >= gaugeRedPct / 100f ->
-                            MaterialTheme.appColors.gaugeDanger
-                        showGaugeColorBand && speedFrac >= gaugeOrangePct / 100f ->
-                            MaterialTheme.appColors.statusWarn
-                        else -> MaterialTheme.appColors.gaugeFill
-                    }
-                    Text(
-                        text = "%.0f".format(
-                            com.eried.eucplanet.util.Units.speed(animatedSpeed, speedUnit)
-                        ),
-                        color = numberColor,
+                    SpeedNumber(
+                        speed = animatedSpeed,
+                        gaugeMax = gaugeMax,
+                        speedUnit = speedUnit,
+                        showColorBand = showGaugeColorBand,
+                        orangePct = gaugeOrangePct,
+                        redPct = gaugeRedPct,
                         // Bigger than the dial's centre number and nudged up:
                         // with no ring the number owns the whole box, only the
                         // unit label below needs clearance. Scale is an
                         // Advanced registry knob.
                         fontSize = (dialW.value * advancedVars.simpleSpeedoScalePct / 100f).sp,
-                        fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .align(Alignment.Center)
                             .offset(y = (-(dialW.value * 0.06f)).dp)
@@ -1547,6 +1552,8 @@ fun DashboardScreen(
             // placeholder dash, that way the rider sees confirmation the
             // setting took effect on the tile, with the value filling in
             // once samples start flowing.
+            // Each chip's stat is kept until the history gives it a new list.
+            val statCache = remember { com.eried.eucplanet.ui.settings.DashboardStatCache() }
             fun cornerStatValueFor(
                 key: String,
                 stat: com.eried.eucplanet.ui.settings.DashboardStat
@@ -1575,9 +1582,7 @@ fun DashboardScreen(
                     else -> statHistory.extras[key].orEmpty()
                 }
                 if (samples.isEmpty()) return placeholder
-                val raw = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-                    stat, samples, fallbackCurrent = samples.last().value
-                ) ?: return placeholder
+                val raw = statCache.value(key, stat, samples) ?: return placeholder
                 return formatMetricStatValue(
                     key, raw, speedUnit, speedUnitLabel, tempUnit, tempUnitLabel,
                     distanceUnit, pressureUnit, altitudeUnit
@@ -1949,9 +1954,8 @@ fun DashboardScreen(
                                             // standalone chip showed a value on the same buffer.
                                             if (buf.isEmpty()) return@cellRenderer placeholder
                                             // buf is already List<MetricSample> from the full window.
-                                            val value = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
-                                                stat, buf, fallbackCurrent = buf.last().value
-                                            ) ?: return@cellRenderer placeholder
+                                            val value = statCache.value("cell/$metricKey", stat, buf)
+                                                ?: return@cellRenderer placeholder
                                             // Same unit-correct formatting the
                                             // standalone corner chip uses so a
                                             // composite MAX/AVG cell reads right.
@@ -3583,4 +3587,50 @@ fun DashboardScreen(
         }
         }  // close CompositionLocalProvider
     }
+}
+
+/**
+ * The plain speed number of the NUMBER speedometer style. Its own composable so
+ * that the gliding [speed] recomposes these few lines and nothing around them,
+ * and only when the digits or the colour tier actually change.
+ */
+@Composable
+private fun SpeedNumber(
+    speed: () -> Float,
+    gaugeMax: Float,
+    speedUnit: String,
+    showColorBand: Boolean,
+    orangePct: Int,
+    redPct: Int,
+    fontSize: androidx.compose.ui.unit.TextUnit,
+    modifier: Modifier = Modifier,
+) {
+    val text by remember(speed, speedUnit) {
+        androidx.compose.runtime.derivedStateOf {
+            "%.0f".format(com.eried.eucplanet.util.Units.speed(speed(), speedUnit))
+        }
+    }
+    // 0 safe, 1 approaching, 2 over: the same rule as the dial, band tiers win
+    // when the band is on.
+    val tier by remember(speed, gaugeMax, showColorBand, orangePct, redPct) {
+        androidx.compose.runtime.derivedStateOf {
+            val frac = (speed() / gaugeMax).coerceIn(0f, 1f)
+            when {
+                showColorBand && frac >= redPct / 100f -> 2
+                showColorBand && frac >= orangePct / 100f -> 1
+                else -> 0
+            }
+        }
+    }
+    Text(
+        text = text,
+        color = when (tier) {
+            2 -> MaterialTheme.appColors.gaugeDanger
+            1 -> MaterialTheme.appColors.statusWarn
+            else -> MaterialTheme.appColors.gaugeFill
+        },
+        fontSize = fontSize,
+        fontWeight = FontWeight.Bold,
+        modifier = modifier,
+    )
 }

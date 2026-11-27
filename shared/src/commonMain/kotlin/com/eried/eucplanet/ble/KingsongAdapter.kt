@@ -214,9 +214,9 @@ class KingsongAdapter : WheelAdapter {
                 // 14-byte payload at offsets 2..15 so the bytes match the
                 // labelled offsets in docs/protocols/kingsong.md section 4.1.
                 val body = rawBytes.copyOfRange(2, 16)
-                DiagnosticsLogger.note(
+                DiagnosticsLogger.note {
                     "KingSong realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
-                )
+                }
                 val telem = KingsongParser.parseLiveTelemetry(rawBytes, detectedModel)
                     ?: return emptyList()
                 lastTempA9 = telem.maxTemperature

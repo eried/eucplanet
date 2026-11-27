@@ -878,13 +878,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Caminhão diesel</string>
     <string name="engine_preset_sampled_motorcycle">Moto de trilha pequena</string>
     <string name="engine_preset_sampled_city_car">Carro urbano</string>
-    <string name="engine_preset_sampled_tractor">Trator</string>
-    <string name="engine_preset_sampled_lawnmower">Cortador de grama</string>
     <string name="engine_preset_sampled_steam_loco">Locomotiva a vapor</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Diesel potente</string>
     <string name="engine_preset_sampled_broken_exhaust">Escapamento quebrado</string>
-    <string name="engine_preset_sampled_quad_atv">Quadriciclo ATV</string>
 
     <string name="col_periodic">Periódico</string>
     <string name="col_trigger">Gatilho</string>
@@ -2010,7 +2006,9 @@
     <string name="warnings_battery_opt_title">A otimização de bateria está ativada</string>
     <string name="warnings_battery_opt_body">O Android pode parar o EUC Planet em segundo plano e cortar uma gravação no meio do trajeto. Permita que ele rode sem restrições.</string>
     <string name="warnings_storage_full_title">O armazenamento do celular está cheio</string>
-    <string name="warnings_storage_full_body">Não é possível gravar percursos nem salvar alterações. Os percursos até agora estão seguros. Libere espaço para continuar.</string>
+    <string name="warnings_storage_full_body">Não é possível gravar viagens nem salvar alterações. As viagens já gravadas estão seguras. Libere espaço para continuar.</string>
+    <string name="warnings_settings_reset_title">As configurações foram redefinidas</string>
+    <string name="warnings_settings_reset_body">O arquivo de configurações estava danificado, então o app começou com os padrões. As viagens e os alarmes não foram afetados. Restaure um backup das configurações, se tiver.</string>
     <string name="warnings_hud_blocked_title">O HUD do celular não consegue desenhar</string>
     <string name="warnings_hud_blocked_body">A permissão de desenhar sobre outros apps foi retirada, então o overlay não vai aparecer em cima de mapas ou música.</string>
     <string name="warnings_no_backup_title">As viagens estão sem backup</string>
@@ -2296,6 +2294,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Mantém o GPS pronto quando você não está gravando nem navegando, para o Navegador e uma nova conexão com a roda não terem que esperar. Um valor maior economiza bateria.</string>
     <string name="adv_gps_idle_off_delay">Desligar GPS ocioso</string>
     <string name="adv_gps_idle_off_delay_desc">Quando o app está em segundo plano sem roda conectada e sem gravação, o GPS desliga para economizar bateria. 0 desliga na hora; um valor maior segura o GPS em baixo consumo por esse tempo antes, para que uma troca rápida de app não derrube o GPS.</string>
+    <string name="adv_gps_parked_delay">GPS mais lento com a roda parada</string>
+    <string name="adv_gps_parked_delay_desc">Com uma roda conectada e o app em segundo plano, o GPS passa ao intervalo ocioso quando a roda fica parada por esse tempo, ou na hora enquanto carrega. O primeiro movimento traz o ritmo completo de volta. 0 nunca o reduz.</string>
     <string name="adv_gps_fix_max_age">Idade máx. do GPS</string>
     <string name="adv_gps_fix_max_age_desc">Uma posição mais antiga que isso conta como sem posição, para que uma gravação iniciada antes do GPS estar pronto não comece com um ponto desatualizado.</string>
     <string name="adv_pushonly_note">Alguns dispositivos transmitem na própria taxa fixa e ignoram estas configurações: rodas push-only (Begode, Gotway, Veteran, KingSong), GPS externo (RaceBox, Dragy), radar e botões Flic.</string>
@@ -2790,7 +2790,7 @@
     <string name="voice_stat_peak">Pico</string>
     <string name="crews_pass_action">Passe da turma</string>
     <string name="crews_pass_search_hint">O passe da turma aparece quando você entra nos rankings online.</string>
-    <string name="crews_scan_hint">Abra o eucstats em um navegador, toque em Turmas e escaneie o código que aparecer.</string>
+    <string name="crews_scan_hint">Abra o eucstats em um navegador, toque em Turmas e leia o código que aparecer.</string>
     <string name="crews_scan_invalid">Este não é um código de passe da turma.</string>
     <string name="crews_scan_is_share">Esse é um código de localização em tempo real. Leia pelo Compartilhar no mapa.</string>
     <string name="share_scan_is_crewpass">Esse é um passe de turma. Leia em Configurações, em %1$s.</string>
@@ -2810,7 +2810,7 @@
     <string name="crews_scope_admin">Console de administração</string>
     <string name="crews_grant">Emita este passe só se você mesmo fez o pedido.</string>
     <string name="crews_noprofile_title">Entre no ranking primeiro</string>
-    <string name="crews_noprofile_body">Os passes precisam de um perfil no ranking, e este celular ainda não tem um. Entre em %1$s e escaneie de novo.</string>
+    <string name="crews_noprofile_body">Os passes precisam de um perfil no ranking, e este celular ainda não tem um. Entre no ranking em %1$s e leia o código de novo.</string>
     <string name="crews_issue">Permitir</string>
     <string name="crews_notme">Negar</string>
     <string name="crews_ratelimited">Tentativas demais. Espere um minuto e tente de novo.</string>

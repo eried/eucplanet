@@ -622,6 +622,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Ako často sa GPS obnovuje, keď sa nenahráva ani nenaviguje, aby boli Navigátor aj čerstvo pripojené koleso hneď pripravené. Vyššia hodnota šetrí batériu.</string>
     <string name="adv_gps_idle_off_delay">Vypnúť GPS po nečinnosti</string>
     <string name="adv_gps_idle_off_delay_desc">Keď je aplikácia na pozadí, koleso nie je pripojené a nič sa nenahráva, GPS sa vypne, aby šetrila batériu. 0 ju vypne hneď, vyššia hodnota ju ešte tak dlho nechá bežať v úspornom režime, aby ste o GPS neprišli pri krátkom prepnutí do inej aplikácie.</string>
+    <string name="adv_gps_parked_delay">Pomalšia GPS pri státí</string>
+    <string name="adv_gps_parked_delay_desc">Keď je koleso pripojené a aplikácia je na pozadí, GPS prejde na interval v nečinnosti, keď koleso stojí takto dlho, alebo hneď počas nabíjania. Prvý pohyb vráti plnú rýchlosť. 0 ju nespomalí nikdy.</string>
     <string name="adv_gps_fix_max_age">Max. vek polohy GPS</string>
     <string name="adv_gps_fix_max_age_desc">Staršia poloha sa neráta, takže nahrávanie spustené skôr, než je GPS pripravená, nezačne starým bodom.</string>
     <string name="adv_hud_report_interval">Frekvencia hlásení HUD</string>
@@ -1175,13 +1177,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dieselový kamión</string>
     <string name="engine_preset_sampled_motorcycle">Malá krosová motorka</string>
     <string name="engine_preset_sampled_city_car">Mestské auto</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Kosačka</string>
     <string name="engine_preset_sampled_steam_loco">Parná lokomotíva</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Veľký diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Deravý výfuk</string>
-    <string name="engine_preset_sampled_quad_atv">Štvorkolka ATV</string>
 
     <string name="col_periodic">Pravidelne</string>
     <string name="col_trigger">Spúšťač</string>
@@ -2606,6 +2604,8 @@
     <string name="warnings_battery_opt_body">Android môže EUC Planet na pozadí zastaviť a ukončiť tak nahrávanie uprostred jazdy. Povoľte neobmedzený beh.</string>
     <string name="warnings_storage_full_title">Úložisko telefónu je plné</string>
     <string name="warnings_storage_full_body">Jazdy sa nedajú nahrávať a zmeny sa nedajú ukladať. Doterajšie jazdy sú v bezpečí. Uvoľnite miesto a pokračujte.</string>
+    <string name="warnings_settings_reset_title">Nastavenia sa vrátili na predvolené</string>
+    <string name="warnings_settings_reset_body">Súbor s nastaveniami bol poškodený, preto sa aplikácia spustila s predvolenými nastaveniami. Jázd a alarmov sa to netýka. Ak máte zálohu nastavení, obnovte ju.</string>
     <string name="warnings_hud_blocked_title">HUD v telefóne nemôže kresliť</string>
     <string name="warnings_hud_blocked_body">Povolenie zobrazovať cez iné aplikácie bolo odobraté, takže prekrytie sa nad mapami ani hudbou nezobrazí.</string>
     <string name="warnings_no_backup_title">Jazdy nie sú zálohované</string>
@@ -2788,14 +2788,14 @@
 
     <string name="crews_pass_action">Preukaz posádky</string>
     <string name="crews_pass_search_hint">Preukaz posádky sa zobrazí, keď sa pridáte do online rebríčkov.</string>
-    <string name="crews_scan_hint">Otvorte eucstats v prehliadači, ťuknite na Posádky a naskenujte zobrazený kód.</string>
+    <string name="crews_scan_hint">Otvorte eucstats v prehliadači, klepnite na Posádky a naskenujte zobrazený kód.</string>
     <string name="crews_scan_invalid">Toto nie je kód preukazu posádky.</string>
     <string name="crews_scan_is_share">Toto je kód na zdieľanie polohy naživo. Naskenujte ho cez Zdieľať na mape.</string>
     <string name="share_scan_is_crewpass">Toto je preukaz posádky. Naskenujte ho v Nastaveniach, v sekcii %1$s.</string>
     <string name="crews_type_instead">Zadať ručne</string>
     <string name="crews_code_label">Kód preukazu</string>
     <string name="crews_foreign_title">Tento kód nie je z eucstats</string>
-    <string name="crews_foreign_body">Táto žiadosť pochádza z %1$s, nie z eucstats. Vydaním preukazu by ste tomuto serveru dali prístup k vášmu účtu v rebríčku.\n\nAk chcete použiť vlastný server, najprv zapnite v Nastaveniach režim pre vývojárov.</string>
+    <string name="crews_foreign_body">Táto žiadosť pochádza z %1$s, nie z eucstats. Vydaním preukazu by ste tomuto serveru dali prístup k svojmu účtu v rebríčku.\n\nAk chcete použiť vlastný server, najprv zapnite v Nastaveniach režim pre vývojárov.</string>
     <string name="crews_scan_switch">Radšej naskenovať</string>
     <string name="crews_close">Zavrieť</string>
     <string name="crews_opensettings">Otvoriť nastavenia</string>
@@ -2808,7 +2808,7 @@
     <string name="crews_scope_admin">Administrátorská konzola</string>
     <string name="crews_grant">Vydajte tento preukaz, iba ak ste žiadosť podali sami.</string>
     <string name="crews_noprofile_title">Najprv sa pridajte do rebríčka</string>
-    <string name="crews_noprofile_body">Preukazy potrebujú profil v rebríčku a tento telefón ho zatiaľ nemá. Pripojte sa v sekcii %1$s a naskenujte znova.</string>
+    <string name="crews_noprofile_body">Preukazy potrebujú profil v rebríčku a tento telefón ho zatiaľ nemá. Pridajte sa v sekcii %1$s a naskenujte znova.</string>
     <string name="crews_issue">Povoliť</string>
     <string name="crews_notme">Zamietnuť</string>
     <string name="crews_ratelimited">Príliš veľa pokusov. Počkajte minútu a skúste to znova.</string>

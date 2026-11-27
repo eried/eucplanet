@@ -6,8 +6,12 @@ name: Branch builds
 # pre-release tagged `branch-<name>` with the freshly built assets.
 # Testers always get the latest commit by visiting the same release URL.
 #
+# The phone and watch APKs are shrunk builds (R8, like the release), not debug
+# builds: a quarter of the size and the speed a Play rider gets. The phone's
+# R8 mapping is kept as a workflow artifact for reading crash traces.
+#
 # Output naming (device-first, matching the Gradle module outputs
-# phone-debug.apk / wearos-debug.apk, and consistent with release-apk.yml):
+# phone-branch.apk / wearos-release.apk, and consistent with release-apk.yml):
 #   phone-<branch>-<short_sha>.apk
 #   wearos-<branch>-<short_sha>.apk
 #   hud-<branch>-<short_sha>.apk
@@ -122,14 +126,27 @@ jobs:
           echo "ANDROID_USER_HOME=$HOME/.android" >> "$GITHUB_ENV"
           echo "installed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Build debug APKs
+      - name: Build APKs
         # Build the phone APK on every branch. Build the wear + HUD APKs
         # too when the branch has their modules, so testers can grab the
         # whole stack from the same rolling release.
         run: |
-          targets=":app:assembleDebug"
+          # The phone goes out as the "branch" build type: shrunk like the
+          # release, signed with the shared branch key, still a dev build.
+          # A branch from before that build type existed keeps the debug one.
+          if grep -q 'create("branch")' app/build.gradle.kts; then
+            targets=":app:assembleBranch"
+          else
+            targets=":app:assembleDebug"
+          fi
           if [ -f wear/build.gradle.kts ]; then
-            targets="$targets :wear:assembleDebug"
+            # Same for the watch, once its release build signs with the
+            # debug key when there is no release keystore.
+            if grep -q 'No release keystore here' wear/build.gradle.kts; then
+              targets="$targets :wear:assembleRelease"
+            else
+              targets="$targets :wear:assembleDebug"
+            fi
           fi
           # The HUD goes out as a release build: a debug HUD starts two to
           # four times slower, which on a MotoEye is seconds of black screen.
@@ -146,9 +163,17 @@ jobs:
       - name: Rename APKs to canonical filenames
         run: |
           mkdir -p /tmp/out
-          cp app/build/outputs/apk/debug/phone-debug.apk \
-             "/tmp/out/phone-${{ needs.meta.outputs.suffix }}.apk"
-          if [ -f wear/build/outputs/apk/debug/wearos-debug.apk ]; then
+          if [ -f app/build/outputs/apk/branch/phone-branch.apk ]; then
+            cp app/build/outputs/apk/branch/phone-branch.apk \
+               "/tmp/out/phone-${{ needs.meta.outputs.suffix }}.apk"
+          else
+            cp app/build/outputs/apk/debug/phone-debug.apk \
+               "/tmp/out/phone-${{ needs.meta.outputs.suffix }}.apk"
+          fi
+          if [ -f wear/build/outputs/apk/release/wearos-release.apk ]; then
+            cp wear/build/outputs/apk/release/wearos-release.apk \
+               "/tmp/out/wearos-${{ needs.meta.outputs.suffix }}.apk"
+          elif [ -f wear/build/outputs/apk/debug/wearos-debug.apk ]; then
             cp wear/build/outputs/apk/debug/wearos-debug.apk \
                "/tmp/out/wearos-${{ needs.meta.outputs.suffix }}.apk"
           fi
@@ -181,6 +206,20 @@ jobs:
         with:
           name: android-${{ needs.meta.outputs.short_sha }}
           path: /tmp/out/*.apk
+          retention-days: 90
+
+      - name: Keep the phone's R8 mapping
+        # A crash trace from the shrunk build has shortened names. This file
+        # turns them back. Not in the release: it is far bigger than the APK.
+        # A branch without the shrunk build has no such file, and a problem
+        # with this upload must never hold back the release: asking for the
+        # file's hash here timed out on its size and did exactly that.
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
+        with:
+          name: mapping-${{ needs.meta.outputs.short_sha }}
+          path: app/build/outputs/mapping/branch/mapping.txt
+          if-no-files-found: ignore
           retention-days: 90
 
       - name: Stage for release
@@ -423,7 +462,7 @@ jobs:
           {
             echo "**Pre-release from branch \`${BRANCH}\`**, automatic build at \`${SHORT_SHA}\`."
             echo
-            echo "This is a CI-built debug APK. It can't update an existing Play Store install in place; uninstall the Play version first to install this build."
+            echo "This is a CI-built tester APK, signed with the branch key. It can't update an existing Play Store install in place; uninstall the Play version first to install this build."
             echo
             cat /tmp/branch-notes.md
             echo

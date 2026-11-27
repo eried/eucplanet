@@ -467,10 +467,14 @@ fun TripDetailScreen(
     // when we read) can't shrink the view.
     LaunchedEffect(trip.id, isLiveTrip) {
         if (isLiveTrip) {
+            // The first pass reads the whole file, each one after it only the
+            // rows the recorder has added since: see TripTail.
+            var tail: TripTail? = null
             while (isActive) {
                 delay(LIVE_REFRESH_MS)
-                val fresh = withContext(Dispatchers.IO) { viewModel.readTripData(trip) }
-                if (fresh.size > allPoints.size) allPoints = fresh
+                val next = withContext(Dispatchers.IO) { viewModel.readTripTail(trip, tail) }
+                tail = next
+                if (next.points.size > allPoints.size) allPoints = next.points
             }
         } else if (allPoints.isNotEmpty()) {
             // Recording just ended: pick up the final rows close() flushed after

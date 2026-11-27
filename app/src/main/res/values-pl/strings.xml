@@ -878,13 +878,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Ciężarówka diesel</string>
     <string name="engine_preset_sampled_motorcycle">Mały motocykl crossowy</string>
     <string name="engine_preset_sampled_city_car">Auto miejskie</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Kosiarka</string>
     <string name="engine_preset_sampled_steam_loco">Lokomotywa parowa</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Duży diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Zepsuty wydech</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Cyklicznie</string>
     <string name="col_trigger">Wyzwalane</string>
@@ -2009,7 +2005,9 @@
     <string name="warnings_battery_opt_title">Optymalizacja baterii jest włączona</string>
     <string name="warnings_battery_opt_body">Android może zatrzymać EUC Planet w tle i przerwać nagrywanie w trakcie jazdy. Zezwól na działanie bez ograniczeń.</string>
     <string name="warnings_storage_full_title">Pamięć telefonu jest pełna</string>
-    <string name="warnings_storage_full_body">Nie można nagrywać tras ani zapisywać zmian. Dotychczasowe jazdy są bezpieczne. Zwolnij miejsce, aby kontynuować.</string>
+    <string name="warnings_storage_full_body">Nie można nagrywać przejazdów ani zapisywać zmian. Dotychczasowe przejazdy są bezpieczne. Zwolnij miejsce, aby kontynuować.</string>
+    <string name="warnings_settings_reset_title">Ustawienia zostały zresetowane</string>
+    <string name="warnings_settings_reset_body">Plik ustawień był uszkodzony, więc aplikacja uruchomiła się z ustawieniami domyślnymi. Przejazdy i alarmy są nienaruszone. Przywróć kopię zapasową ustawień, jeśli ją masz.</string>
     <string name="warnings_hud_blocked_title">HUD na telefonie nie może się wyświetlać</string>
     <string name="warnings_hud_blocked_body">Cofnięto uprawnienie do wyświetlania nad innymi aplikacjami, więc nakładka nie pojawi się nad mapami ani muzyką.</string>
     <string name="warnings_no_backup_title">Przejazdy nie mają kopii zapasowej</string>
@@ -2295,6 +2293,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Częstotliwość GPS w gotowości, gdy nie nagrywasz ani nie nawigujesz, aby Nawigator i nowe połączenie z kołem były od razu gotowe. Wyższa wartość oszczędza baterię.</string>
     <string name="adv_gps_idle_off_delay">Wyłączanie GPS w spoczynku</string>
     <string name="adv_gps_idle_off_delay_desc">Gdy aplikacja działa w tle bez połączonego koła i bez nagrywania, GPS się wyłącza, aby oszczędzać baterię. 0 wyłącza go od razu; przy wyższej wartości GPS jeszcze przez ten czas działa w trybie oszczędnym, żeby szybkie przełączenie aplikacji go nie przerywało.</string>
+    <string name="adv_gps_parked_delay">Wolniejszy GPS na postoju</string>
+    <string name="adv_gps_parked_delay_desc">Gdy koło jest połączone, a aplikacja działa w tle, GPS przechodzi na interwał w spoczynku, kiedy koło stoi przez ten czas, albo od razu podczas ładowania. Pierwszy ruch przywraca pełne tempo. 0 nigdy go nie spowalnia.</string>
     <string name="adv_gps_fix_max_age">Maks. wiek pozycji GPS</string>
     <string name="adv_gps_fix_max_age_desc">Starsza pozycja liczy się jako brak pozycji, żeby nagranie rozpoczęte, zanim GPS będzie gotowy, nie zaczynało się od nieaktualnego punktu.</string>
     <string name="adv_pushonly_note">Niektóre urządzenia przesyłają dane z własną, stałą częstotliwością i ignorują te ustawienia: koła, które same wysyłają dane (Begode, Gotway, Veteran, KingSong), zewnętrzny GPS (RaceBox, Dragy), radar i przyciski Flic.</string>
@@ -2790,7 +2790,7 @@
     <string name="voice_stat_peak">Szczyt</string>
     <string name="crews_pass_action">Przepustka ekipy</string>
     <string name="crews_pass_search_hint">Przepustka ekipy pojawi się, gdy dołączysz do rankingów online.</string>
-    <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, stuknij Ekipy i zeskanuj wyświetlony kod.</string>
+    <string name="crews_scan_hint">Otwórz eucstats w przeglądarce, dotknij Ekipy i zeskanuj wyświetlony kod.</string>
     <string name="crews_scan_invalid">To nie jest kod przepustki ekipy.</string>
     <string name="crews_scan_is_share">To kod lokalizacji na żywo. Zeskanuj go przez Udostępnij na mapie.</string>
     <string name="share_scan_is_crewpass">To jest przepustka ekipy. Zeskanuj ją w Ustawieniach, w sekcji %1$s.</string>
@@ -2808,7 +2808,7 @@
     <string name="crews_access">Dostęp: %1$s</string>
     <string name="crews_scope_crew">Ekipy</string>
     <string name="crews_scope_admin">Konsola administratora</string>
-    <string name="crews_grant">Wydaj tę przepustkę tylko wtedy, gdy sam złożyłeś prośbę.</string>
+    <string name="crews_grant">Wydaj tę przepustkę tylko wtedy, gdy prośba pochodzi od Ciebie.</string>
     <string name="crews_noprofile_title">Najpierw dołącz do rankingu</string>
     <string name="crews_noprofile_body">Przepustki wymagają profilu w rankingu, a ten telefon jeszcze go nie ma. Dołącz w sekcji %1$s i zeskanuj ponownie.</string>
     <string name="crews_issue">Zezwól</string>

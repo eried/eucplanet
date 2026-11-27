@@ -10,11 +10,14 @@ import androidx.datastore.preferences.preferencesDataStore
 /** The settings file, `<app>/files/datastore/eucplanet_settings.preferences_pb`. */
 val Context.settingsDataStore: DataStore<Preferences>
         by preferencesDataStore(
-            name = "eucplanet_settings",
+            name = SettingsStore.FILE_NAME,
             // A damaged file (failing storage, a power cut mid-swap) made
             // every read throw, and the app crashed on each start. Start
             // from defaults instead; the rider can restore a backup.
-            corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+            corruptionHandler = ReplaceFileCorruptionHandler {
+                settingsFileDamaged()
+                emptyPreferences()
+            },
         )
 
 /**

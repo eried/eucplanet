@@ -63,7 +63,12 @@ class SettingsRepository(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /** One parse per change, shared by every watcher. See [shareSettings]. */
-    val settings: Flow<AppSettings> = shareSettings(store.settings.map { it.sanitized() }, scope)
+    // The store hands out the same parsed object until a setting is saved, so
+    // the clamp is worked out once per object too.
+    private val sanitizedOf =
+        com.eried.eucplanet.util.ByInstance<AppSettings, AppSettings> { it.sanitized() }
+
+    val settings: Flow<AppSettings> = shareSettings(store.settings.map { sanitizedOf.get(it) }, scope)
 
     // Completed by the store's first emission. DataStore has no synchronous
     // read, so until then [current] can only hold the defaults.
@@ -81,9 +86,21 @@ class SettingsRepository(
      * starts at process birth should use [currentOrLoad] so its first tick
      * does not act on them.
      */
-    val current: StateFlow<AppSettings> = settings
-        .onEach { firstLoad.complete(Unit) }
-        .stateIn(scope, SharingStarted.Eagerly, AppSettings().sanitized())
+    private val _current = kotlinx.coroutines.flow.MutableStateFlow(AppSettings().sanitized())
+    val current: StateFlow<AppSettings> = _current
+
+    init {
+        // The value first, then the signal. With the signal first (it used to
+        // be raised from an onEach ahead of the value), a caller of
+        // [currentOrLoad] woken by it could read [current] a moment before the
+        // loaded settings were in it and act on the defaults.
+        scope.launch {
+            settings.collect {
+                _current.value = it
+                firstLoad.complete(Unit)
+            }
+        }
+    }
 
     /** [current] once the store has been read at least once. Free after that. */
     suspend fun currentOrLoad(): AppSettings {
@@ -91,7 +108,7 @@ class SettingsRepository(
         return current.value
     }
 
-    suspend fun get(): AppSettings = store.get().sanitized()
+    suspend fun get(): AppSettings = sanitizedOf.get(store.get())
 
     suspend fun update(settings: AppSettings) {
         store.update(settings)

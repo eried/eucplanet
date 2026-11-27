@@ -28,15 +28,26 @@ import org.koin.core.component.get
  *   - SURVEY_CONNECT_VIRTUAL: start WheelService with VIRTUAL:<id> so there
  *     is live telemetry on the dashboard when the screenshots are captured.
  *   - SURVEY_SOUND: play one beep (kind=beep) or speak one line (kind=voice),
- *     so the warm-route timing can be checked on a machine with no alarm firing.
+ *     so the warm-route timing can be checked on a machine with no alarm firing;
+ *     kind=engine_decel plays the Settings preview of a throttle chop with the
+ *     engine picked (revs up, lets off, pops), which no virtual wheel rides.
  *   - SURVEY_SET: notif_actions (CSV) and warm_route_ms, the two settings the
  *     battery checks need to change without walking the settings screens;
+ *     adv="id=value,id=value" sets any Advanced setting by its registry id
+ *     (gpsParkedDelaySec=10, graphSampleIntervalMs=250...);
+ *     engine=<key> switches engine sound on with that engine ("V8_MUSCLE"...)
+ *     and engine=off switches it off;
  *     engo_fake_pair=true remembers made-up ENGO glasses (switched off, so
  *     nothing dials them) and false forgets them, so the glasses' page
  *     settings can be seen and screenshotted with no glasses.
  *   - SURVEY_IMPORT_SQUARE: copy /data/local/tmp/<file> (a .rd5 or .pmtiles
  *     square, made readable with chmod 644) into the offline folder, which
  *     adb cannot write as the app.
+ *   - SURVEY_STATS: log what the runtime has allocated and collected since
+ *     the process started (bytes, collections, milliseconds spent in them).
+ *     Two readings a known time apart give the allocation rate, which is the
+ *     only way to see a change that saves garbage and nothing else.
+ *   - SURVEY_DISCONNECT: drop the wheel link, like the Disconnect button.
  *   - SURVEY_START_NAV: put NavigationEngine into an active route without a
  *     geocoder, a network round trip or a single tap. It exists because the
  *     car screen used to die the moment a route went active, and proving that
@@ -62,14 +73,41 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
             ACTION_SURVEY_SOUND -> sound(intent.getStringExtra(EXTRA_KIND) ?: "beep")
             ACTION_SURVEY_SET -> set(context, intent)
             ACTION_SURVEY_IMPORT_SQUARE -> importSquare(intent.getStringExtra(EXTRA_FILE).orEmpty())
+            ACTION_SURVEY_STATS -> stats(intent.getStringExtra(EXTRA_KIND).orEmpty())
+            ACTION_SURVEY_FOLDER -> scope.launch {
+                val sync = get<com.eried.eucplanet.data.sync.SyncManager>()
+                // The folder is listed in one query by SafBackupFolder; this times it.
+                val t0 = System.nanoTime()
+                val sizes = sync.listFolderTripSizes(settingsRepository.get())
+                val ms = (System.nanoTime() - t0) / 1_000_000
+                Log.i(TAG, "SURVEY_FOLDER entries=${sizes?.size ?: -1} one_query_ms=$ms")
+            }
+            ACTION_SURVEY_DISCONNECT -> {
+                Log.i(TAG, "SURVEY_DISCONNECT")
+                get<com.eried.eucplanet.data.repository.WheelRepository>().disconnect()
+            }
         }
+    }
+
+    private fun stats(mark: String) {
+        fun stat(name: String) = android.os.Debug.getRuntimeStat(name)
+        Log.i(
+            TAG,
+            "SURVEY_STATS mark=$mark allocated=${stat("art.gc.bytes-allocated")} " +
+                "gc_count=${stat("art.gc.gc-count")} gc_time_ms=${stat("art.gc.gc-time")} " +
+                "threads=${Thread.activeCount()}"
+        )
     }
 
     private fun sound(kind: String) {
         Log.i(TAG, "SURVEY_SOUND $kind")
         scope.launch {
-            if (kind == "voice") voiceService.speak("Test")
-            else tonePlayer.playBeep(1000, 200, 1, 0, 80, -1, 0, 0)
+            when (kind) {
+                "voice" -> voiceService.speak("Test")
+                "engine_decel" -> get<com.eried.eucplanet.audio.EngineSoundEngine>()
+                    .previewProfile(settingsRepository.get().engineType, scenario = "DECEL")
+                else -> tonePlayer.playBeep(1000, 200, 1, 0, 80, -1, 0, 0)
+            }
             Log.i(TAG, "SURVEY_SOUND $kind done")
         }
     }
@@ -100,7 +138,39 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
                     hudDiscoveryMode = com.eried.eucplanet.data.model.HudDiscoveryMode.FIXED
                 )
                 intent.getStringExtra(EXTRA_HUD_SCREENS)?.let { n = n.copy(hudScreensEnabled = it) }
+                // How the HUD is found (AUTO, FIXED, BOTH), to exercise the
+                // beacon listener: the rows for it fold away while a HUD is linked.
+                intent.getStringExtra(EXTRA_HUD_MODE)
+                    ?.takeIf { it in com.eried.eucplanet.data.model.HudDiscoveryMode.VALUES }
+                    ?.let { n = n.copy(hudDiscoveryMode = it) }
+                intent.getStringExtra(EXTRA_ADV)?.split(',')?.forEach { pair ->
+                    val id = pair.substringBefore('=').trim()
+                    val value = pair.substringAfter('=', "").trim().toIntOrNull()
+                    val spec = com.eried.eucplanet.data.model.ADVANCED_SPECS.firstOrNull { it.id == id }
+                    if (spec != null && value != null) {
+                        n = n.copy(advanced = spec.set(n.advanced, value))
+                        Log.i(TAG, "SURVEY_SET adv $id=$value")
+                    } else {
+                        Log.w(TAG, "SURVEY_SET adv: cannot apply '$pair'")
+                    }
+                }
                 if (overlayJson != null) n = n.copy(hudCustomOverlayName = overlayName, hudCustomOverlayJson = overlayJson)
+                // The floating overlay over other apps, with a built-in preset
+                // ("Race", "Minimal"...); "off" switches it off. It also needs
+                // the draw-over-apps permission: appops set <pkg> SYSTEM_ALERT_WINDOW allow.
+                intent.getStringExtra(EXTRA_PHONE_HUD)?.let { name ->
+                    val json = runCatching {
+                        context.assets.open("overlay_presets/$name.json").bufferedReader().use { it.readText() }
+                    }.getOrNull()
+                    n = if (json == null) n.copy(phoneHudEnabled = false)
+                    else n.copy(phoneHudEnabled = true, phoneHudOverlayName = name, phoneHudOverlayJson = json)
+                }
+                // Engine sound with one engine by key, through the speaker and
+                // with the most pops on a throttle chop; "off" switches it off.
+                intent.getStringExtra(EXTRA_ENGINE)?.let { key ->
+                    n = if (key == "off") n.copy(engineSound = n.engineSound.copy(enabled = false))
+                    else n.copy(engineSound = n.engineSound.copy(enabled = true, type = key, decelChar = "BACKFIRE", headphonesOnly = false))
+                }
                 if (engo != null) n = n.copy(engoHud = n.engoHud.copy(
                     enabled = false,
                     pairedAddress = if (engo) "00:00:00:00:E3:60" else null,
@@ -209,6 +279,10 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
 
     companion object {
         const val ACTION_SURVEY_IMPORT_SQUARE = "com.eried.eucplanet.SURVEY_IMPORT_SQUARE"
+        const val ACTION_SURVEY_STATS = "com.eried.eucplanet.SURVEY_STATS"
+        /** Times the backup folder listing both ways and logs the two. */
+        const val ACTION_SURVEY_FOLDER = "com.eried.eucplanet.SURVEY_FOLDER"
+        const val ACTION_SURVEY_DISCONNECT = "com.eried.eucplanet.SURVEY_DISCONNECT"
         const val EXTRA_FILE = "file"
         private const val TAG = "SurveyReceiver"
 
@@ -222,7 +296,11 @@ class SurveyControlReceiver : BroadcastReceiver(), KoinComponent {
         const val EXTRA_NOTIF_ACTIONS = "notif_actions"
         const val EXTRA_WARM_ROUTE_MS = "warm_route_ms"
         const val EXTRA_HUD_IP = "hud_ip"
+        const val EXTRA_ADV = "adv"
         const val EXTRA_HUD_SCREENS = "hud_screens"
+        const val EXTRA_HUD_MODE = "hud_mode"
+        const val EXTRA_PHONE_HUD = "phone_hud"
+        const val EXTRA_ENGINE = "engine"
         const val EXTRA_HUD_OVERLAY = "hud_overlay"
         const val EXTRA_ENGO_FAKE_PAIR = "engo_fake_pair"
 

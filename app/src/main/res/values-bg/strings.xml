@@ -622,6 +622,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Честота на GPS в режим на готовност, когато не се записва и не се навигира, за да са готови Навигаторът и новото свързване с моноколелото. По-висока стойност пести батерия.</string>
     <string name="adv_gps_idle_off_delay">Изключване на GPS в покой</string>
     <string name="adv_gps_idle_off_delay_desc">Когато приложението е във фонов режим без свързано моноколело и без запис, GPS се изключва, за да пести батерия. 0 го изключва веднага; по-висока стойност първо поддържа икономичен сигнал толкова време, за да не се губи GPS при бързо превключване между приложения.</string>
+    <string name="adv_gps_parked_delay">По-бавен GPS при престой</string>
+    <string name="adv_gps_parked_delay_desc">Със свързано моноколело и приложение във фонов режим GPS минава на интервала в покой, щом моноколелото стои неподвижно толкова време, или веднага, докато се зарежда. Първото движение връща пълната честота. 0 никога не го забавя.</string>
     <string name="adv_gps_fix_max_age">Макс. възраст на GPS позиция</string>
     <string name="adv_gps_fix_max_age_desc">Позиция, по-стара от това, се счита за липсваща. Така запис, пуснат преди GPS да е готов, не започва със стара точка.</string>
     <string name="adv_hud_report_interval">Честота на отчети към HUD</string>
@@ -1175,13 +1177,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Дизелов камион</string>
     <string name="engine_preset_sampled_motorcycle">Малък крос мотор</string>
     <string name="engine_preset_sampled_city_car">Градски автомобил</string>
-    <string name="engine_preset_sampled_tractor">Трактор</string>
-    <string name="engine_preset_sampled_lawnmower">Косачка</string>
     <string name="engine_preset_sampled_steam_loco">Парен локомотив</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Голям дизел</string>
     <string name="engine_preset_sampled_broken_exhaust">Счупен ауспух</string>
-    <string name="engine_preset_sampled_quad_atv">ATV</string>
 
     <string name="col_periodic">Периодично</string>
     <string name="col_trigger">При задействане</string>
@@ -1736,7 +1734,7 @@
     <string name="alarm_section_voice">Глас</string>
     <string name="alarm_enable_voice">Включи гласа</string>
     <string name="alarm_voice_template">Шаблон на текста</string>
-    <string name="alarm_voice_template_help">Променливи: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Променливи: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_voice_default">Внимание! {metric} е {value}</string>
     <string name="alarm_section_vibrate">Вибрация</string>
     <string name="alarm_enable_vibrate">Включи вибрацията</string>
@@ -2602,7 +2600,9 @@
     <string name="warnings_battery_opt_title">Оптимизацията на батерията е включена</string>
     <string name="warnings_battery_opt_body">Android може да спре EUC Planet във фонов режим и да прекъсне запис по време на каране. Разрешете му да работи без ограничения.</string>
     <string name="warnings_storage_full_title">Паметта на телефона е пълна</string>
-    <string name="warnings_storage_full_body">Пътуванията не могат да се записват и промените не могат да се запазват. Досегашните карания са запазени. Освободете място, за да продължите.</string>
+    <string name="warnings_storage_full_body">Пътуванията не могат да се записват и промените не могат да се запазват. Досегашните пътувания са запазени. Освободете място, за да продължите.</string>
+    <string name="warnings_settings_reset_title">Настройките бяха нулирани</string>
+    <string name="warnings_settings_reset_body">Файлът с настройките беше повреден и приложението започна с настройките по подразбиране. Пътуванията и алармите не са засегнати. Възстановете настройките от архив, ако имате такъв.</string>
     <string name="warnings_hud_blocked_title">HUD на телефона е блокиран</string>
     <string name="warnings_hud_blocked_body">Разрешението за показване върху други приложения е отнето, затова наслагването няма да се показва върху карти или музика.</string>
     <string name="warnings_no_backup_title">Пътуванията не са архивирани</string>
@@ -2792,7 +2792,7 @@
     <string name="crews_type_instead">Въведи ръчно</string>
     <string name="crews_code_label">Код на пропуска</string>
     <string name="crews_foreign_title">Този код не е от eucstats</string>
-    <string name="crews_foreign_body">Тази заявка идва от %1$s, а не от eucstats. Издаването на пропуск ще даде на този сървър достъп до профила ви в класирането.\n\nЗа да използвате собствен сървър, първо включете режима за разработчици в Настройки.</string>
+    <string name="crews_foreign_body">Тази заявка идва от %1$s, а не от eucstats. Издаването на пропуск ще даде на този сървър достъп до профила ви в класацията.\n\nЗа да използвате собствен сървър, първо включете режима за разработчици в Настройки.</string>
     <string name="crews_scan_switch">Сканирай кода</string>
     <string name="crews_close">Затвори</string>
     <string name="crews_opensettings">Отвори настройките</string>
@@ -2805,7 +2805,7 @@
     <string name="crews_scope_admin">Администраторска конзола</string>
     <string name="crews_grant">Издайте този пропуск само ако сами сте направили заявката.</string>
     <string name="crews_noprofile_title">Първо се включете в класацията</string>
-    <string name="crews_noprofile_body">Пропуските изискват профил в класирането, а този телефон още няма такъв. Присъединете се в %1$s и сканирайте отново.</string>
+    <string name="crews_noprofile_body">Пропуските изискват профил в класацията, а този телефон още няма такъв. Включете се в %1$s и сканирайте отново.</string>
     <string name="crews_issue">Разреши</string>
     <string name="crews_notme">Откажи</string>
     <string name="crews_ratelimited">Твърде много опити. Изчакайте минута и опитайте отново.</string>
@@ -2894,7 +2894,7 @@
     <string name="offline_data_update_all">Обнови всички (%1$d)</string>
     <string name="offline_data_update">Обнови</string>
     <string name="offline_data_wifi_updates">Седмично обновяване през Wi-Fi</string>
-    <string name="offline_data_check_now">Проверка за обновления</string>
+    <string name="offline_data_check_now">Провери за обновления</string>
     <string name="offline_data_all_current">Всички ваши зони са актуални.</string>
     <plurals name="offline_data_updates_found">
         <item quantity="one">%1$d зона може да се обнови.</item>

@@ -878,13 +878,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
     <string name="engine_preset_sampled_motorcycle">Petite moto cross</string>
     <string name="engine_preset_sampled_city_car">Citadine</string>
-    <string name="engine_preset_sampled_tractor">Tracteur</string>
-    <string name="engine_preset_sampled_lawnmower">Tondeuse</string>
     <string name="engine_preset_sampled_steam_loco">Locomotive à vapeur</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Gros diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Échappement cassé</string>
-    <string name="engine_preset_sampled_quad_atv">Quad</string>
 
     <string name="col_periodic">Périodique</string>
     <string name="col_trigger">Déclenché</string>
@@ -1372,7 +1368,9 @@
     <string name="warnings_battery_opt_title">L\'optimisation de la batterie est active</string>
     <string name="warnings_battery_opt_body">Android peut arrêter EUC Planet en arrière-plan et couper un enregistrement en plein trajet. Autorisez-le à fonctionner sans restriction.</string>
     <string name="warnings_storage_full_title">Le stockage du téléphone est plein</string>
-    <string name="warnings_storage_full_body">Impossible d\'enregistrer les trajets et les modifications. Les trajets jusqu\'ici sont en sécurité. Libérez de l\'espace pour continuer.</string>
+    <string name="warnings_storage_full_body">Impossible d\'enregistrer les trajets et les modifications. Les trajets déjà enregistrés sont en sécurité. Libérez de l\'espace pour continuer.</string>
+    <string name="warnings_settings_reset_title">Les paramètres ont été réinitialisés</string>
+    <string name="warnings_settings_reset_body">Le fichier des paramètres était endommagé, l\'appli a donc démarré avec les valeurs par défaut. Les trajets et les alarmes ne sont pas touchés. Restaurez une sauvegarde des paramètres si vous en avez une.</string>
     <string name="warnings_hud_blocked_title">Le HUD du téléphone ne peut pas s\'afficher</string>
     <string name="warnings_hud_blocked_body">L\'autorisation d\'afficher par-dessus les autres applications a été retirée : l\'overlay n\'apparaîtra pas sur les cartes ou la musique.</string>
     <string name="warnings_no_backup_title">Les trajets ne sont pas sauvegardés</string>
@@ -2300,6 +2298,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Cadence du GPS gardé en veille hors enregistrement et navigation, pour que le Navigateur et une roue tout juste connectée soient prêts tout de suite. Une valeur plus élevée économise la batterie.</string>
     <string name="adv_gps_idle_off_delay">GPS coupé au repos</string>
     <string name="adv_gps_idle_off_delay_desc">Quand l\'application est en arrière-plan sans roue connectée et sans enregistrement, le GPS s\'éteint pour économiser la batterie. 0 l\'éteint aussitôt ; une valeur plus élevée garde d\'abord le GPS en basse consommation pendant ce temps, pour qu\'un passage rapide à une autre application ne coupe pas le GPS.</string>
+    <string name="adv_gps_parked_delay">GPS ralenti à l\'arrêt</string>
+    <string name="adv_gps_parked_delay_desc">Avec une roue connectée et l\'application en arrière-plan, le GPS passe à l\'intervalle au repos quand la roue est immobile depuis ce délai, ou aussitôt pendant la charge. Le premier mouvement rétablit le rythme complet. 0 ne le ralentit jamais.</string>
     <string name="adv_gps_fix_max_age">Âge max. du point GPS</string>
     <string name="adv_gps_fix_max_age_desc">Une position plus ancienne est considérée comme absente, pour qu\'un enregistrement lancé avant que le GPS soit prêt ne commence pas par un point périmé.</string>
     <string name="adv_pushonly_note">Certains appareils diffusent à leur propre cadence fixe et ignorent ces réglages : roues en diffusion seule (Begode, Gotway, Veteran, KingSong), GPS externe (RaceBox, Dragy), radar et boutons Flic.</string>
@@ -2792,7 +2792,7 @@
     <string name="voice_stat_peak">Pic</string>
     <string name="crews_pass_action">Pass crew</string>
     <string name="crews_pass_search_hint">Le pass crew apparaît une fois que vous rejoignez les classements en ligne.</string>
-    <string name="crews_scan_hint">Ouvrez eucstats dans un navigateur, touchez Crews et scannez le code affiché.</string>
+    <string name="crews_scan_hint">Ouvrez eucstats dans un navigateur, appuyez sur Crews et scannez le code affiché.</string>
     <string name="crews_scan_invalid">Ce n\'est pas un code de pass crew.</string>
     <string name="crews_scan_is_share">C\'est un code de position en direct. Scannez-le depuis Partager sur la carte.</string>
     <string name="share_scan_is_crewpass">C\'est un pass crew. Scannez-le depuis Paramètres, dans %1$s.</string>
@@ -2812,7 +2812,7 @@
     <string name="crews_scope_admin">Console d\'administration</string>
     <string name="crews_grant">Ne délivrez ce pass que si vous avez fait la demande vous-même.</string>
     <string name="crews_noprofile_title">Rejoignez d\'abord le classement</string>
-    <string name="crews_noprofile_body">Les pass nécessitent un profil au classement, et ce téléphone n\'en a pas encore. Rejoignez-le dans %1$s, puis scannez à nouveau.</string>
+    <string name="crews_noprofile_body">Les pass nécessitent un profil de classement, et ce téléphone n\'en a pas encore. Rejoignez le classement dans %1$s, puis scannez à nouveau.</string>
     <string name="crews_issue">Autoriser</string>
     <string name="crews_notme">Refuser</string>
     <string name="crews_ratelimited">Trop de tentatives. Attendez une minute et réessayez.</string>

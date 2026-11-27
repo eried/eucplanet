@@ -1,6 +1,7 @@
 package com.eried.eucplanet.di
 
 import android.content.Context
+import androidx.datastore.preferences.preferencesDataStoreFile
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.datastore.core.DataStore
@@ -54,12 +55,23 @@ object AppModule {
         dataStore: DataStore<Preferences>,
         health: AppHealthRepository,
     ): SettingsStore {
+        // Looked at before the store first opens the file.
+        val fileThere = context.preferencesDataStoreFile(SettingsStore.FILE_NAME)
+            .let { it.exists() && it.length() > 0 }
         val store = SettingsStore(
             dataStore,
             startingUnits = { androidStartingUnits(context) },
             onWriteFailed = { health.noteSettingNotSaved(it) },
+            onReset = { health.noteSettingsReset() },
+            fileWasThere = fileThere,
         )
-        copyLegacyRoomSettingsIfPresent(context, store)
+        // The copy from the old database only matters while there is no
+        // settings file yet. The file is written on the first start and is
+        // there on every one after it, and the check used to open the database
+        // and query it on each of those starts all the same.
+        if (!context.preferencesDataStoreFile(SettingsStore.FILE_NAME).exists()) {
+            copyLegacyRoomSettingsIfPresent(context, store)
+        }
         // After the legacy migration: if DataStore is still empty this is a
         // genuine fresh install, seed unit defaults from the device locale.
         // No-op for upgrading and existing users (their blob is already set).
@@ -315,6 +327,9 @@ object AppModule {
         } catch (t: Throwable) {
             if (t.isOutOfStorage()) {
                 Log.e(TAG, "DB open failed for lack of storage, $DB_NAME left untouched", t)
+                // The main screen says so and waits for room, in place of
+                // lists that would all come up empty.
+                com.eried.eucplanet.util.StorageStart.dataUnavailable.value = true
                 return first
             }
             Log.e(TAG, "DB open failed, keeping a copy of $DB_NAME before rebuilding", t)

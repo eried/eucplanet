@@ -824,83 +824,16 @@ class RecordingViewModel(
         }
     }
 
-    fun readTripData(trip: TripRecord): List<TripDataPoint> {
-        val points = mutableListOf<TripDataPoint>()
-        tripRepository.readTripLines(trip) { lines ->
-            val reader = lines.iterator()
-            val headerLine = if (reader.hasNext()) reader.next() else return@readTripLines
-            val headers = headerLine.lowercase().split(",").map { it.trim() }
+    fun readTripData(trip: TripRecord): List<TripDataPoint> =
+        tripRepository.readTripLines(trip) { lines -> TripCsvPoints.readAll(lines) } ?: emptyList()
 
-            // Format-tolerant column resolution (canonical EUC Planet /
-            // DarknessBot names first, EUC World aliases after) lives in
-            // TripCsv.Columns so every trip-CSV path resolves identically.
-            val iSpeed = TripCsv.Columns.speed(headers).takeIf { it >= 0 } ?: 1
-            val iVoltage = TripCsv.Columns.voltage(headers).takeIf { it >= 0 } ?: 2
-            val iTemp = TripCsv.Columns.temperature(headers).takeIf { it >= 0 } ?: 3
-            val iBattery = TripCsv.Columns.battery(headers).takeIf { it >= 0 } ?: 4
-            val iAltitude = TripCsv.Columns.altitude(headers).takeIf { it >= 0 } ?: 5
-            val iLat = TripCsv.Columns.latitude(headers).takeIf { it >= 0 } ?: 6
-            val iLon = TripCsv.Columns.longitude(headers).takeIf { it >= 0 } ?: 7
-            val iMileage = TripCsv.Columns.mileage(headers).takeIf { it >= 0 } ?: 8
-            // -1 when the column is absent (older trip files / foreign exports).
-            val iGpsSpeed = TripCsv.Columns.gpsSpeed(headers)
-            val iExtGps = headers.indexOfFirst { it.startsWith("ext gps") || it.startsWith("ext_gps") || it == "external gps speed" }
-            // -1 when absent, like gpsSpeed.
-            val iCurrent = TripCsv.Columns.current(headers)
-            val iPwm = TripCsv.Columns.pwm(headers)
-            val iTorque = TripCsv.Columns.torque(headers)
-            val iPhase = TripCsv.Columns.phaseCurrent(headers)
-            val iExtra = headers.indexOfFirst { it == "extra" }
-
-            while (reader.hasNext()) {
-                val line = reader.next()
-                try {
-                    val parts = line.split(",")
-                    if (parts.size > maxOf(iSpeed, iVoltage, iTemp, iBattery)) {
-                        val extRaw = if (iExtGps >= 0) parts.getOrNull(iExtGps)?.trim() else null
-                        val extSpeed = extRaw
-                            ?.takeIf { it.isNotEmpty() }
-                            ?.toFloatOrNull()
-                            ?: Float.NaN
-                        // Current / PWM are EUC Planet extensions; absent column or
-                        // blank cell both map to NaN ("not recorded").
-                        val current = if (iCurrent >= 0)
-                            parts.getOrNull(iCurrent)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
-                        else Float.NaN
-                        val pwm = if (iPwm >= 0)
-                            parts.getOrNull(iPwm)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
-                        else Float.NaN
-                        val torque = if (iTorque >= 0)
-                            parts.getOrNull(iTorque)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
-                        else Float.NaN
-                        val phase = if (iPhase >= 0)
-                            parts.getOrNull(iPhase)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
-                        else Float.NaN
-                        points.add(
-                            TripDataPoint(
-                                date = parts[0],
-                                speed = parts.getOrNull(iSpeed)?.toFloatOrNull() ?: 0f,
-                                voltage = parts.getOrNull(iVoltage)?.toFloatOrNull() ?: 0f,
-                                temperature = parts.getOrNull(iTemp)?.toFloatOrNull() ?: 0f,
-                                battery = parts.getOrNull(iBattery)?.toFloatOrNull()?.toInt() ?: 0,
-                                altitude = parts.getOrNull(iAltitude)?.toFloatOrNull() ?: 0f,
-                                latitude = parts.getOrNull(iLat)?.toDoubleOrNull() ?: 0.0,
-                                longitude = parts.getOrNull(iLon)?.toDoubleOrNull() ?: 0.0,
-                                totalMileage = parts.getOrNull(iMileage)?.toFloatOrNull() ?: 0f,
-                                gpsSpeed = if (iGpsSpeed >= 0) parts.getOrNull(iGpsSpeed)?.toFloatOrNull() ?: 0f else 0f,
-                                extGpsSpeed = extSpeed,
-                                current = current,
-                                pwm = pwm,
-                                torque = torque,
-                                phaseCurrent = phase,
-                                extra = if (iExtra >= 0) parts.getOrNull(iExtra)?.trim() ?: "" else ""
-                            )
-                        )
-                    }
-                } catch (_: Exception) { }
-            }
-        }
-        return points
+    /**
+     * The trip being recorded, read further: only the rows added since [tail]
+     * was read. A null [tail] is the first, whole read. See [TripTail].
+     */
+    fun readTripTail(trip: TripRecord, tail: TripTail?): TripTail {
+        val open = { tripRepository.openTripFile(trip) }
+        return tail?.advance(open) ?: TripTail.read(open)
     }
 
     /**

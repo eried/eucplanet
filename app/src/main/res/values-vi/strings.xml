@@ -587,6 +587,8 @@
     <string name="adv_phone_gps_idle_interval_desc">Tần suất giữ GPS sẵn sàng khi không ghi hay dẫn đường, để Dẫn đường và lúc xe vừa kết nối đều dùng được ngay. Giá trị cao tiết kiệm pin.</string>
     <string name="adv_gps_idle_off_delay">Tắt GPS sau khi rảnh</string>
     <string name="adv_gps_idle_off_delay_desc">Khi ứng dụng chạy nền, không kết nối xe và không ghi gì, GPS sẽ tắt để tiết kiệm pin. 0 là tắt ngay; giá trị cao hơn thì giữ định vị ở mức tiết kiệm pin thêm chừng đó thời gian, để chuyển nhanh sang ứng dụng khác không làm mất GPS.</string>
+    <string name="adv_gps_parked_delay">GPS chậm khi đỗ xe</string>
+    <string name="adv_gps_parked_delay_desc">Khi xe đang kết nối và ứng dụng chạy nền, GPS giảm xuống khoảng khi rảnh sau khi xe đứng yên chừng này thời gian, hoặc ngay lập tức trong lúc sạc. Xe vừa lăn bánh là trở lại tốc độ đầy đủ. 0 là không bao giờ giảm.</string>
     <string name="adv_gps_fix_max_age">Độ cũ tối đa của định vị GPS</string>
     <string name="adv_gps_fix_max_age_desc">Vị trí cũ hơn mức này được coi là chưa có định vị, để khi bạn bắt đầu ghi lúc GPS chưa sẵn sàng, chuyến đi không mở đầu bằng một điểm cũ.</string>
     <string name="adv_hud_report_interval">Tần suất gửi HUD</string>
@@ -1126,13 +1128,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Xe tải diesel</string>
     <string name="engine_preset_sampled_motorcycle">Xe cào cào nhỏ</string>
     <string name="engine_preset_sampled_city_car">Ô tô đô thị</string>
-    <string name="engine_preset_sampled_tractor">Máy kéo</string>
-    <string name="engine_preset_sampled_lawnmower">Máy cắt cỏ</string>
     <string name="engine_preset_sampled_steam_loco">Đầu máy hơi nước</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Diesel lớn</string>
     <string name="engine_preset_sampled_broken_exhaust">Ống xả thủng</string>
-    <string name="engine_preset_sampled_quad_atv">Xe ATV</string>
     <string name="col_periodic">Định kỳ</string>
     <string name="col_trigger">Kích hoạt</string>
     <string name="voice_trigger_reset_after">Đặt lại chỉ số sau báo cáo kích hoạt</string>
@@ -1645,7 +1643,7 @@
     <string name="alarm_section_voice">Giọng nói</string>
     <string name="alarm_enable_voice">Bật giọng nói</string>
     <string name="alarm_voice_template">Mẫu văn bản</string>
-    <string name="alarm_voice_template_help">Biến: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Biến: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_voice_default">Cảnh báo! {metric} ở mức {value}</string>
     <string name="alarm_section_vibrate">Rung</string>
     <string name="alarm_enable_vibrate">Bật rung</string>
@@ -2442,6 +2440,8 @@
     <string name="warnings_battery_opt_body">Android có thể dừng EUC Planet khi chạy nền, khiến bản ghi bị ngắt giữa chuyến. Hãy cho phép chạy không hạn chế.</string>
     <string name="warnings_storage_full_title">Bộ nhớ điện thoại đã đầy</string>
     <string name="warnings_storage_full_body">Không thể ghi chuyến đi và lưu thay đổi. Các chuyến đã đi vẫn an toàn. Hãy giải phóng dung lượng để tiếp tục.</string>
+    <string name="warnings_settings_reset_title">Cài đặt đã được đặt lại</string>
+    <string name="warnings_settings_reset_body">Tệp cài đặt bị hỏng nên ứng dụng khởi động với cài đặt mặc định. Chuyến đi và cảnh báo không bị ảnh hưởng. Hãy khôi phục bản sao lưu cài đặt nếu bạn có.</string>
     <string name="warnings_hud_blocked_title">HUD điện thoại không thể hiển thị</string>
     <string name="warnings_hud_blocked_body">Quyền hiển thị trên ứng dụng khác đã bị thu hồi, nên lớp phủ sẽ không hiện trên bản đồ hay trình phát nhạc.</string>
     <string name="warnings_no_backup_title">Chuyến đi chưa được sao lưu</string>
@@ -2631,14 +2631,14 @@
     <string name="crews_opensettings">Mở cài đặt</string>
     <string name="crews_dev_title">Chế độ nhà phát triển</string>
     <string name="crews_dev_body">Đang kết nối với %1$s thay vì máy chủ thông thường.</string>
-    <string name="crews_request_title">Yêu cầu thẻ</string>
-    <string name="crews_request_from">%1$s đang yêu cầu một thẻ.</string>
+    <string name="crews_request_title">Yêu cầu cấp thẻ</string>
+    <string name="crews_request_from">%1$s đang yêu cầu cấp thẻ.</string>
     <string name="crews_access">Quyền truy cập: %1$s</string>
     <string name="crews_scope_crew">Đội</string>
     <string name="crews_scope_admin">Bảng điều khiển quản trị</string>
     <string name="crews_grant">Chỉ cấp thẻ này nếu chính bạn đã gửi yêu cầu.</string>
     <string name="crews_noprofile_title">Hãy tham gia bảng xếp hạng trước</string>
-    <string name="crews_noprofile_body">Thẻ cần hồ sơ trên bảng xếp hạng, và điện thoại này chưa có. Hãy tham gia tại %1$s rồi quét lại.</string>
+    <string name="crews_noprofile_body">Cần có hồ sơ bảng xếp hạng mới cấp được thẻ, nhưng điện thoại này chưa có. Hãy tham gia tại %1$s rồi quét lại.</string>
     <string name="crews_issue">Cho phép</string>
     <string name="crews_notme">Từ chối</string>
     <string name="crews_ratelimited">Quá nhiều lần thử. Hãy đợi một phút rồi thử lại.</string>
@@ -2727,7 +2727,7 @@
     <string name="offline_data_update">Cập nhật</string>
     <string name="offline_data_wifi_updates">Cập nhật hằng tuần qua Wi-Fi</string>
     <string name="offline_data_check_now">Kiểm tra cập nhật</string>
-    <string name="offline_data_all_current">Mọi khu vực của bạn đều đã mới nhất.</string>
+    <string name="offline_data_all_current">Mọi khu vực của bạn đều đã là bản mới nhất.</string>
     <plurals name="offline_data_updates_found">
         <item quantity="other">Có thể cập nhật %1$d khu vực.</item>
     </plurals>

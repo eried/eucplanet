@@ -60,6 +60,22 @@ interface TripDao {
     @Query("UPDATE trips SET uploadStatus = 2, uploadedAt = :at WHERE id = :id")
     suspend fun markUploaded(id: Long, at: Long)
 
+    /**
+     * What a leaderboard upload learned, and nothing else on the row. The
+     * upload reads the trip, spends seconds on the network and then saves:
+     * saving the whole row it had read put back the old name of a trip renamed
+     * meanwhile, and the old backup mark of one whose backup had just landed.
+     */
+    @Query("UPDATE trips SET eucstatsStatus = :status, eucstatsUploadedAt = :at, " +
+        "eucstatsValidation = :validation WHERE id = :id")
+    suspend fun setEucstatsUploaded(id: Long, status: Int, at: Long?, validation: String?)
+
+    @Query("UPDATE trips SET eucstatsStatus = :status WHERE id = :id")
+    suspend fun setEucstatsStatus(id: Long, status: Int)
+
+    @Query("UPDATE trips SET eucstatsValidation = :validation WHERE id = :id")
+    suspend fun setEucstatsValidation(id: Long, validation: String?)
+
     /** Queue a finished ride for the folder and/or eucstats, touching nothing else on the row. */
     @Query("UPDATE trips SET uploadStatus = CASE WHEN :folder THEN 1 ELSE uploadStatus END, " +
         "eucstatsStatus = CASE WHEN :eucstats THEN 1 ELSE eucstatsStatus END WHERE id = :id")

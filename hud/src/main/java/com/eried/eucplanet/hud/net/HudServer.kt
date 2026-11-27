@@ -127,6 +127,9 @@ class HudServer(private val context: Context) {
     /** Connection state surfaced to the UI status banner. */
     enum class Status { LISTENING, CONNECTED }
 
+    /** The custom overlay the phone last sent, for the frames that leave it out. */
+    private val overlayKeeper = com.eried.eucplanet.hud.protocol.OverlayKeeper()
+
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
@@ -435,7 +438,11 @@ class HudServer(private val context: Context) {
                                     // no longer speaks for the phone.
                                     if (connSeq.get() != myConn) continue
                                     lastFrameAtMs = android.os.SystemClock.elapsedRealtime()
-                                    val s = json.decodeFromString<HudState>(frame.readText())
+                                    // A frame that left the custom overlay out
+                                    // gets back the one the HUD already has.
+                                    val s = overlayKeeper.restore(
+                                        json.decodeFromString<HudState>(frame.readText())
+                                    )
                                     // Major MUST be <= ours: a higher
                                     // major may include fields we can't
                                     // parse safely, so drop the frame

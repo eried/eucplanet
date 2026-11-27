@@ -856,6 +856,8 @@ class HudServer(
         val done = kotlinx.coroutines.CompletableDeferred<Boolean>()
         val listener = object : HudSocketEvents {
             private var sendJob: Job? = null
+            // One per connection: a new link starts by sending the overlay.
+            private val overlay = com.eried.eucplanet.hud.protocol.OverlaySender()
             /** True once this socket actually opened, so onFailure can tell an
              *  ESTABLISHED-link drop (a real interruption worth correlating with
              *  Wi-Fi) from a plain "couldn't find/connect to the HUD" dial miss. */
@@ -882,7 +884,14 @@ class HudServer(
                         // position, so keep GPS on while one is in the carousel.
                         if (isActive) phone.setMapLinked(HudScreens.hasMap(frame.enabledHudScreens))
                         try {
-                            if (!webSocket.send(json.encodeToString(frame))) {
+                            // The custom overlay rides along when it changed,
+                            // not in every frame, for a HUD that understands
+                            // "same as before". See OverlaySender.
+                            val out = overlay.stamp(
+                                frame, commandSink.hudProtocolMinor,
+                                (com.eried.eucplanet.platform.System.nanoTime() / 1_000_000L),
+                            )
+                            if (!webSocket.send(json.encodeToString(out))) {
                                 // OkHttp returns false when the outbound
                                 // queue is over its bound; treat as transport
                                 // failure so we reconnect.

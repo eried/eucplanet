@@ -874,13 +874,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Diesel-LKW</string>
     <string name="engine_preset_sampled_motorcycle">Kleine Crossmaschine</string>
     <string name="engine_preset_sampled_city_car">Kleinwagen</string>
-    <string name="engine_preset_sampled_tractor">Traktor</string>
-    <string name="engine_preset_sampled_lawnmower">Rasenmäher</string>
     <string name="engine_preset_sampled_steam_loco">Dampflok</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Großer Diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Kaputter Auspuff</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Regelmäßig</string>
     <string name="col_trigger">Ereignis</string>
@@ -1367,8 +1363,10 @@
     <string name="online_rejoin_body">Der Backup-Ordner enthält ein Profil, das für die Bestenliste verwendet wurde.\n\nFahrer-ID: %1$s</string>
     <string name="warnings_battery_opt_title">Akku-Optimierung ist aktiv</string>
     <string name="warnings_battery_opt_body">Android kann EUC Planet im Hintergrund beenden und eine Aufnahme mitten in der Fahrt abbrechen. Lass die App uneingeschränkt laufen.</string>
-    <string name="warnings_storage_full_title">Telefonspeicher ist voll</string>
-    <string name="warnings_storage_full_body">Fahrten können nicht aufgezeichnet und Änderungen nicht gespeichert werden. Bisherige Fahrten sind sicher. Gib Speicher frei, um fortzufahren.</string>
+    <string name="warnings_storage_full_title">Handyspeicher ist voll</string>
+    <string name="warnings_storage_full_body">Fahrten können nicht aufgezeichnet und Änderungen nicht gespeichert werden. Bisherige Fahrten sind sicher. Gib Speicherplatz frei, um fortzufahren.</string>
+    <string name="warnings_settings_reset_title">Einstellungen wurden zurückgesetzt</string>
+    <string name="warnings_settings_reset_body">Die Einstellungsdatei war beschädigt, deshalb ist die App mit den Standardwerten gestartet. Fahrten und Alarme sind nicht betroffen. Stelle ein Backup der Einstellungen wieder her, falls du eines hast.</string>
     <string name="warnings_hud_blocked_title">Handy-HUD kann nichts anzeigen</string>
     <string name="warnings_hud_blocked_body">Die Berechtigung zum Einblenden über anderen Apps wurde entzogen, daher erscheint das Overlay nicht über Karten oder Musik.</string>
     <string name="warnings_no_backup_title">Fahrten werden nicht gesichert</string>
@@ -2315,6 +2313,8 @@
     <string name="adv_phone_gps_idle_interval_desc">GPS-Rate, wenn weder aufgenommen noch navigiert wird, damit der Navigator und eine frische Wheel-Verbindung startklar bleiben. Höher spart Akku.</string>
     <string name="adv_gps_idle_off_delay">GPS aus bei Leerlauf</string>
     <string name="adv_gps_idle_off_delay_desc">Wenn die App im Hintergrund ist, kein Wheel verbunden ist und nichts aufgenommen wird, schaltet sich das GPS aus, um Akku zu sparen. 0 schaltet es sofort aus; ein höherer Wert hält das GPS erst noch so lange stromsparend bereit, damit es bei einem kurzen App-Wechsel nicht abreißt.</string>
+    <string name="adv_gps_parked_delay">GPS langsamer beim Parken</string>
+    <string name="adv_gps_parked_delay_desc">Ist ein Wheel verbunden und die App im Hintergrund, wechselt das GPS auf das Leerlauf-Intervall, sobald das Wheel so lange stillsteht, oder sofort, während es lädt. Die erste Bewegung bringt die volle Rate zurück. 0 verlangsamt es nie.</string>
     <string name="adv_gps_fix_max_age">Max. Alter GPS-Fix</string>
     <string name="adv_gps_fix_max_age_desc">Ist die Position älter, zählt sie nicht. So beginnt eine Aufnahme, die du startest, bevor das GPS bereit ist, nicht mit einem veralteten Punkt.</string>
     <string name="adv_pushonly_note">Manche Geräte senden mit ihrer eigenen festen Rate und ignorieren diese Einstellungen: Push-only-Wheels (Begode, Gotway, Veteran, KingSong), externes GPS (RaceBox, Dragy), Radar und Flic-Tasten.</string>
@@ -2826,7 +2826,7 @@
     <string name="crews_scope_admin">Admin-Konsole</string>
     <string name="crews_grant">Stelle diesen Pass nur aus, wenn du die Anfrage selbst gestellt hast.</string>
     <string name="crews_noprofile_title">Tritt erst der Bestenliste bei</string>
-    <string name="crews_noprofile_body">Pässe brauchen ein Bestenlisten-Profil, und dieses Telefon hat noch keins. Tritt unter %1$s bei und scanne dann erneut.</string>
+    <string name="crews_noprofile_body">Pässe brauchen ein Bestenlisten-Profil, und dieses Handy hat noch keins. Tritt unter %1$s bei und scanne dann erneut.</string>
     <string name="crews_issue">Erlauben</string>
     <string name="crews_notme">Ablehnen</string>
     <string name="crews_ratelimited">Zu viele Versuche. Warte eine Minute und probiere es noch mal.</string>

@@ -944,6 +944,7 @@ data class AppSettings(
     val phoneGpsIntervalMs: Int get() = advanced.phoneGpsIntervalMs
     val phoneGpsIdleIntervalMs: Int get() = advanced.phoneGpsIdleIntervalMs
     val gpsIdleOffDelaySec: Int get() = advanced.gpsIdleOffDelaySec
+    val gpsParkedDelaySec: Int get() = advanced.gpsParkedDelaySec
     val gpsFixMaxAgeSec: Int get() = advanced.gpsFixMaxAgeSec
     val hudReportIntervalMs: Int get() = advanced.hudReportIntervalMs
     val garminReportIntervalMs: Int get() = advanced.garminReportIntervalMs
@@ -1610,7 +1611,10 @@ data class AdvancedSettings(
     val tripRecordIntervalMs: Int = 1000,
     // Background safety-net interval for retrying trips left pending (e.g. app
     // closed mid-sync). Minutes -- 15 is Android's WorkManager periodic floor.
-    val pendingUploadIntervalMin: Int = 15,
+    // Six hours: trip end, app start and return to the app each start a pass
+    // of their own, so this only catches what all of those missed. It was 15,
+    // see NewDefaults for the installs that had that stored.
+    val pendingUploadIntervalMin: Int = 360,
     // Grace after a recording stops before the trip is finalized and synced.
     val tripFinalizeGraceMs: Int = 15000,
     // Speed (km/h) above which a lock command is refused, for safety.
@@ -1632,6 +1636,10 @@ data class AdvancedSettings(
     // recording/navigating) before the GPS is fully released. 0 = immediately;
     // during the grace GPS holds a cheap low-power fix, then goes off.
     val gpsIdleOffDelaySec: Int = 30,
+    // Seconds a connected wheel has to stand still, app hidden, before GPS
+    // slows to the idle interval (a charging wheel counts at once). 0 = never.
+    // See ParkedDetector and GpsTier.PARKED.
+    val gpsParkedDelaySec: Int = 120,
     // A GPS fix older than this (seconds) counts as "no fix", so a recording
     // that starts before GPS is ready never opens with a stale last-known point.
     val gpsFixMaxAgeSec: Int = 10,

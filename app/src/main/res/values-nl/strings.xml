@@ -878,13 +878,9 @@
     <string name="engine_preset_sampled_diesel_iveco">Dieseltruck</string>
     <string name="engine_preset_sampled_motorcycle">Kleine crossmotor</string>
     <string name="engine_preset_sampled_city_car">Stadsauto</string>
-    <string name="engine_preset_sampled_tractor">Tractor</string>
-    <string name="engine_preset_sampled_lawnmower">Grasmaaier</string>
     <string name="engine_preset_sampled_steam_loco">Stoomlocomotief</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">Grote diesel</string>
     <string name="engine_preset_sampled_broken_exhaust">Kapotte uitlaat</string>
-    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
 
     <string name="col_periodic">Periodiek</string>
     <string name="col_trigger">Trigger</string>
@@ -1370,6 +1366,8 @@
     <string name="warnings_battery_opt_body">Android kan EUC Planet op de achtergrond stoppen en een opname midden in de rit afbreken. Laat de app onbeperkt draaien.</string>
     <string name="warnings_storage_full_title">Telefoonopslag is vol</string>
     <string name="warnings_storage_full_body">Ritten kunnen niet worden opgenomen en wijzigingen niet opgeslagen. De ritten tot nu toe zijn veilig. Maak ruimte vrij om door te gaan.</string>
+    <string name="warnings_settings_reset_title">Instellingen staan weer op standaard</string>
+    <string name="warnings_settings_reset_body">Het instellingenbestand was beschadigd, dus de app is gestart met de standaardwaarden. Ritten en alarmen zijn niet geraakt. Zet een back-up van de instellingen terug als je er een hebt.</string>
     <string name="warnings_hud_blocked_title">Telefoon-HUD kan niet tekenen</string>
     <string name="warnings_hud_blocked_body">De toestemming om over andere apps te tekenen is ingetrokken, dus de overlay verschijnt niet boven kaarten of muziek.</string>
     <string name="warnings_no_backup_title">Ritten worden niet geback-upt</string>
@@ -2295,6 +2293,8 @@
     <string name="adv_phone_gps_idle_interval_desc">GPS-snelheid als er niet wordt opgenomen of genavigeerd, zodat de Navigator en een nieuwe wielverbinding direct klaar zijn. Hoger spaart de batterij.</string>
     <string name="adv_gps_idle_off_delay">GPS uit bij inactiviteit</string>
     <string name="adv_gps_idle_off_delay_desc">Als de app op de achtergrond staat zonder verbonden wiel en zonder opname, gaat de GPS uit om batterij te sparen. 0 schakelt hem meteen uit; hoger houdt de GPS eerst nog zo lang zuinig aan, zodat snel wisselen van app de GPS niet onderbreekt.</string>
+    <string name="adv_gps_parked_delay">Tragere GPS bij stilstand</string>
+    <string name="adv_gps_parked_delay_desc">Met een wiel verbonden en de app op de achtergrond gaat de GPS naar het interval bij inactiviteit zodra het wiel zo lang stilstaat, of meteen tijdens het laden. De eerste beweging brengt het volle tempo terug. 0 vertraagt hem nooit.</string>
     <string name="adv_gps_fix_max_age">Max. leeftijd GPS-fix</string>
     <string name="adv_gps_fix_max_age_desc">Een positie ouder dan dit telt als geen positie, zodat een opname die start voordat de GPS klaar is niet met een verouderd punt begint.</string>
     <string name="adv_pushonly_note">Sommige apparaten streamen op hun eigen vaste snelheid en negeren deze instellingen: push-only wielen (Begode, Gotway, Veteran, KingSong), externe GPS (RaceBox, Dragy), radar en Flic-knoppen.</string>
@@ -2795,7 +2795,7 @@
     <string name="crews_type_instead">Handmatig invoeren</string>
     <string name="crews_code_label">Pascode</string>
     <string name="crews_foreign_title">Deze code komt niet van eucstats</string>
-    <string name="crews_foreign_body">Deze aanvraag komt van %1$s, niet van eucstats. Een pas uitgeven geeft die server toegang tot je ranglijstaccount.\n\nWil je je eigen server gebruiken, zet dan eerst de ontwikkelaarsmodus aan in Instellingen.</string>
+    <string name="crews_foreign_body">Deze aanvraag komt van %1$s, niet van eucstats. Een pas uitgeven geeft die server toegang tot je klassementsaccount.\n\nWil je je eigen server gebruiken, zet dan eerst de ontwikkelaarsmodus aan in Instellingen.</string>
     <string name="crews_scan_switch">Liever scannen</string>
     <string name="crews_close">Sluiten</string>
     <string name="crews_opensettings">Instellingen openen</string>
@@ -2808,7 +2808,7 @@
     <string name="crews_scope_admin">Beheerconsole</string>
     <string name="crews_grant">Geef deze pas alleen uit als je de aanvraag zelf hebt gedaan.</string>
     <string name="crews_noprofile_title">Doe eerst mee aan het klassement</string>
-    <string name="crews_noprofile_body">Passen hebben een ranglijstprofiel nodig, en deze telefoon heeft er nog geen. Doe mee via %1$s en scan daarna opnieuw.</string>
+    <string name="crews_noprofile_body">Passen hebben een klassementsprofiel nodig, en deze telefoon heeft er nog geen. Doe mee via %1$s en scan daarna opnieuw.</string>
     <string name="crews_issue">Toestaan</string>
     <string name="crews_notme">Weigeren</string>
     <string name="crews_ratelimited">Te veel pogingen. Wacht een minuut en probeer het opnieuw.</string>
@@ -2934,7 +2934,7 @@
     <string name="offline_data_update">Bijwerken</string>
     <string name="offline_data_wifi_updates">Wekelijks bijwerken via wifi</string>
     <string name="offline_data_check_now">Controleren op updates</string>
-    <string name="offline_data_all_current">Al je gebieden zijn bijgewerkt.</string>
+    <string name="offline_data_all_current">Al je gebieden zijn up-to-date.</string>
     <plurals name="offline_data_updates_found">
         <item quantity="one">%1$d gebied kan worden bijgewerkt.</item>
         <item quantity="other">%1$d gebieden kunnen worden bijgewerkt.</item>

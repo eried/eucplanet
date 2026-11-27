@@ -7,6 +7,8 @@ import com.eried.eucplanet.data.model.GpsTier
 import com.eried.eucplanet.platform.Log
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
@@ -24,6 +26,9 @@ import platform.UIKit.UIApplicationWillEnterForegroundNotification
  *   best accuracy, every fix, kept running in the background.
  * - BALANCED (app in front, nothing recording): about 100 m, a fix every 25 m.
  * - LOW (the idle grace before OFF): about 1 km, a fix every 250 m.
+ * - PARKED (a connected wheel standing still or charging, app in the
+ *   background, see [ParkedDetector]): about 100 m, a fix every 25 m, still
+ *   kept running in the background so the first movement brings HIGH back.
  * - OFF (background, no wheel, not recording): updates stopped.
  *
  * Android's HIGH also honours the Advanced phone GPS interval; CoreLocation has
@@ -53,6 +58,9 @@ internal object IosGpsPower {
     private val navigating = MutableStateFlow(false)
     private val sharing = MutableStateFlow(false)
     private val hudMap = MutableStateFlow(false)
+    private val parkedDetector = com.eried.eucplanet.data.model.ParkedDetector()
+    private val parked = MutableStateFlow(false)
+    private var parkedDelaySec = 120
 
     /** Guidance is on (Android's TripRepository.setNavigating). */
     fun setNavigating(on: Boolean) {
@@ -101,10 +109,41 @@ internal object IosGpsPower {
         scope.launch { navigating.collect { recompute() } }
         scope.launch { sharing.collect { recompute() } }
         scope.launch { hudMap.collect { recompute() } }
-        scope.launch { IosAppGraph.wheel.connectionState.collect { recompute() } }
+        scope.launch {
+            IosAppGraph.wheel.connectionState.collect {
+                // Parked belongs to one connection: a wheel that just
+                // connected has to stand still for the full delay again.
+                if (it != ConnectionState.CONNECTED) {
+                    parkedDetector.reset()
+                    parked.value = false
+                }
+                recompute()
+            }
+        }
+        // Parked or not, from every frame, so the first one that moves brings
+        // the full rate back. The tier is only looked at again when it flips.
+        scope.launch {
+            IosAppGraph.wheel.wheelData
+                .map { data ->
+                    val status = IosAppGraph.wheel.chargeStatus.value
+                    parkedDetector.update(
+                        nowMs = (platform.Foundation.NSProcessInfo.processInfo.systemUptime * 1000).toLong(),
+                        moving = com.eried.eucplanet.service.AutoRecordPolicy.isMoving(data.speed),
+                        charging = status == com.eried.eucplanet.data.model.ChargeStatus.Charging ||
+                            status == com.eried.eucplanet.data.model.ChargeStatus.Full,
+                        stillMs = parkedDelaySec * 1000L,
+                    )
+                }
+                .distinctUntilChanged()
+                .collect { p ->
+                    parked.value = p && IosAppGraph.wheel.connectionState.value == ConnectionState.CONNECTED
+                    recompute()
+                }
+        }
         scope.launch {
             IosAppGraph.settings.settings.collect {
                 idleOffDelaySec = it.gpsIdleOffDelaySec.coerceAtLeast(0)
+                parkedDelaySec = it.gpsParkedDelaySec.coerceAtLeast(0)
                 recompute()
             }
         }
@@ -117,6 +156,7 @@ internal object IosGpsPower {
         appVisible = appVisible,
         sharing = sharing.value,
         hudMapLinked = hudMap.value,
+        parked = parked.value,
     )
 
     private fun recompute() {
@@ -124,7 +164,7 @@ internal object IosGpsPower {
         // CoreLocation keeps updates going in the background only when this was
         // allowed before the app left the front, so it follows what the policy
         // wants in the background, not the tier in force now.
-        IosLocation.keepInBackground(tier(appVisible = false) == GpsTier.HIGH)
+        IosLocation.keepInBackground(tier(appVisible = false).let { it == GpsTier.HIGH || it == GpsTier.PARKED })
         idleOff.decide(tier(visible.value), current, idleOffDelaySec, ::apply)
         followSignal()
     }
@@ -148,6 +188,7 @@ internal object IosGpsPower {
         when (tier) {
             GpsTier.OFF -> IosLocation.stopUpdates()
             GpsTier.HIGH -> IosLocation.startUpdates(BEST, NO_FILTER)
+            GpsTier.PARKED -> IosLocation.startUpdates(HUNDRED_METERS, 25.0)
             GpsTier.BALANCED -> IosLocation.startUpdates(HUNDRED_METERS, 25.0)
             GpsTier.LOW -> IosLocation.startUpdates(KILOMETER, 250.0)
         }

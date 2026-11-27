@@ -4,7 +4,7 @@ import com.eried.eucplanet.data.repository.AppNotices
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.onSubscription
 
 /**
  * App-global transient-notification bus.
@@ -33,12 +33,32 @@ class AppNotifier : AppNotices {
         extraBufferCapacity = 8,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
-    val messages: SharedFlow<String> = _messages.asSharedFlow()
+    // A lock and a deque where Android had a ConcurrentLinkedQueue, so the
+    // same code runs on the iPhone.
+    private val heldLock = kotlinx.atomicfu.locks.SynchronizedObject()
+    private val heldForStart = ArrayDeque<String>()
+
+    private fun takeHeld(): String? = kotlinx.atomicfu.locks.synchronized(heldLock) { heldForStart.removeFirstOrNull() }
+
+    val messages: SharedFlow<String> = _messages.onSubscription {
+        while (true) emit(takeHeld() ?: break)
+    }
 
     /** Post a transient message to the root snackbar host. No-op-safe from
      *  any thread; never blocks. */
     override fun post(message: String) {
         if (message.isBlank()) return
         _messages.tryEmit(message)
+    }
+
+    /**
+     * A notice about something found while the app was starting, before any
+     * screen is there to show it. [post] would drop it: nobody is listening
+     * yet. This one waits for the first screen. Only for what the rider must
+     * be told about this start; anything else would turn up stale.
+     */
+    fun postForStart(message: String) {
+        if (message.isBlank()) return
+        if (_messages.subscriptionCount.value > 0) _messages.tryEmit(message) else kotlinx.atomicfu.locks.synchronized(heldLock) { heldForStart.addLast(message) }
     }
 }

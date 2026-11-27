@@ -77,7 +77,9 @@ class EucPlanetApp : Application(), Configuration.Provider {
         hudServer = get()
         syncManager = get()
         legalLockdown = get()
-        CrashHandler.install(this)
+        CrashHandler.install(this) {
+            get<com.eried.eucplanet.data.repository.AppHealthRepository>().noteStorageFull()
+        }
         // Track UI foreground so background-only process wakes (a periodic
         // upload worker re-creating the process) don't auto-connect hardware
         // like the external GPS box. See com.eried.eucplanet.util.AppForeground.
@@ -122,6 +124,7 @@ class EucPlanetApp : Application(), Configuration.Provider {
             kotlinx.coroutines.flow.flow {
                 emitAll(get<com.eried.eucplanet.data.repository.TripRepository>().lastKnownLocation)
             }.map { it?.let { l -> com.eried.eucplanet.data.model.GeoPoint(l.latitude, l.longitude) } },
+            com.eried.eucplanet.util.AppForeground.isForeground,
         )
         // Legal Mode Lockdown stops service mode too. DiagnosticsLogger is an
         // object with no injection, so the armed state is mirrored onto it here,

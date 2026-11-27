@@ -82,7 +82,15 @@ class HudCommandSink(
         _hudVersionCode.value = 0
         _hudBuild.value = ""
         _hudTakesApp.value = false
+        hudProtocolMinor = 0
     }
+
+    /** The linked HUD's protocol minor, 0 until its greeting arrives and
+     *  again once it is gone. The send loop reads it to decide what an older
+     *  HUD must still be sent in full. */
+    @kotlin.concurrent.Volatile
+    var hudProtocolMinor: Int = 0
+        private set
 
     fun dispatch(cmd: HudCommand) {
         when (cmd) {
@@ -97,6 +105,7 @@ class HudCommandSink(
                 _hudVersionCode.value = cmd.hudVersionCode
                 _hudBuild.value = cmd.hudBuild
                 _hudTakesApp.value = HudAppPush.canReceive(major, cmd.hudProtocolMinor)
+                hudProtocolMinor = cmd.hudProtocolMinor
                 _hudEverConnected.value = true
                 // Also record the HUD's reported version in the shareable Service
                 // Mode log (not just logcat) so a tester's .txt shows which HUD

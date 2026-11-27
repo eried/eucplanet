@@ -87,6 +87,11 @@ class MemoryTripDao : TripDao {
         rows.value.filter { it.endTime != null && it.uploadStatus in setOf(1, 3, 4) }.sortedByDescending { it.startTime }
     override suspend fun markMirrorIfAbsent(id: Long) = edit({ it.id == id }) { it.copy(uploadStatus = 4) }
     override suspend fun setUploadStatus(id: Long, status: Int) = edit({ it.id == id }) { it.copy(uploadStatus = status) }
+    override suspend fun setEucstatsUploaded(id: Long, status: Int, at: Long?, validation: String?) =
+        edit({ it.id == id }) { it.copy(eucstatsStatus = status, eucstatsUploadedAt = at, eucstatsValidation = validation) }
+    override suspend fun setEucstatsStatus(id: Long, status: Int) = edit({ it.id == id }) { it.copy(eucstatsStatus = status) }
+    override suspend fun setEucstatsValidation(id: Long, validation: String?) =
+        edit({ it.id == id }) { it.copy(eucstatsValidation = validation) }
     override suspend fun markUploaded(id: Long, at: Long) = edit({ it.id == id }) { it.copy(uploadStatus = 2, uploadedAt = at) }
     override suspend fun markFinalized(id: Long, folder: Boolean, eucstats: Boolean) = edit({ it.id == id }) {
         it.copy(

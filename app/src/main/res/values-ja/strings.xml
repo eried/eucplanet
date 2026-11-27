@@ -874,13 +874,9 @@
     <string name="engine_preset_sampled_diesel_iveco">ディーゼルトラック</string>
     <string name="engine_preset_sampled_motorcycle">小型ダートバイク</string>
     <string name="engine_preset_sampled_city_car">シティカー</string>
-    <string name="engine_preset_sampled_tractor">トラクター</string>
-    <string name="engine_preset_sampled_lawnmower">芝刈り機</string>
     <string name="engine_preset_sampled_steam_loco">蒸気機関車</string>
     <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
-    <string name="engine_preset_sampled_big_diesel">大型ディーゼル</string>
     <string name="engine_preset_sampled_broken_exhaust">壊れたマフラー</string>
-    <string name="engine_preset_sampled_quad_atv">ATV バギー</string>
 
     <string name="col_periodic">定期</string>
     <string name="col_trigger">トリガー</string>
@@ -2004,8 +2000,10 @@
     <string name="warnings_location_services_title">スマホの位置情報がオフです</string>
     <string name="warnings_battery_opt_title">電池の最適化が有効です</string>
     <string name="warnings_battery_opt_body">Android がバックグラウンドで EUC Planet を停止し、走行中の記録が途切れることがあります。制限なしでの実行を許可してください。</string>
-    <string name="warnings_storage_full_title">スマートフォンのストレージがいっぱいです</string>
-    <string name="warnings_storage_full_body">走行を記録できず、変更も保存できません。これまでの走行は安全です。空き容量を作ると続行できます。</string>
+    <string name="warnings_storage_full_title">スマホのストレージがいっぱいです</string>
+    <string name="warnings_storage_full_body">トリップを記録できず、変更も保存できません。これまでのトリップは無事です。続けるには空き容量を増やしてください。</string>
+    <string name="warnings_settings_reset_title">設定がリセットされました</string>
+    <string name="warnings_settings_reset_body">設定ファイルが破損していたため、アプリは初期設定で起動しました。トリップとアラームに影響はありません。設定のバックアップがあれば復元してください。</string>
     <string name="warnings_hud_blocked_title">スマホ HUD を描画できません</string>
     <string name="warnings_hud_blocked_body">他のアプリの上に描画する権限が取り消されたため、マップや音楽の上にオーバーレイは表示されません。</string>
     <string name="warnings_no_backup_title">トリップがバックアップされていません</string>
@@ -2293,6 +2291,8 @@
     <string name="adv_phone_gps_idle_interval_desc">記録もナビもしていないときの GPS 更新間隔です。ナビゲーターを開いたときやホイールをつないだときにすぐ使えるよう、GPS を動かしたままにします。大きいほどバッテリーを節約できます。</string>
     <string name="adv_gps_idle_off_delay">アイドル時に GPS を切る</string>
     <string name="adv_gps_idle_off_delay_desc">アプリがバックグラウンドにあり、ホイールが未接続で記録もしていないときは、GPS を切ってバッテリーを節約します。0 にするとすぐに切ります。大きくすると、その時間だけ低電力で測位を続けるので、アプリを少し切り替えただけでは GPS が途切れません。</string>
+    <string name="adv_gps_parked_delay">駐輪中は GPS を遅くする</string>
+    <string name="adv_gps_parked_delay_desc">ホイールを接続したままアプリがバックグラウンドにあるとき、ホイールがこの時間止まっているか充電中であれば、GPS をアイドル間隔に落とします。動き出すとすぐに元の間隔に戻ります。0 にすると遅くしません。</string>
     <string name="adv_gps_fix_max_age">GPS 測位の最大経過時間</string>
     <string name="adv_gps_fix_max_age_desc">これより古い位置は測位なしとして扱います。GPS の準備ができる前に記録を始めても、古い地点から始まることがなくなります。</string>
     <string name="adv_pushonly_note">一部のデバイスは独自の固定レートで送信するため、これらの設定は適用されません: プッシュ専用のホイール（Begode、Gotway、Veteran、KingSong）、外部 GPS（RaceBox、Dragy）、レーダー、Flic ボタン。</string>
@@ -2792,7 +2792,7 @@
     <string name="crews_type_instead">手動で入力</string>
     <string name="crews_code_label">パスコード</string>
     <string name="crews_foreign_title">eucstats のコードではありません</string>
-    <string name="crews_foreign_body">このリクエストは eucstats ではなく %1$s から来ています。パスを発行すると、そのサーバーがランキングのアカウントにアクセスできるようになります。\n\n自分のサーバーを使うには、先に設定で開発者モードをオンにしてください。</string>
+    <string name="crews_foreign_body">このリクエストは eucstats ではなく %1$s から来ています。パスを発行すると、そのサーバーがリーダーボードのアカウントにアクセスできるようになります。\n\n自分のサーバーを使うには、先に設定で開発者モードをオンにしてください。</string>
     <string name="crews_scan_switch">スキャンする</string>
     <string name="crews_close">閉じる</string>
     <string name="crews_opensettings">設定を開く</string>
@@ -2805,7 +2805,7 @@
     <string name="crews_scope_admin">管理コンソール</string>
     <string name="crews_grant">自分でリクエストした場合のみ、このパスを発行してください。</string>
     <string name="crews_noprofile_title">先にリーダーボードに参加してください</string>
-    <string name="crews_noprofile_body">パスにはランキングのプロフィールが必要ですが、このスマートフォンにはまだありません。%1$s で参加してから、もう一度スキャンしてください。</string>
+    <string name="crews_noprofile_body">パスにはリーダーボードのプロフィールが必要ですが、このスマホにはまだありません。%1$s で参加してから、もう一度スキャンしてください。</string>
     <string name="crews_issue">許可</string>
     <string name="crews_notme">拒否</string>
     <string name="crews_ratelimited">試行回数が多すぎます。1 分ほど待ってからもう一度お試しください。</string>
@@ -2929,7 +2929,7 @@
     <string name="offline_data_update_all">すべて更新 (%1$d)</string>
     <string name="offline_data_update">更新</string>
     <string name="offline_data_wifi_updates">毎週 Wi-Fi で更新</string>
-    <string name="offline_data_check_now">アップデートを確認</string>
+    <string name="offline_data_check_now">更新を確認</string>
     <string name="offline_data_all_current">すべてのエリアが最新です。</string>
     <plurals name="offline_data_updates_found">
         <item quantity="other">%1$d 件のエリアを更新できます。</item>

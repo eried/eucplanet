@@ -223,7 +223,11 @@ internal class IosVoice(
 
     // AVSpeechSynthesizer needs no warm-up, and the periodic loop is the
     // RideSession's, started with the app.
-    override fun initialize() = Unit
+    // The iPhone's speech engine lives as long as the app, so nobody holds it:
+    // the window going leaves the voice to the ride, as Android's holders do.
+    override fun acquire(who: String) = Unit
+
+    override fun release(who: String) = Unit
 
     override fun recordTelemetry(data: WheelData) = reports.recordTelemetry(data)
 
